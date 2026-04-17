@@ -79,11 +79,6 @@ export function sortMissions(missions) {
 }
 
 export function buildMonthSummary(missions) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
   const counts = new Map();
 
   for (const mission of missions) {
@@ -91,11 +86,16 @@ export function buildMonthSummary(missions) {
       continue;
     }
 
-    const label = formatter.format(new Date(mission.launchAt));
-    counts.set(label, (counts.get(label) || 0) + 1);
+    const date = new Date(mission.launchAt);
+    const isoMonth = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+    counts.set(isoMonth, (counts.get(isoMonth) || 0) + 1);
   }
 
-  return Array.from(counts, ([label, count]) => ({ label, count }));
+  return Array.from(counts, ([isoMonth, count]) => ({
+    isoMonth,
+    label: isoMonth,
+    count,
+  }));
 }
 
 export function titleCase(value) {
