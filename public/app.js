@@ -9,7 +9,7 @@ const tracker = document.querySelector("#tracker");
 const missionsGrid = document.querySelector("#missions-grid");
 const refreshNote = document.querySelector("#refresh-note");
 const missionCardTemplate = document.querySelector("#mission-card-template");
-const icsLink = document.querySelector("#ics-link");
+const calendarLink = document.querySelector("#calendar-link");
 const icsUrl = document.querySelector("#ics-url");
 const webcalUrl = document.querySelector("#webcal-url");
 const metaDescription = document.querySelector("#meta-description");
@@ -27,7 +27,7 @@ const translations = {
       eyebrow: "ICS 订阅",
       title: "添加到 iCloud 日历",
       copy: "使用下面的订阅地址添加日历。部署到公网 HTTPS 域名后，iCloud / Apple Calendar 可以长期自动同步。",
-      openLink: "打开 ICS 订阅源",
+      subscribeLink: "订阅在线日历",
     },
     hero: {
       eyebrow: "实时日历源",
@@ -109,7 +109,7 @@ const translations = {
       eyebrow: "ICS Subscription",
       title: "Add to iCloud Calendar",
       copy: "Use the subscription links below to add this calendar. After deployment on a public HTTPS domain, iCloud and Apple Calendar can keep it synced automatically.",
-      openLink: "Open ICS feed",
+      subscribeLink: "Subscribe Calendar",
     },
     hero: {
       eyebrow: "Live Calendar Feed",
@@ -235,7 +235,7 @@ function updateSubscriptionLinks() {
   const webcalProtocol = "webcal:";
   const webcal = `${webcalProtocol}//${httpUrl.host}${httpUrl.pathname}`;
 
-  icsLink.href = httpUrl.toString();
+  calendarLink.href = webcal;
   icsUrl.textContent = httpUrl.toString();
   webcalUrl.textContent = webcal;
 }
