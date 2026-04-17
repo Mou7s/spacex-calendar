@@ -17,15 +17,15 @@ const translations = {
   "zh-CN": {
     meta: {
       title: "SpaceX 发射日历",
-      description: "订阅在线 ICS，把 SpaceX 发射计划直接加进你的 iCloud 日历。",
+      description: "订阅在线 ICS 日历，随时获取最新的 SpaceX 发射计划。",
     },
     header: {
-      copy: "订阅在线 ICS，把 SpaceX 发射计划直接加进你的 iCloud 日历。",
+      copy: "订阅在线 ICS 日历，随时获取最新的 SpaceX 发射计划。",
     },
     subscribe: {
       eyebrow: "ICS 订阅",
-      title: "添加到 iCloud 日历",
-      copy: "使用下面的订阅地址添加日历。部署到公网 HTTPS 域名后，iCloud / Apple Calendar 可以长期自动同步。",
+      title: "订阅在线日历",
+      copy: "使用下面的订阅地址添加日历。部署到公网 HTTPS 域名后，支持 ICS 订阅的日历应用都可以持续同步。",
       subscribeLink: "订阅在线日历",
     },
     hero: {
@@ -97,16 +97,16 @@ const translations = {
   en: {
     meta: {
       title: "SpaceX Launch Calendar",
-      description: "Subscribe to an online ICS feed and add upcoming SpaceX launches to your iCloud calendar.",
+      description: "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
     },
     header: {
-      copy: "Subscribe to an online ICS feed and add upcoming SpaceX launches to your iCloud calendar.",
+      copy: "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
     },
     subscribe: {
       eyebrow: "ICS Subscription",
-      title: "Add to iCloud Calendar",
-      copy: "Use the subscription links below to add this calendar. After deployment on a public HTTPS domain, iCloud and Apple Calendar can keep it synced automatically.",
-      subscribeLink: "Subscribe Calendar",
+      title: "Subscribe to Online Calendar",
+      copy: "Use the subscription links below to add this calendar. Once deployed on a public HTTPS domain, calendar apps with ICS subscription support can keep it synced automatically.",
+      subscribeLink: "Subscribe to Calendar",
     },
     hero: {
       eyebrow: "Live Calendar Feed",

@@ -101,7 +101,8 @@ dd,
 }
 
 .header-copy {
-  max-width: 360px;
+  max-width: none;
+  white-space: nowrap;
   margin: 0;
   text-align: right;
 }
@@ -402,6 +403,7 @@ dd {
   }
 
   .header-copy {
+    white-space: normal;
     text-align: left;
   }
 
