@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpaceX Calendar</title>
+    <meta
+      name="description"
+      content="A SpaceX-inspired launch calendar with live upcoming mission windows."
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="brand">
+          <span class="brand-mark">SPACEX</span>
+          <span class="brand-sub">CALENDAR</span>
+        </div>
+        <p class="header-copy">订阅在线 ICS，把 SpaceX 发射计划直接加进你的 iCloud 日历。</p>
+      </header>
+
+      <main>
+        <section class="subscribe-panel">
+          <div>
+            <p class="eyebrow">ICS Subscription</p>
+            <h2>添加到 iCloud 日历</h2>
+            <p class="section-copy">
+              使用下面的订阅地址添加日历。部署到公网 HTTPS 域名后，iCloud / Apple Calendar
+              可以长期自动同步。
+            </p>
+          </div>
+          <div class="subscribe-actions">
+            <a class="subscribe-link" id="ics-link" href="/spacex.ics">打开 ICS 订阅源</a>
+            <code class="subscribe-url" id="ics-url">/spacex.ics</code>
+            <code class="subscribe-url" id="webcal-url">webcal://your-domain/spacex.ics</code>
+          </div>
+        </section>
+
+        <section class="hero" id="hero">
+          <div class="hero-overlay"></div>
+          <div class="hero-copy">
+            <p class="eyebrow">Live Calendar Feed</p>
+            <h1 id="hero-title">Loading launch calendar</h1>
+            <p class="hero-description" id="hero-description">
+              正在拉取 SpaceX 官网当前使用的任务和发射窗口数据。
+            </p>
+            <div class="hero-meta">
+              <div class="meta-card">
+                <span class="meta-label">Next launch</span>
+                <strong id="next-window">Pending</strong>
+              </div>
+              <div class="meta-card">
+                <span class="meta-label">Feed endpoint</span>
+                <strong id="next-type">Pending</strong>
+              </div>
+              <div class="meta-card">
+                <span class="meta-label">Countdown</span>
+                <strong id="countdown">Syncing</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="overview-grid">
+          <article class="panel panel-wide">
+            <div class="panel-header">
+              <p class="eyebrow">Flight cadence</p>
+              <h2>Upcoming launch rhythm</h2>
+            </div>
+            <div class="month-strip" id="month-strip"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <p class="eyebrow">Status</p>
+              <h2>Launch tracker</h2>
+            </div>
+            <div class="tracker" id="tracker"></div>
+          </article>
+        </section>
+
+        <section class="section-header">
+          <div>
+            <p class="eyebrow">Manifest</p>
+            <h2>Upcoming missions</h2>
+          </div>
+          <p class="section-copy" id="refresh-note">Waiting for data</p>
+        </section>
+
+        <section class="missions-grid" id="missions-grid" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <template id="mission-card-template">
+      <article class="mission-card">
+        <div class="mission-image"></div>
+        <div class="mission-content">
+          <div class="mission-topline">
+            <span class="mission-badge"></span>
+            <span class="mission-type"></span>
+          </div>
+          <h3 class="mission-title"></h3>
+          <p class="mission-window"></p>
+          <dl class="mission-facts">
+            <div>
+              <dt>Vehicle</dt>
+              <dd class="vehicle"></dd>
+            </div>
+            <div>
+              <dt>Launch site</dt>
+              <dd class="launch-site"></dd>
+            </div>
+            <div>
+              <dt>Return site</dt>
+              <dd class="return-site"></dd>
+            </div>
+          </dl>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
