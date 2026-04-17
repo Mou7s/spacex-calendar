@@ -2,7 +2,6 @@ const hero = document.querySelector("#hero");
 const heroTitle = document.querySelector("#hero-title");
 const heroDescription = document.querySelector("#hero-description");
 const nextWindow = document.querySelector("#next-window");
-const nextType = document.querySelector("#next-type");
 const countdown = document.querySelector("#countdown");
 const monthStrip = document.querySelector("#month-strip");
 const tracker = document.querySelector("#tracker");
@@ -39,14 +38,12 @@ const translations = {
       unavailableDescription: "当前无法从 SpaceX 数据源拉取最新任务信息。",
       meta: {
         nextLaunch: "下一次发射",
-        feedEndpoint: "订阅地址",
         countdown: "倒计时",
       },
       pending: "等待中",
       syncing: "同步中",
       retryLater: "稍后再试",
       unavailable: "不可用",
-      endpoint: "/spacex.ics",
       nextLaunchDescription:
         "{vehicle} 从 {launchSite} 发射，并计划在 {returnSite} 回收。",
     },
@@ -121,14 +118,12 @@ const translations = {
       unavailableDescription: "The app could not reach the SpaceX mission feeds just now.",
       meta: {
         nextLaunch: "Next launch",
-        feedEndpoint: "Feed endpoint",
         countdown: "Countdown",
       },
       pending: "Pending",
       syncing: "Syncing",
       retryLater: "Retry later",
       unavailable: "Unavailable",
-      endpoint: "/spacex.ics",
       nextLaunchDescription:
         "{vehicle} from {launchSite} with recovery at {returnSite}.",
     },
@@ -442,7 +437,6 @@ function renderHero(nextLaunch) {
     heroTitle.textContent = t("hero.noMissionsTitle");
     heroDescription.textContent = t("hero.noMissionsDescription");
     nextWindow.textContent = t("mission.tbd");
-    nextType.textContent = t("hero.endpoint");
     countdown.textContent = t("hero.unavailable");
     return;
   }
@@ -454,7 +448,6 @@ function renderHero(nextLaunch) {
     returnSite: nextLaunch.returnSite || t("mission.recoveryPending"),
   });
   nextWindow.textContent = nextLaunch.launchAt ? formatDateTime(nextLaunch.launchAt) : t("mission.tbd");
-  nextType.textContent = t("hero.endpoint");
 
   if (nextLaunch.image) {
     hero.style.backgroundImage = `linear-gradient(180deg, rgba(3, 5, 8, 0.18), rgba(3, 5, 8, 0.92)), radial-gradient(circle at top, rgba(112, 133, 188, 0.24), transparent 34%), url("${nextLaunch.image}")`;
@@ -485,7 +478,6 @@ async function loadLaunches() {
     heroTitle.textContent = t("hero.unavailableTitle");
     heroDescription.textContent = t("hero.unavailableDescription");
     nextWindow.textContent = t("hero.retryLater");
-    nextType.textContent = t("hero.unavailable");
     countdown.textContent = t("hero.unavailable");
     missionsGrid.innerHTML = `<div class="empty-state">${error.message}</div>`;
   }
