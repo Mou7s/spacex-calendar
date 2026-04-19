@@ -374,7 +374,6 @@ function renderMissions(missions) {
     const type = fragment.querySelector(".mission-type");
     const title = fragment.querySelector(".mission-title");
     const windowText = fragment.querySelector(".mission-window");
-    const missionLink = fragment.querySelector(".mission-link");
     const vehicle = fragment.querySelector(".vehicle");
     const launchSite = fragment.querySelector(".launch-site");
     const returnSite = fragment.querySelector(".return-site");
@@ -388,11 +387,6 @@ function renderMissions(missions) {
     type.textContent = localizeMissionType(mission.missionType);
     title.textContent = mission.title;
     windowText.textContent = missionWindowCopy(mission);
-    missionLink.href = mission.missionUrl || "https://www.spacex.com/launches/";
-    missionLink.textContent =
-      mission.isLive || mission.callToAction === "WATCH"
-        ? t("mission.watchLive")
-        : t("mission.detailsLink");
     vehicle.textContent = mission.vehicle || t("mission.tbd");
     launchSite.textContent = mission.launchSite || t("mission.tbd");
     returnSite.textContent = mission.returnSite || t("mission.tbd");

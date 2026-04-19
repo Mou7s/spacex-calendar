@@ -230,14 +230,12 @@ h2 {
   margin-top: 28px;
 }
 
-.hero-actions,
-.mission-actions {
+.hero-actions {
   display: flex;
   margin-top: 18px;
 }
 
-.hero-link,
-.mission-link {
+.hero-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -254,9 +252,7 @@ h2 {
 }
 
 .hero-link:hover,
-.hero-link:focus-visible,
-.mission-link:hover,
-.mission-link:focus-visible {
+.hero-link:focus-visible {
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.4);
 }
