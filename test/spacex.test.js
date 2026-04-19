@@ -90,6 +90,7 @@ test("loadLaunchData merges SpaceX tiles and timing feeds", async () => {
 
   assert.equal(data.missions.length, 2);
   assert.equal(data.nextLaunch.title, "Starlink Mission");
+  assert.equal(data.missions[0].missionUrl, "https://www.spacex.com/launches/starlink-1/");
   assert.equal(data.missions[1].launchWindow.close, "2026-04-20T07:22:00.000Z");
 });
 
@@ -101,6 +102,8 @@ test("buildCalendarFeed emits valid VEVENT entries with DTEND when available", a
   assert.match(calendar, /END:VCALENDAR/);
   assert.match(calendar, /BEGIN:VEVENT/g);
   assert.match(calendar, /UID:ABC123@spacexcalendar\.local/);
+  assert.match(calendar, /LAST-MODIFIED:\d{8}T\d{6}Z/);
+  assert.match(calendar, /SEQUENCE:\d+/);
   assert.match(calendar, /DTEND:20260420T072200Z/);
 });
 

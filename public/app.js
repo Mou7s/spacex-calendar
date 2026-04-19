@@ -3,6 +3,7 @@ const heroTitle = document.querySelector("#hero-title");
 const heroDescription = document.querySelector("#hero-description");
 const nextWindow = document.querySelector("#next-window");
 const countdown = document.querySelector("#countdown");
+const heroMissionLink = document.querySelector("#hero-mission-link");
 const monthStrip = document.querySelector("#month-strip");
 const tracker = document.querySelector("#tracker");
 const missionsGrid = document.querySelector("#missions-grid");
@@ -70,6 +71,8 @@ const translations = {
       vehicle: "火箭",
       launchSite: "发射场",
       returnSite: "回收点",
+      watchLive: "观看直播",
+      detailsLink: "任务详情",
       emptyState: "实时数据源没有返回 upcoming SpaceX 任务。",
       live: "直播中",
       unspecified: "未说明",
@@ -150,6 +153,8 @@ const translations = {
       vehicle: "Vehicle",
       launchSite: "Launch site",
       returnSite: "Return site",
+      watchLive: "Watch Live",
+      detailsLink: "Mission Page",
       emptyState: "No upcoming SpaceX missions were returned by the live data feed.",
       live: "Live",
       unspecified: "Unspecified",
@@ -369,6 +374,7 @@ function renderMissions(missions) {
     const type = fragment.querySelector(".mission-type");
     const title = fragment.querySelector(".mission-title");
     const windowText = fragment.querySelector(".mission-window");
+    const missionLink = fragment.querySelector(".mission-link");
     const vehicle = fragment.querySelector(".vehicle");
     const launchSite = fragment.querySelector(".launch-site");
     const returnSite = fragment.querySelector(".return-site");
@@ -382,6 +388,11 @@ function renderMissions(missions) {
     type.textContent = localizeMissionType(mission.missionType);
     title.textContent = mission.title;
     windowText.textContent = missionWindowCopy(mission);
+    missionLink.href = mission.missionUrl || "https://www.spacex.com/launches/";
+    missionLink.textContent =
+      mission.isLive || mission.callToAction === "WATCH"
+        ? t("mission.watchLive")
+        : t("mission.detailsLink");
     vehicle.textContent = mission.vehicle || t("mission.tbd");
     launchSite.textContent = mission.launchSite || t("mission.tbd");
     returnSite.textContent = mission.returnSite || t("mission.tbd");
@@ -438,6 +449,8 @@ function renderHero(nextLaunch) {
     heroDescription.textContent = t("hero.noMissionsDescription");
     nextWindow.textContent = t("mission.tbd");
     countdown.textContent = t("hero.unavailable");
+    heroMissionLink.href = "https://www.spacex.com/launches/";
+    heroMissionLink.textContent = t("mission.detailsLink");
     return;
   }
 
@@ -448,6 +461,11 @@ function renderHero(nextLaunch) {
     returnSite: nextLaunch.returnSite || t("mission.recoveryPending"),
   });
   nextWindow.textContent = nextLaunch.launchAt ? formatDateTime(nextLaunch.launchAt) : t("mission.tbd");
+  heroMissionLink.href = nextLaunch.missionUrl || "https://www.spacex.com/launches/";
+  heroMissionLink.textContent =
+    nextLaunch.isLive || nextLaunch.callToAction === "WATCH"
+      ? t("mission.watchLive")
+      : t("mission.detailsLink");
 
   if (nextLaunch.image) {
     hero.style.backgroundImage = `linear-gradient(180deg, rgba(3, 5, 8, 0.18), rgba(3, 5, 8, 0.92)), radial-gradient(circle at top, rgba(112, 133, 188, 0.24), transparent 34%), url("${nextLaunch.image}")`;

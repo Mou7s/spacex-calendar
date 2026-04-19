@@ -45,6 +45,12 @@ export function resolveImage(tile) {
   );
 }
 
+export function buildMissionUrl(slug) {
+  return slug
+    ? `https://www.spacex.com/launches/${slug}/`
+    : "https://www.spacex.com/launches/";
+}
+
 export function normalizeMission(tile, timing) {
   const launchWindow = resolveWindow(timing);
   const launchAt = launchWindow.open;
@@ -53,6 +59,7 @@ export function normalizeMission(tile, timing) {
     id: tile.id,
     correlationId: tile.correlationId,
     slug: tile.link,
+    missionUrl: buildMissionUrl(tile.link),
     title: tile.title,
     shortTitle: tile.shortTitle,
     missionType: tile.missionType,
@@ -132,6 +139,16 @@ export function foldIcsLine(line) {
   return parts.join("\r\n");
 }
 
+export function buildSequence(value) {
+  const time = Date.parse(value);
+
+  if (Number.isNaN(time)) {
+    return 0;
+  }
+
+  return Math.floor(time / 1000);
+}
+
 export function buildMissionDescription(mission) {
   const lines = [
     mission.title,
@@ -154,7 +171,7 @@ export function buildMissionDescription(mission) {
   return lines.join("\n");
 }
 
-export function buildCalendarEvent(mission, dtStamp) {
+export function buildCalendarEvent(mission, dtStamp, sequence) {
   if (!mission.launchAt) {
     return null;
   }
@@ -163,6 +180,8 @@ export function buildCalendarEvent(mission, dtStamp) {
     "BEGIN:VEVENT",
     `UID:${mission.correlationId || mission.id}@spacexcalendar.local`,
     `DTSTAMP:${dtStamp}`,
+    `LAST-MODIFIED:${dtStamp}`,
+    `SEQUENCE:${sequence}`,
     `DTSTART:${formatIcsDate(mission.launchAt)}`,
     `SUMMARY:${escapeIcsText(mission.title)}`,
     `DESCRIPTION:${escapeIcsText(buildMissionDescription(mission))}`,
@@ -171,9 +190,7 @@ export function buildCalendarEvent(mission, dtStamp) {
     "TRANSP:OPAQUE",
     `CATEGORIES:${escapeIcsText(titleCase(mission.missionType || "launch"))}`,
     `URL:${
-      mission.slug
-        ? `https://www.spacex.com/launches/${mission.slug}/`
-        : "https://www.spacex.com/launches/"
+      mission.missionUrl || buildMissionUrl(mission.slug)
     }`,
     "END:VEVENT",
   ];
@@ -187,8 +204,9 @@ export function buildCalendarEvent(mission, dtStamp) {
 
 export function buildCalendarFeed(data) {
   const dtStamp = formatIcsDate(data.refreshedAt || new Date().toISOString());
+  const sequence = buildSequence(data.refreshedAt || new Date().toISOString());
   const events = data.missions
-    .map((mission) => buildCalendarEvent(mission, dtStamp))
+    .map((mission) => buildCalendarEvent(mission, dtStamp, sequence))
     .filter(Boolean)
     .join("\r\n");
 

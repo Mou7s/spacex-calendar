@@ -230,6 +230,37 @@ h2 {
   margin-top: 28px;
 }
 
+.hero-actions,
+.mission-actions {
+  display: flex;
+  margin-top: 18px;
+}
+
+.hero-link,
+.mission-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+}
+
+.hero-link:hover,
+.hero-link:focus-visible,
+.mission-link:hover,
+.mission-link:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 .meta-card,
 .panel,
 .mission-card {
