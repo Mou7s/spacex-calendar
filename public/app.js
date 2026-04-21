@@ -100,7 +100,8 @@ const translations = {
   en: {
     meta: {
       title: "SpaceX Launch Calendar",
-      description: "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
+      description:
+        "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
     },
     header: {
       copy: "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
@@ -114,11 +115,14 @@ const translations = {
     hero: {
       eyebrow: "Live Calendar Feed",
       loadingTitle: "Loading launch calendar",
-      loadingDescription: "Fetching the current mission queue and launch windows from SpaceX website feeds.",
+      loadingDescription:
+        "Fetching the current mission queue and launch windows from SpaceX website feeds.",
       noMissionsTitle: "No upcoming missions",
-      noMissionsDescription: "The live mission feed did not return any upcoming launches.",
+      noMissionsDescription:
+        "The live mission feed did not return any upcoming launches.",
       unavailableTitle: "Launch data unavailable",
-      unavailableDescription: "The app could not reach the SpaceX mission feeds just now.",
+      unavailableDescription:
+        "The app could not reach the SpaceX mission feeds just now.",
       meta: {
         nextLaunch: "Next launch",
         countdown: "Countdown",
@@ -155,7 +159,8 @@ const translations = {
       returnSite: "Return site",
       watchLive: "Watch Live",
       detailsLink: "Mission Page",
-      emptyState: "No upcoming SpaceX missions were returned by the live data feed.",
+      emptyState:
+        "No upcoming SpaceX missions were returned by the live data feed.",
       live: "Live",
       unspecified: "Unspecified",
       tbd: "TBD",
@@ -181,6 +186,11 @@ const translations = {
   },
 };
 
+translations["zh-CN"].header.github = "GitHub 仓库";
+translations["zh-CN"].header.githubAriaLabel = "在 GitHub 查看项目";
+translations.en.header.github = "GitHub";
+translations.en.header.githubAriaLabel = "View project on GitHub";
+
 let activeLocale = "zh-CN";
 let countdownTimerId = null;
 
@@ -197,11 +207,14 @@ function resolveLocale(preferred) {
 }
 
 function getNestedTranslation(key, locale = activeLocale) {
-  return key.split(".").reduce((value, segment) => value?.[segment], translations[locale]);
+  return key
+    .split(".")
+    .reduce((value, segment) => value?.[segment], translations[locale]);
 }
 
 function t(key, replacements = {}, locale = activeLocale) {
-  const template = getNestedTranslation(key, locale) ?? getNestedTranslation(key, "en") ?? key;
+  const template =
+    getNestedTranslation(key, locale) ?? getNestedTranslation(key, "en") ?? key;
 
   if (typeof template !== "string") {
     return String(template ?? key);
@@ -220,6 +233,10 @@ function applyStaticTranslations() {
   for (const element of document.querySelectorAll("[data-i18n]")) {
     element.textContent = t(element.dataset.i18n);
   }
+
+  for (const element of document.querySelectorAll("[data-i18n-aria-label]")) {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  }
 }
 
 function localizeStatus(value) {
@@ -227,7 +244,9 @@ function localizeStatus(value) {
     return t("mission.unspecified");
   }
 
-  return getNestedTranslation(`status.${value.toLowerCase()}`) || titleCase(value);
+  return (
+    getNestedTranslation(`status.${value.toLowerCase()}`) || titleCase(value)
+  );
 }
 
 function updateSubscriptionLinks() {
@@ -277,9 +296,7 @@ const formatDateTimeUtc = (iso) => {
 
 const titleCase = (value) =>
   value
-    ? value
-        .replace(/[-_]/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase())
+    ? value.replace(/[-_]/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
     : t("mission.unspecified");
 
 function renderMonthSummary(summary) {
@@ -312,7 +329,10 @@ function localizeMissionType(value) {
     return t("mission.unspecified");
   }
 
-  return getNestedTranslation(`mission.types.${value.toLowerCase()}`) || titleCase(value);
+  return (
+    getNestedTranslation(`mission.types.${value.toLowerCase()}`) ||
+    titleCase(value)
+  );
 }
 
 function renderTracker(missions) {
@@ -326,7 +346,10 @@ function renderTracker(missions) {
     [t("overview.tracker.missionsLoaded"), String(total)],
     [t("overview.tracker.timedWindows"), String(trackedWindows)],
     [t("overview.tracker.liveNow"), String(liveCount)],
-    [t("overview.tracker.viewerTimezone"), Intl.DateTimeFormat().resolvedOptions().timeZone],
+    [
+      t("overview.tracker.viewerTimezone"),
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    ],
   ];
 
   for (const [label, value] of rows) {
@@ -383,7 +406,9 @@ function renderMissions(missions) {
       term.textContent = t(term.dataset.i18n);
     }
 
-    badge.textContent = mission.isLive ? t("mission.live") : localizeStatus(mission.status);
+    badge.textContent = mission.isLive
+      ? t("mission.live")
+      : localizeStatus(mission.status);
     type.textContent = localizeMissionType(mission.missionType);
     title.textContent = mission.title;
     windowText.textContent = missionWindowCopy(mission);
@@ -454,8 +479,11 @@ function renderHero(nextLaunch) {
     launchSite: nextLaunch.launchSite || t("mission.sitePending"),
     returnSite: nextLaunch.returnSite || t("mission.recoveryPending"),
   });
-  nextWindow.textContent = nextLaunch.launchAt ? formatDateTime(nextLaunch.launchAt) : t("mission.tbd");
-  heroMissionLink.href = nextLaunch.missionUrl || "https://www.spacex.com/launches/";
+  nextWindow.textContent = nextLaunch.launchAt
+    ? formatDateTime(nextLaunch.launchAt)
+    : t("mission.tbd");
+  heroMissionLink.href =
+    nextLaunch.missionUrl || "https://www.spacex.com/launches/";
   heroMissionLink.textContent =
     nextLaunch.isLive || nextLaunch.callToAction === "WATCH"
       ? t("mission.watchLive")
