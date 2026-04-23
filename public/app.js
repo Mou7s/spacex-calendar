@@ -13,6 +13,11 @@ const calendarLink = document.querySelector("#calendar-link");
 const icsUrl = document.querySelector("#ics-url");
 const webcalUrl = document.querySelector("#webcal-url");
 const metaDescription = document.querySelector("#meta-description");
+const calendarPrev = document.querySelector("#calendar-prev");
+const calendarNext = document.querySelector("#calendar-next");
+const calendarMonthLabel = document.querySelector("#calendar-month-label");
+const calendarWeekdays = document.querySelector("#calendar-weekdays");
+const calendarGrid = document.querySelector("#calendar-grid");
 
 const translations = {
   "zh-CN": {
@@ -60,6 +65,16 @@ const translations = {
         liveNow: "正在直播",
         viewerTimezone: "当前时区",
       },
+    },
+    calendar: {
+      eyebrow: "发射日历",
+      title: "按月查看任务",
+      previousMonthAria: "查看上个月",
+      nextMonthAria: "查看下个月",
+      noLaunches: "这个月还没有带日期的发射任务。",
+      dayLabel: "{month}月{day}日",
+      untimed: "时间待定",
+      weekdayShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
     },
     manifest: {
       eyebrow: "任务清单",
@@ -147,6 +162,16 @@ const translations = {
         viewerTimezone: "Viewer timezone",
       },
     },
+    calendar: {
+      eyebrow: "Launch calendar",
+      title: "Browse missions by month",
+      previousMonthAria: "View previous month",
+      nextMonthAria: "View next month",
+      noLaunches: "No dated launches are available for this month yet.",
+      dayLabel: "{month} {day}",
+      untimed: "Time TBD",
+      weekdayShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    },
     manifest: {
       eyebrow: "Manifest",
       title: "Upcoming missions",
@@ -193,6 +218,9 @@ translations.en.header.githubAriaLabel = "View project on GitHub";
 
 let activeLocale = "zh-CN";
 let countdownTimerId = null;
+let calendarMonthKeys = [];
+let activeCalendarMonthIndex = 0;
+let latestPayload = null;
 
 function resolveLocale(preferred) {
   if (preferred && translations[preferred]) {
@@ -236,6 +264,12 @@ function applyStaticTranslations() {
 
   for (const element of document.querySelectorAll("[data-i18n-aria-label]")) {
     element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  }
+
+  renderCalendarWeekdays();
+
+  if (latestPayload) {
+    renderCalendar(latestPayload.missions);
   }
 }
 
@@ -298,6 +332,203 @@ const titleCase = (value) =>
   value
     ? value.replace(/[-_]/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
     : t("mission.unspecified");
+
+function buildMissionAnchorId(mission) {
+  return `mission-${mission.slug || mission.correlationId || mission.id}`;
+}
+
+function getCalendarMonthKey(iso) {
+  if (!iso) {
+    return null;
+  }
+
+  const date = new Date(iso);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+function getCalendarMonths(missions) {
+  const keys = [];
+  const seen = new Set();
+
+  for (const mission of missions) {
+    const key = getCalendarMonthKey(mission.launchAt);
+
+    if (!key || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    keys.push(key);
+  }
+
+  return keys;
+}
+
+function renderCalendarWeekdays() {
+  calendarWeekdays.replaceChildren();
+
+  const labels = getNestedTranslation("calendar.weekdayShort");
+
+  if (!Array.isArray(labels)) {
+    return;
+  }
+
+  for (const label of labels) {
+    const item = document.createElement("div");
+    item.className = "calendar-weekday";
+    item.textContent = label;
+    calendarWeekdays.append(item);
+  }
+}
+
+function formatCalendarMonthLabel(monthKey) {
+  if (!monthKey) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(activeLocale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${monthKey}-01T00:00:00.000Z`));
+}
+
+function formatCalendarEventTime(mission) {
+  if (!mission.launchAt) {
+    return t("calendar.untimed");
+  }
+
+  return new Intl.DateTimeFormat(activeLocale, {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(mission.launchAt));
+}
+
+function buildCalendarGridDays(monthKey) {
+  const monthStart = new Date(`${monthKey}-01T00:00:00.000Z`);
+  const year = monthStart.getUTCFullYear();
+  const month = monthStart.getUTCMonth();
+  const firstDayIndex = monthStart.getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
+  const days = [];
+
+  for (let cellIndex = 0; cellIndex < totalCells; cellIndex += 1) {
+    const dayOffset = cellIndex - firstDayIndex;
+    const date = new Date(Date.UTC(year, month, dayOffset + 1));
+    days.push({
+      isoDate: date.toISOString().slice(0, 10),
+      dayNumber: date.getUTCDate(),
+      isCurrentMonth: date.getUTCMonth() === month,
+    });
+  }
+
+  return days;
+}
+
+function renderCalendar(missions) {
+  calendarGrid.replaceChildren();
+
+  if (!calendarMonthKeys.length) {
+    calendarMonthLabel.textContent = t("calendar.title");
+    calendarPrev.disabled = true;
+    calendarNext.disabled = true;
+
+    const empty = document.createElement("div");
+    empty.className = "calendar-empty";
+    empty.textContent = t("calendar.noLaunches");
+    calendarGrid.append(empty);
+    return;
+  }
+
+  const monthKey = calendarMonthKeys[activeCalendarMonthIndex];
+  const monthMissions = missions.filter(
+    (mission) => getCalendarMonthKey(mission.launchAt) === monthKey
+  );
+  const missionMap = new Map();
+
+  for (const mission of monthMissions) {
+    const isoDate = mission.launchAt.slice(0, 10);
+    const entries = missionMap.get(isoDate) || [];
+    entries.push(mission);
+    missionMap.set(isoDate, entries);
+  }
+
+  calendarMonthLabel.textContent = formatCalendarMonthLabel(monthKey);
+  calendarPrev.disabled = activeCalendarMonthIndex === 0;
+  calendarNext.disabled = activeCalendarMonthIndex === calendarMonthKeys.length - 1;
+
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const days = buildCalendarGridDays(monthKey);
+
+  for (const day of days) {
+    const cell = document.createElement("article");
+    cell.className = "calendar-day";
+
+    if (!day.isCurrentMonth) {
+      cell.classList.add("is-outside");
+    }
+
+    if (day.isoDate === todayKey) {
+      cell.classList.add("is-today");
+    }
+
+    const dayNumber = document.createElement("div");
+    dayNumber.className = "calendar-day-number";
+    dayNumber.textContent = String(day.dayNumber);
+    dayNumber.setAttribute(
+      "aria-label",
+      t("calendar.dayLabel", {
+        month: String(Number(monthKey.slice(5, 7))),
+        day: String(day.dayNumber),
+      })
+    );
+
+    const events = missionMap.get(day.isoDate) || [];
+    const eventList = document.createElement("div");
+    eventList.className = "calendar-day-events";
+
+    if (!events.length && day.isCurrentMonth) {
+      cell.classList.add("is-empty");
+    }
+
+    for (const mission of events) {
+      const event = document.createElement("a");
+      event.className = "calendar-event calendar-event-link";
+      event.href = `#${buildMissionAnchorId(mission)}`;
+
+      if (mission.isLive) {
+        event.classList.add("is-live");
+      }
+
+      const time = document.createElement("span");
+      time.className = "calendar-event-time";
+      time.textContent = formatCalendarEventTime(mission);
+
+      const title = document.createElement("strong");
+      title.className = "calendar-event-title";
+      title.textContent = mission.title;
+
+      const type = document.createElement("span");
+      type.className = "calendar-event-type";
+      type.textContent = localizeMissionType(mission.missionType);
+
+      event.append(time, title, type);
+      eventList.append(event);
+    }
+
+    cell.append(dayNumber, eventList);
+    calendarGrid.append(cell);
+  }
+
+  if (!monthMissions.length) {
+    const empty = document.createElement("div");
+    empty.className = "calendar-empty";
+    empty.textContent = t("calendar.noLaunches");
+    calendarGrid.append(empty);
+  }
+}
 
 function renderMonthSummary(summary) {
   monthStrip.replaceChildren();
@@ -420,6 +651,7 @@ function renderMissions(missions) {
       image.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.72)), url("${mission.image}")`;
     }
 
+    card.id = buildMissionAnchorId(mission);
     card.dataset.mission = mission.slug || mission.correlationId;
     missionsGrid.append(fragment);
   }
@@ -503,9 +735,16 @@ async function loadLaunches() {
     }
 
     const payload = await response.json();
+    latestPayload = payload;
+    calendarMonthKeys = getCalendarMonths(payload.missions);
+    activeCalendarMonthIndex = Math.max(
+      0,
+      calendarMonthKeys.indexOf(getCalendarMonthKey(payload.nextLaunch?.launchAt))
+    );
     renderHero(payload.nextLaunch);
     renderMonthSummary(payload.monthSummary);
     renderTracker(payload.missions);
+    renderCalendar(payload.missions);
     renderMissions(payload.missions);
     refreshNote.textContent = t("manifest.refreshedAt", {
       value: new Intl.DateTimeFormat(activeLocale, {
@@ -519,6 +758,10 @@ async function loadLaunches() {
     heroDescription.textContent = t("hero.unavailableDescription");
     nextWindow.textContent = t("hero.retryLater");
     countdown.textContent = t("hero.unavailable");
+    latestPayload = null;
+    calendarMonthKeys = [];
+    activeCalendarMonthIndex = 0;
+    renderCalendar([]);
     missionsGrid.innerHTML = `<div class="empty-state">${error.message}</div>`;
   }
 }
@@ -530,4 +773,22 @@ function initializeLocale() {
 
 initializeLocale();
 updateSubscriptionLinks();
+calendarPrev.addEventListener("click", () => {
+  if (!latestPayload || activeCalendarMonthIndex <= 0) {
+    return;
+  }
+
+  activeCalendarMonthIndex -= 1;
+  renderCalendar(latestPayload.missions);
+});
+
+calendarNext.addEventListener("click", () => {
+  if (!latestPayload || activeCalendarMonthIndex >= calendarMonthKeys.length - 1) {
+    return;
+  }
+
+  activeCalendarMonthIndex += 1;
+  renderCalendar(latestPayload.missions);
+});
+
 loadLaunches();
