@@ -593,6 +593,48 @@ h2 {
   overflow: hidden;
   border-radius: 24px;
   scroll-margin-top: 28px;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+.mission-card:target,
+.mission-card.is-highlighted {
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 0 10px rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.mission-card.is-highlighted {
+  animation: mission-card-pulse 1200ms ease;
+}
+
+@keyframes mission-card-pulse {
+  0% {
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.42),
+      0 0 0 1px rgba(255, 255, 255, 0.18),
+      0 0 0 0 rgba(255, 255, 255, 0.18);
+  }
+
+  45% {
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.42),
+      0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 0 0 14px rgba(255, 255, 255, 0.02);
+  }
+
+  100% {
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.42),
+      0 0 0 1px rgba(255, 255, 255, 0.18),
+      0 0 0 10px rgba(255, 255, 255, 0.05);
+  }
 }
 
 .mission-image {

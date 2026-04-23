@@ -221,6 +221,7 @@ let countdownTimerId = null;
 let calendarMonthKeys = [];
 let activeCalendarMonthIndex = 0;
 let latestPayload = null;
+let missionHighlightTimerId = null;
 
 function resolveLocale(preferred) {
   if (preferred && translations[preferred]) {
@@ -425,6 +426,35 @@ function buildCalendarGridDays(monthKey) {
   }
 
   return days;
+}
+
+function highlightMissionCard(targetId) {
+  if (!targetId) {
+    return;
+  }
+
+  const target = document.getElementById(targetId);
+
+  if (!target || !target.classList.contains("mission-card")) {
+    return;
+  }
+
+  target.classList.remove("is-highlighted");
+  void target.offsetWidth;
+  target.classList.add("is-highlighted");
+
+  if (missionHighlightTimerId) {
+    window.clearTimeout(missionHighlightTimerId);
+  }
+
+  missionHighlightTimerId = window.setTimeout(() => {
+    target.classList.remove("is-highlighted");
+    missionHighlightTimerId = null;
+  }, 1200);
+}
+
+function highlightMissionCardFromHash() {
+  highlightMissionCard(window.location.hash.slice(1));
 }
 
 function renderCalendar(missions) {
@@ -746,6 +776,7 @@ async function loadLaunches() {
     renderTracker(payload.missions);
     renderCalendar(payload.missions);
     renderMissions(payload.missions);
+    highlightMissionCardFromHash();
     refreshNote.textContent = t("manifest.refreshedAt", {
       value: new Intl.DateTimeFormat(activeLocale, {
         dateStyle: "medium",
@@ -789,6 +820,24 @@ calendarNext.addEventListener("click", () => {
 
   activeCalendarMonthIndex += 1;
   renderCalendar(latestPayload.missions);
+});
+
+window.addEventListener("hashchange", () => {
+  highlightMissionCardFromHash();
+});
+
+calendarGrid.addEventListener("click", (event) => {
+  const link = event.target.closest(".calendar-event-link");
+
+  if (!link) {
+    return;
+  }
+
+  const targetId = link.getAttribute("href")?.slice(1);
+
+  window.setTimeout(() => {
+    highlightMissionCard(targetId);
+  }, 0);
 });
 
 loadLaunches();
