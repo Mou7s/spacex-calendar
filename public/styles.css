@@ -427,23 +427,28 @@ h2 {
 
 .calendar-grid {
   gap: 12px;
-  align-items: start;
 }
 
 .calendar-day {
   display: flex;
   flex-direction: column;
-  min-height: 112px;
+  height: 150px;
   min-width: 0;
-  padding: 10px;
+  padding: 12px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
   overflow: hidden;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.calendar-day:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .calendar-day.is-outside {
-  opacity: 0.34;
+  opacity: 0.28;
 }
 
 .calendar-day.is-empty .calendar-day-number {
@@ -459,9 +464,10 @@ h2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 28px;
   width: 28px;
   height: 28px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   font-size: 0.78rem;
@@ -473,16 +479,35 @@ h2 {
 }
 
 .calendar-day-events {
-  min-width: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: grid;
   align-content: start;
   gap: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.calendar-day-events::-webkit-scrollbar {
+  width: 4px;
+}
+
+.calendar-day-events::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-day-events::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
 }
 
 .calendar-event {
   display: grid;
   gap: 4px;
   min-width: 0;
-  padding: 8px 9px;
+  padding: 8px 10px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -744,7 +769,7 @@ dd {
   }
 
   .calendar-day {
-    min-height: 108px;
+    height: 140px;
   }
 
   .month-strip {
@@ -830,7 +855,8 @@ dd {
   }
 
   .calendar-day {
-    min-height: 0;
+    height: auto;
+    min-height: 80px;
   }
 
   .calendar-day.is-outside {
