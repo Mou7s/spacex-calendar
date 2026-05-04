@@ -109,6 +109,12 @@ const translations = {
       awaitingTime: "等待时间",
       windowOpen: "窗口已开启",
       format: "{days}天 {hours}时 {minutes}分 {seconds}秒",
+      units: {
+        days: "天",
+        hours: "时",
+        minutes: "分",
+        seconds: "秒",
+      },
     },
     status: {
       upcoming: "即将进行",
@@ -206,6 +212,12 @@ const translations = {
       awaitingTime: "Awaiting time",
       windowOpen: "Window open",
       format: "{days}d {hours}h {minutes}m {seconds}s",
+      units: {
+        days: "Days",
+        hours: "Hours",
+        minutes: "Mins",
+        seconds: "Secs",
+      },
     },
     status: {
       upcoming: "Upcoming",
@@ -228,6 +240,23 @@ let activeCalendarMonthIndex = 0;
 
 let latestPayload = null;
 let missionHighlightTimerId = null;
+
+const imageObserver = new IntersectionObserver(
+  (entries, observer) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const src = el.dataset.src;
+        if (src) {
+          el.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.72)), url("${src}")`;
+          el.classList.add("is-loaded");
+        }
+        observer.unobserve(el);
+      }
+    });
+  },
+  { rootMargin: "200px" }
+);
 
 function resolveLocale(preferred) {
   if (preferred && translations[preferred]) {
@@ -654,6 +683,38 @@ function missionWindowCopy(mission) {
   });
 }
 
+function renderSkeletons() {
+  tracker.replaceChildren();
+  for (let i = 0; i < 4; i++) {
+    const item = document.createElement("div");
+    item.className = "skeleton-tracker-item is-skeleton";
+    tracker.append(item);
+  }
+
+  missionsGrid.replaceChildren();
+  for (let i = 0; i < 6; i++) {
+    const card = document.createElement("article");
+    card.className = "mission-card skeleton-card";
+    card.innerHTML = `
+      <div class="skeleton-image is-skeleton"></div>
+      <div class="mission-content">
+        <div class="mission-topline">
+          <div class="skeleton-badge is-skeleton"></div>
+          <div class="skeleton-type is-skeleton"></div>
+        </div>
+        <div class="skeleton-title is-skeleton"></div>
+        <div class="skeleton-window is-skeleton"></div>
+        <div class="mission-facts">
+          <div class="skeleton-fact is-skeleton"></div>
+          <div class="skeleton-fact is-skeleton"></div>
+          <div class="skeleton-fact is-skeleton"></div>
+        </div>
+      </div>
+    `;
+    missionsGrid.append(card);
+  }
+}
+
 function renderMissions(missions) {
   missionsGrid.replaceChildren();
 
@@ -693,7 +754,8 @@ function renderMissions(missions) {
     returnSite.textContent = mission.returnSite || t("mission.tbd");
 
     if (mission.image) {
-      image.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.72)), url("${mission.image}")`;
+      image.dataset.src = mission.image;
+      imageObserver.observe(image);
     }
 
     card.id = buildMissionAnchorId(mission);
@@ -708,6 +770,39 @@ function startCountdown(nextLaunch) {
     countdownTimerId = null;
   }
 
+  const renderStructure = () => {
+    countdown.innerHTML = `
+      <div class="countdown-block">
+        <div class="countdown-val" data-unit="days">00</div>
+        <div class="countdown-unit" data-i18n="countdown.units.days">${t("countdown.units.days")}</div>
+      </div>
+      <div class="countdown-block">
+        <div class="countdown-val" data-unit="hours">00</div>
+        <div class="countdown-unit" data-i18n="countdown.units.hours">${t("countdown.units.hours")}</div>
+      </div>
+      <div class="countdown-block">
+        <div class="countdown-val" data-unit="minutes">00</div>
+        <div class="countdown-unit" data-i18n="countdown.units.minutes">${t("countdown.units.minutes")}</div>
+      </div>
+      <div class="countdown-block">
+        <div class="countdown-val" data-unit="seconds">00</div>
+        <div class="countdown-unit" data-i18n="countdown.units.seconds">${t("countdown.units.seconds")}</div>
+      </div>
+    `;
+  };
+
+  const updateDigit = (unit, value) => {
+    const el = countdown.querySelector(`[data-unit="${unit}"]`);
+    if (!el) return;
+    const strValue = String(value).padStart(2, "0");
+    if (el.textContent !== strValue) {
+      el.textContent = strValue;
+      el.classList.remove("animate");
+      void el.offsetWidth;
+      el.classList.add("animate");
+    }
+  };
+
   const update = () => {
     if (!nextLaunch?.launchAt) {
       countdown.textContent = t("countdown.awaitingTime");
@@ -721,18 +816,24 @@ function startCountdown(nextLaunch) {
       return;
     }
 
+    if (!countdown.querySelector(".countdown-block")) {
+      renderStructure();
+    }
+
     const totalSeconds = Math.floor(diff / 1000);
+    
+    countdown.classList.toggle("is-urgent", totalSeconds < 86400);
+    countdown.classList.toggle("is-critical", totalSeconds < 3600);
+
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    countdown.textContent = t("countdown.format", {
-      days,
-      hours,
-      minutes,
-      seconds,
-    });
+    updateDigit("days", days);
+    updateDigit("hours", hours);
+    updateDigit("minutes", minutes);
+    updateDigit("seconds", seconds);
   };
 
   update();
@@ -772,6 +873,7 @@ function renderHero(nextLaunch) {
 }
 
 async function loadLaunches() {
+  renderSkeletons();
   try {
     const response = await fetch("/api/launches");
 
@@ -881,3 +983,18 @@ window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e
 });
 
 loadLaunches();
+
+// --- PWA ---
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((registration) => {
+        console.log("SW registered:", registration.scope);
+      })
+      .catch((err) => {
+        console.log("SW registration failed:", err);
+      });
+  });
+}

@@ -431,15 +431,100 @@ h2 {
 
 .meta-label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 0;
   font-size: 0.72rem;
   color: var(--soft);
   letter-spacing: 0.16em;
 }
 
 .meta-card strong {
-  font-size: 1.1rem;
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
   line-height: 1.2;
+  margin-top: 12px;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.countdown-display {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.countdown-val {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff; /* Always white on hero */
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+/* Horizontal split line effect */
+.countdown-val::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.countdown-unit {
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+/* Digits animation */
+.countdown-val.animate {
+  animation: countdown-pop 300ms cubic-bezier(0.17, 0.89, 0.32, 1.28);
+}
+
+@keyframes countdown-pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Urgency States - Minimalist */
+.countdown-display.is-urgent .countdown-val {
+  color: #ffd479;
+}
+
+.countdown-display.is-critical .countdown-val {
+  color: #ff6b6b;
+  text-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+}
+
+.countdown-display.is-critical .countdown-unit {
+  color: rgba(255, 107, 107, 0.6);
+}
+
+[data-theme="light"] .countdown-block {
+  background: transparent;
+  border: none;
 }
 
 .overview-grid {
@@ -818,6 +903,13 @@ h2 {
 .mission-image {
   min-height: 220px;
   background: center / cover no-repeat;
+  background-color: var(--surface-strong);
+  opacity: 0;
+  transition: opacity 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mission-image.is-loaded {
+  opacity: 1;
 }
 
 
@@ -878,6 +970,92 @@ dd {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--muted);
+}
+
+/* Skeleton Loaders */
+.is-skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--surface-strong);
+  border: none !important;
+}
+
+.is-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeleton-shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] .is-skeleton::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton-image {
+  height: 220px;
+  width: 100%;
+}
+
+.skeleton-badge {
+  height: 18px;
+  width: 60px;
+  border-radius: 4px;
+}
+
+.skeleton-type {
+  height: 18px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 85%;
+  margin: 14px 0 12px;
+  border-radius: 6px;
+}
+
+.skeleton-window {
+  height: 16px;
+  width: 70%;
+  margin-bottom: 24px;
+  border-radius: 4px;
+}
+
+.skeleton-fact {
+  height: 40px;
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: 6px;
+}
+
+.skeleton-tracker-item {
+  height: 42px;
+  width: 100%;
+  margin-bottom: 14px;
+  border-radius: 8px;
 }
 
 @media (max-width: 900px) {
@@ -973,6 +1151,11 @@ dd {
 
   .mission-image {
     min-height: 160px;
+    opacity: 0;
+  }
+
+  .mission-image.is-loaded {
+    opacity: 1;
   }
 
   .mission-title {
