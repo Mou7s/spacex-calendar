@@ -19,6 +19,7 @@ const calendarNext = document.querySelector("#calendar-next");
 const calendarMonthLabel = document.querySelector("#calendar-month-label");
 const calendarGrid = document.querySelector("#calendar-grid");
 const calendarEventsList = document.querySelector("#calendar-events-list");
+const themeToggle = document.querySelector("#theme-toggle");
 
 
 const translations = {
@@ -215,8 +216,10 @@ const translations = {
 
 translations["zh-CN"].header.github = "GitHub 仓库";
 translations["zh-CN"].header.githubAriaLabel = "在 GitHub 查看项目";
+translations["zh-CN"].header.themeToggleAria = "切换深色/浅色模式";
 translations.en.header.github = "GitHub";
 translations.en.header.githubAriaLabel = "View project on GitHub";
+translations.en.header.themeToggleAria = "Toggle dark/light mode";
 
 let activeLocale = "zh-CN";
 let countdownTimerId = null;
@@ -841,6 +844,39 @@ document.addEventListener("click", (event) => {
       activeCalendarMonthIndex += 1;
       renderCalendar(latestPayload.missions);
     }
+  }
+});
+
+// --- Theme ---
+
+function getPreferredTheme() {
+  const stored = localStorage.getItem("theme");
+
+  if (stored === "light" || stored === "dark") {
+    return stored;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+}
+
+applyTheme(getPreferredTheme());
+
+themeToggle.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme") || "dark";
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  localStorage.setItem("theme", next);
+});
+
+window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (event) => {
+  if (!localStorage.getItem("theme")) {
+    applyTheme(event.matches ? "light" : "dark");
   }
 });
 

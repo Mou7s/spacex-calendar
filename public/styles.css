@@ -16,6 +16,32 @@
   --success: #8bf0a4;
   --warning: #ffd479;
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+  --btn-surface: rgba(255, 255, 255, 0.05);
+  --btn-border: rgba(255, 255, 255, 0.1);
+  --btn-hover: rgba(255, 255, 255, 0.12);
+  --btn-hover-border: rgba(255, 255, 255, 0.2);
+  --divider: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --surface: rgba(0, 0, 0, 0.04);
+  --surface-strong: rgba(0, 0, 0, 0.07);
+  --border: rgba(0, 0, 0, 0.12);
+  --text: #1a1d24;
+  --muted: rgba(26, 29, 36, 0.68);
+  --soft: rgba(26, 29, 36, 0.45);
+  --accent: #1a1d24;
+  --success: #2d9f4e;
+  --warning: #c48a00;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  --btn-surface: rgba(0, 0, 0, 0.04);
+  --btn-border: rgba(0, 0, 0, 0.1);
+  --btn-hover: rgba(0, 0, 0, 0.08);
+  --btn-hover-border: rgba(0, 0, 0, 0.18);
+  --divider: rgba(0, 0, 0, 0.08);
+  color-scheme: light;
 }
 
 * {
@@ -27,6 +53,13 @@ html {
     radial-gradient(circle at top, rgba(34, 47, 77, 0.8), transparent 32%),
     linear-gradient(180deg, #040507 0%, #070b11 34%, #040506 100%);
   color: var(--text);
+  transition: background 400ms ease, color 200ms ease;
+}
+
+[data-theme="light"] {
+  background:
+    radial-gradient(circle at top, rgba(180, 200, 240, 0.5), transparent 40%),
+    linear-gradient(180deg, #e8ecf2 0%, #f0f2f5 40%, #e8ecf2 100%);
 }
 
 body {
@@ -46,7 +79,13 @@ body::before {
     radial-gradient(circle at 78% 14%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px),
     radial-gradient(circle at 68% 55%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px),
     radial-gradient(circle at 30% 72%, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px);
+  transition: opacity 400ms ease;
 }
+
+[data-theme="light"] body::before {
+  opacity: 0;
+}
+
 
 .page-shell {
   width: min(1200px, calc(100vw - 32px));
@@ -115,6 +154,52 @@ dd,
   text-align: right;
 }
 
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--btn-surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 200ms ease;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--btn-hover);
+  border-color: var(--btn-hover-border);
+  transform: scale(1.06);
+}
+
+.theme-icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 300ms ease, opacity 200ms ease;
+}
+
+.theme-icon-sun {
+  display: none;
+}
+
+.theme-icon-moon {
+  display: block;
+}
+
+[data-theme="light"] .theme-icon-sun {
+  display: block;
+}
+
+[data-theme="light"] .theme-icon-moon {
+  display: none;
+}
+
 .github-link {
   display: inline-flex;
   align-items: center;
@@ -122,9 +207,9 @@ dd,
   min-height: 42px;
   padding: 0 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--border);
   color: var(--text);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--btn-surface);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -143,8 +228,8 @@ dd,
 
 .github-link:hover,
 .github-link:focus-visible {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.28);
+  background: var(--btn-hover);
+  border-color: var(--btn-hover-border);
   transform: translateY(-1px);
 }
 
@@ -173,7 +258,7 @@ dd,
   padding: 24px;
   border: 1px solid var(--border);
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  background: linear-gradient(180deg, var(--surface-strong), var(--surface));
   box-shadow: var(--shadow);
 }
 
@@ -190,8 +275,8 @@ dd,
   min-height: 48px;
   padding: 0 20px;
   border-radius: 999px;
-  color: #05070a;
-  background: #f5f7fb;
+  color: var(--bg);
+  background: var(--text);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -203,20 +288,52 @@ dd,
   overflow-x: auto;
   padding: 14px 16px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-surface);
   color: var(--text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.84rem;
 }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.76), rgba(0, 0, 0, 0.18)),
-    linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.62) 100%);
+
+
+
+/* Text on images should always be white regardless of theme */
+.hero-copy,
+.hero-copy h1,
+.hero-copy .eyebrow,
+.hero-copy .hero-description,
+.hero-copy .meta-label,
+.hero-copy .meta-card strong,
+.hero-copy .hero-link {
+  color: #f5f7fb;
 }
+
+.hero-copy .eyebrow {
+  color: rgba(245, 247, 251, 0.48);
+}
+
+.hero-copy .hero-description,
+.hero-copy .meta-label {
+  color: rgba(245, 247, 251, 0.72);
+}
+
+.hero-copy .meta-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.hero-copy .hero-link {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hero-copy .hero-link:hover,
+.hero-copy .hero-link:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 
 .hero-copy {
   position: relative;
@@ -283,9 +400,9 @@ h2 {
   min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid var(--border);
   color: var(--text);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--btn-surface);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -294,8 +411,8 @@ h2 {
 
 .hero-link:hover,
 .hero-link:focus-visible {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--btn-hover);
+  border-color: var(--btn-hover-border);
 }
 
 .meta-card,
@@ -392,8 +509,8 @@ h2 {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-surface);
   color: var(--text);
   cursor: pointer;
   transition: all 160ms ease;
@@ -410,8 +527,8 @@ h2 {
 
 
 .calendar-nav-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--btn-hover);
+  border-color: var(--btn-hover-border);
 }
 
 .calendar-nav-button:disabled {
@@ -438,7 +555,7 @@ h2 {
 .calendar-events-view {
   flex: 1;
   min-width: 0;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid var(--divider);
   padding-left: 32px;
   display: flex;
   flex-direction: column;
@@ -496,7 +613,7 @@ h2 {
 }
 
 .mini-calendar .calendar-day:hover:not(.is-outside) {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--btn-surface);
 }
 
 
@@ -531,16 +648,16 @@ h2 {
   gap: 16px;
   padding: 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface);
+  border: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
   transition: all 160ms ease;
 }
 
 .event-list-item:hover, .event-list-item:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--btn-hover);
+  border-color: var(--btn-hover-border);
   transform: translateX(4px);
 }
 
@@ -609,8 +726,8 @@ h2 {
 .month-pill {
   padding: 16px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--divider);
+  background: linear-gradient(180deg, var(--surface-strong), var(--surface));
 }
 
 .month-pill strong {
@@ -629,7 +746,7 @@ h2 {
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--divider);
 }
 
 .tracker-item:last-child {
@@ -700,10 +817,11 @@ h2 {
 
 .mission-image {
   min-height: 220px;
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.72)),
-    center / cover no-repeat;
+  background: center / cover no-repeat;
 }
+
+
+
 
 .mission-content {
   padding: 22px;
@@ -803,7 +921,7 @@ dd {
   .calendar-events-view {
     border-left: none;
     padding-left: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--divider);
     padding-top: 24px;
     width: 100%;
     max-height: none;
