@@ -99,24 +99,30 @@
           </article>
         </section>
 
-        <section class="panel calendar-panel" aria-live="polite">
-          <div class="calendar-header">
-            <div class="panel-header">
-              <p class="eyebrow" data-i18n="calendar.eyebrow">Launch calendar</p>
-              <h2 data-i18n="calendar.title">Mission calendar</h2>
+        <section class="panel calendar-panel new-calendar-layout" aria-live="polite">
+          <div class="calendar-sidebar">
+            <div class="calendar-header">
+              <div class="panel-header">
+                <p class="eyebrow" data-i18n="calendar.eyebrow">Launch calendar</p>
+                <h2 data-i18n="calendar.title">Mission calendar</h2>
+              </div>
+              <div class="calendar-nav">
+                <button class="calendar-nav-button" id="calendar-prev" type="button" aria-label="Previous month" data-i18n-aria-label="calendar.previousMonthAria">
+                  <span aria-hidden="true">&#8249;</span>
+                </button>
+                <strong class="calendar-month-label" id="calendar-month-label">Loading</strong>
+                <button class="calendar-nav-button" id="calendar-next" type="button" aria-label="Next month" data-i18n-aria-label="calendar.nextMonthAria">
+                  <span aria-hidden="true">&#8250;</span>
+                </button>
+              </div>
             </div>
-            <div class="calendar-nav">
-              <button class="calendar-nav-button" id="calendar-prev" type="button" aria-label="Previous month" data-i18n-aria-label="calendar.previousMonthAria">
-                <span aria-hidden="true">&#8592;</span>
-              </button>
-              <strong class="calendar-month-label" id="calendar-month-label">Loading</strong>
-              <button class="calendar-nav-button" id="calendar-next" type="button" aria-label="Next month" data-i18n-aria-label="calendar.nextMonthAria">
-                <span aria-hidden="true">&#8594;</span>
-              </button>
+            <div class="mini-calendar">
+              <div class="calendar-grid" id="calendar-grid"></div>
             </div>
           </div>
-          <div class="calendar-weekdays" id="calendar-weekdays"></div>
-          <div class="calendar-grid" id="calendar-grid"></div>
+          <div class="calendar-events-view">
+            <div class="events-list" id="calendar-events-list"></div>
+          </div>
         </section>
 
         <section class="section-header">

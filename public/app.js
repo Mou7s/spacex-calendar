@@ -13,11 +13,13 @@ const calendarLink = document.querySelector("#calendar-link");
 const icsUrl = document.querySelector("#ics-url");
 const webcalUrl = document.querySelector("#webcal-url");
 const metaDescription = document.querySelector("#meta-description");
+
 const calendarPrev = document.querySelector("#calendar-prev");
 const calendarNext = document.querySelector("#calendar-next");
 const calendarMonthLabel = document.querySelector("#calendar-month-label");
-const calendarWeekdays = document.querySelector("#calendar-weekdays");
 const calendarGrid = document.querySelector("#calendar-grid");
+const calendarEventsList = document.querySelector("#calendar-events-list");
+
 
 const translations = {
   "zh-CN": {
@@ -220,6 +222,7 @@ let activeLocale = "zh-CN";
 let countdownTimerId = null;
 let calendarMonthKeys = [];
 let activeCalendarMonthIndex = 0;
+
 let latestPayload = null;
 let missionHighlightTimerId = null;
 
@@ -267,11 +270,10 @@ function applyStaticTranslations() {
     element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
   }
 
-  renderCalendarWeekdays();
-
   if (latestPayload) {
     renderCalendar(latestPayload.missions);
   }
+
 }
 
 function localizeStatus(value) {
@@ -338,96 +340,6 @@ function buildMissionAnchorId(mission) {
   return `mission-${mission.slug || mission.correlationId || mission.id}`;
 }
 
-function getCalendarMonthKey(iso) {
-  if (!iso) {
-    return null;
-  }
-
-  const date = new Date(iso);
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
-function getCalendarMonths(missions) {
-  const keys = [];
-  const seen = new Set();
-
-  for (const mission of missions) {
-    const key = getCalendarMonthKey(mission.launchAt);
-
-    if (!key || seen.has(key)) {
-      continue;
-    }
-
-    seen.add(key);
-    keys.push(key);
-  }
-
-  return keys;
-}
-
-function renderCalendarWeekdays() {
-  calendarWeekdays.replaceChildren();
-
-  const labels = getNestedTranslation("calendar.weekdayShort");
-
-  if (!Array.isArray(labels)) {
-    return;
-  }
-
-  for (const label of labels) {
-    const item = document.createElement("div");
-    item.className = "calendar-weekday";
-    item.textContent = label;
-    calendarWeekdays.append(item);
-  }
-}
-
-function formatCalendarMonthLabel(monthKey) {
-  if (!monthKey) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat(activeLocale, {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${monthKey}-01T00:00:00.000Z`));
-}
-
-function formatCalendarEventTime(mission) {
-  if (!mission.launchAt) {
-    return t("calendar.untimed");
-  }
-
-  return new Intl.DateTimeFormat(activeLocale, {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(new Date(mission.launchAt));
-}
-
-function buildCalendarGridDays(monthKey) {
-  const monthStart = new Date(`${monthKey}-01T00:00:00.000Z`);
-  const year = monthStart.getUTCFullYear();
-  const month = monthStart.getUTCMonth();
-  const firstDayIndex = monthStart.getUTCDay();
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
-  const days = [];
-
-  for (let cellIndex = 0; cellIndex < totalCells; cellIndex += 1) {
-    const dayOffset = cellIndex - firstDayIndex;
-    const date = new Date(Date.UTC(year, month, dayOffset + 1));
-    days.push({
-      isoDate: date.toISOString().slice(0, 10),
-      dayNumber: date.getUTCDate(),
-      isCurrentMonth: date.getUTCMonth() === month,
-    });
-  }
-
-  return days;
-}
-
 function highlightMissionCard(targetId) {
   if (!targetId) {
     return;
@@ -457,8 +369,83 @@ function highlightMissionCardFromHash() {
   highlightMissionCard(window.location.hash.slice(1));
 }
 
+function getCalendarMonthKey(iso) {
+  if (!iso) {
+    return null;
+  }
+
+  const date = new Date(iso);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+function getCalendarMonths(missions) {
+  const keys = [];
+  const seen = new Set();
+
+  for (const mission of missions) {
+    const key = getCalendarMonthKey(mission.launchAt);
+
+    if (!key || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    keys.push(key);
+  }
+
+  return keys.sort((a, b) => a.localeCompare(b));
+}
+
+
+
+function formatCalendarMonthLabel(monthKey) {
+  if (!monthKey) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(activeLocale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${monthKey}-01T00:00:00.000Z`));
+}
+
+function buildCalendarGridDays(monthKey) {
+  const monthStart = new Date(`${monthKey}-01T00:00:00.000Z`);
+  const year = monthStart.getUTCFullYear();
+  const month = monthStart.getUTCMonth();
+  const firstDayIndex = monthStart.getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
+  const days = [];
+
+  for (let cellIndex = 0; cellIndex < totalCells; cellIndex += 1) {
+    const dayOffset = cellIndex - firstDayIndex;
+    const date = new Date(Date.UTC(year, month, dayOffset + 1));
+    days.push({
+      isoDate: date.toISOString().slice(0, 10),
+      dayNumber: date.getUTCDate(),
+      isCurrentMonth: date.getUTCMonth() === month,
+    });
+  }
+
+  return days;
+}
+
 function renderCalendar(missions) {
   calendarGrid.replaceChildren();
+  calendarEventsList.replaceChildren();
+
+  // 1. Render Weekday Headers
+  const labels = getNestedTranslation("calendar.weekdayShort");
+  if (Array.isArray(labels)) {
+    for (const label of labels) {
+      const item = document.createElement("div");
+      item.className = "calendar-weekday";
+      item.textContent = label;
+      calendarGrid.append(item);
+    }
+  }
 
   if (!calendarMonthKeys.length) {
     calendarMonthLabel.textContent = t("calendar.title");
@@ -466,9 +453,9 @@ function renderCalendar(missions) {
     calendarNext.disabled = true;
 
     const empty = document.createElement("div");
-    empty.className = "calendar-empty";
+    empty.className = "empty-state";
     empty.textContent = t("calendar.noLaunches");
-    calendarGrid.append(empty);
+    calendarEventsList.append(empty);
     return;
   }
 
@@ -493,7 +480,7 @@ function renderCalendar(missions) {
   const days = buildCalendarGridDays(monthKey);
 
   for (const day of days) {
-    const cell = document.createElement("article");
+    const cell = document.createElement("div");
     cell.className = "calendar-day";
 
     if (!day.isCurrentMonth) {
@@ -507,58 +494,83 @@ function renderCalendar(missions) {
     const dayNumber = document.createElement("div");
     dayNumber.className = "calendar-day-number";
     dayNumber.textContent = String(day.dayNumber);
-    dayNumber.setAttribute(
-      "aria-label",
-      t("calendar.dayLabel", {
-        month: String(Number(monthKey.slice(5, 7))),
-        day: String(day.dayNumber),
-      })
-    );
 
     const events = missionMap.get(day.isoDate) || [];
-    const eventList = document.createElement("div");
-    eventList.className = "calendar-day-events";
-
-    if (!events.length && day.isCurrentMonth) {
-      cell.classList.add("is-empty");
+    if (events.length > 0) {
+      cell.classList.add("has-events");
     }
 
-    for (const mission of events) {
-      const event = document.createElement("a");
-      event.className = "calendar-event calendar-event-link";
-      event.href = `#${buildMissionAnchorId(mission)}`;
-
-      if (mission.isLive) {
-        event.classList.add("is-live");
-      }
-
-      const time = document.createElement("span");
-      time.className = "calendar-event-time";
-      time.textContent = formatCalendarEventTime(mission);
-
-      const title = document.createElement("strong");
-      title.className = "calendar-event-title";
-      title.textContent = mission.title;
-
-      const type = document.createElement("span");
-      type.className = "calendar-event-type";
-      type.textContent = localizeMissionType(mission.missionType);
-
-      event.append(time, title, type);
-      eventList.append(event);
-    }
-
-    cell.append(dayNumber, eventList);
+    cell.append(dayNumber);
     calendarGrid.append(cell);
   }
 
   if (!monthMissions.length) {
     const empty = document.createElement("div");
-    empty.className = "calendar-empty";
+    empty.className = "empty-state";
     empty.textContent = t("calendar.noLaunches");
-    calendarGrid.append(empty);
+    calendarEventsList.append(empty);
+    return;
+  }
+
+  for (const mission of monthMissions) {
+    const link = document.createElement("a");
+    link.className = "event-list-item";
+    link.href = `#${buildMissionAnchorId(mission)}`;
+
+    const dateBox = document.createElement("div");
+    dateBox.className = "event-list-date";
+    const dateObj = new Date(mission.launchAt);
+    const monthStr = new Intl.DateTimeFormat(activeLocale, { month: "short", timeZone: "UTC" }).format(dateObj);
+    const dayStr = dateObj.getUTCDate();
+    dateBox.innerHTML = `<span>${monthStr}</span><strong>${dayStr}</strong>`;
+
+    const details = document.createElement("div");
+    details.className = "event-list-details";
+
+    const title = document.createElement("div");
+    title.className = "event-list-title";
+    title.textContent = mission.title;
+
+    const meta = document.createElement("div");
+    meta.className = "event-list-meta";
+
+    if (mission.isLive) {
+      const live = document.createElement("span");
+      live.className = "event-list-live";
+      live.textContent = t("mission.live");
+      meta.append(live);
+    } else if (mission.launchAt) {
+      const time = document.createElement("span");
+      time.textContent = new Intl.DateTimeFormat(activeLocale, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short",
+      }).format(new Date(mission.launchAt));
+      meta.append(time);
+    } else {
+      const untimed = document.createElement("span");
+      untimed.textContent = t("calendar.untimed");
+      meta.append(untimed);
+    }
+
+    const type = document.createElement("span");
+    type.textContent = localizeMissionType(mission.missionType);
+    meta.append(type);
+
+    details.append(title, meta);
+    link.append(dateBox, details);
+    
+    link.addEventListener("click", () => {
+      window.setTimeout(() => {
+        highlightMissionCard(buildMissionAnchorId(mission));
+      }, 0);
+    });
+
+    calendarEventsList.append(link);
   }
 }
+
+
 
 function renderMonthSummary(summary) {
   monthStrip.replaceChildren();
@@ -766,6 +778,7 @@ async function loadLaunches() {
 
     const payload = await response.json();
     latestPayload = payload;
+
     calendarMonthKeys = getCalendarMonths(payload.missions);
     activeCalendarMonthIndex = Math.max(
       0,
@@ -775,6 +788,7 @@ async function loadLaunches() {
     renderMonthSummary(payload.monthSummary);
     renderTracker(payload.missions);
     renderCalendar(payload.missions);
+
     renderMissions(payload.missions);
     highlightMissionCardFromHash();
     refreshNote.textContent = t("manifest.refreshedAt", {
@@ -793,6 +807,7 @@ async function loadLaunches() {
     calendarMonthKeys = [];
     activeCalendarMonthIndex = 0;
     renderCalendar([]);
+
     missionsGrid.innerHTML = `<div class="empty-state">${error.message}</div>`;
   }
 }
@@ -804,40 +819,29 @@ function initializeLocale() {
 
 initializeLocale();
 updateSubscriptionLinks();
-calendarPrev.addEventListener("click", () => {
-  if (!latestPayload || activeCalendarMonthIndex <= 0) {
-    return;
-  }
-
-  activeCalendarMonthIndex -= 1;
-  renderCalendar(latestPayload.missions);
-});
-
-calendarNext.addEventListener("click", () => {
-  if (!latestPayload || activeCalendarMonthIndex >= calendarMonthKeys.length - 1) {
-    return;
-  }
-
-  activeCalendarMonthIndex += 1;
-  renderCalendar(latestPayload.missions);
-});
 
 window.addEventListener("hashchange", () => {
   highlightMissionCardFromHash();
 });
 
-calendarGrid.addEventListener("click", (event) => {
-  const link = event.target.closest(".calendar-event-link");
 
-  if (!link) {
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest(".calendar-nav-button");
+  if (!btn || !latestPayload) {
     return;
   }
 
-  const targetId = link.getAttribute("href")?.slice(1);
-
-  window.setTimeout(() => {
-    highlightMissionCard(targetId);
-  }, 0);
+  if (btn.id === "calendar-prev") {
+    if (activeCalendarMonthIndex > 0) {
+      activeCalendarMonthIndex -= 1;
+      renderCalendar(latestPayload.missions);
+    }
+  } else if (btn.id === "calendar-next") {
+    if (activeCalendarMonthIndex < calendarMonthKeys.length - 1) {
+      activeCalendarMonthIndex += 1;
+      renderCalendar(latestPayload.missions);
+    }
+  }
 });
 
 loadLaunches();
