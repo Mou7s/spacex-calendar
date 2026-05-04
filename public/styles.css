@@ -21,6 +21,22 @@
   --btn-hover: rgba(255, 255, 255, 0.12);
   --btn-hover-border: rgba(255, 255, 255, 0.2);
   --divider: rgba(255, 255, 255, 0.08);
+  --bg-glow: rgba(34, 47, 77, 0.8);
+  --star-color: rgba(255, 255, 255, 0.12);
+  --hero-overlay-top: rgba(3, 5, 8, 0.18);
+  --hero-overlay-bottom: rgba(3, 5, 8, 0.92);
+  --hero-glow: rgba(112, 133, 188, 0.24);
+  --shimmer-color: rgba(255, 255, 255, 0.03);
+  --critical-glow: rgba(255, 107, 107, 0.3);
+  --countdown-split: rgba(255, 255, 255, 0.12);
+  --highlight-border: rgba(255, 255, 255, 0.18);
+  --highlight-glow: rgba(255, 255, 255, 0.05);
+  /* Fixed values for elements on images */
+  --text-on-img: #f5f7fb;
+  --muted-on-img: rgba(245, 247, 251, 0.72);
+  --soft-on-img: rgba(245, 247, 251, 0.48);
+  --surface-on-img: rgba(255, 255, 255, 0.06);
+  --border-on-img: rgba(255, 255, 255, 0.14);
   color-scheme: dark;
 }
 
@@ -41,6 +57,16 @@
   --btn-hover: rgba(0, 0, 0, 0.08);
   --btn-hover-border: rgba(0, 0, 0, 0.18);
   --divider: rgba(0, 0, 0, 0.08);
+  --bg-glow: rgba(180, 200, 240, 0.5);
+  --star-color: transparent;
+  --hero-overlay-top: rgba(0, 0, 0, 0.1);
+  --hero-overlay-bottom: rgba(0, 0, 0, 0.6);
+  --hero-glow: rgba(180, 200, 240, 0.3);
+  --shimmer-color: rgba(0, 0, 0, 0.05);
+  --critical-glow: rgba(255, 107, 107, 0.15);
+  --countdown-split: rgba(0, 0, 0, 0.08);
+  --highlight-border: rgba(0, 0, 0, 0.1);
+  --highlight-glow: rgba(0, 0, 0, 0.03);
   color-scheme: light;
 }
 
@@ -50,7 +76,7 @@
 
 html {
   background:
-    radial-gradient(circle at top, rgba(34, 47, 77, 0.8), transparent 32%),
+    radial-gradient(circle at top, var(--bg-glow), transparent 32%),
     linear-gradient(180deg, #040507 0%, #070b11 34%, #040506 100%);
   color: var(--text);
   transition: background 400ms ease, color 200ms ease;
@@ -58,7 +84,7 @@ html {
 
 [data-theme="light"] {
   background:
-    radial-gradient(circle at top, rgba(180, 200, 240, 0.5), transparent 40%),
+    radial-gradient(circle at top, var(--bg-glow), transparent 40%),
     linear-gradient(180deg, #e8ecf2 0%, #f0f2f5 40%, #e8ecf2 100%);
 }
 
@@ -75,10 +101,10 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px),
-    radial-gradient(circle at 78% 14%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px),
-    radial-gradient(circle at 68% 55%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px),
-    radial-gradient(circle at 30% 72%, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px);
+    radial-gradient(circle at 20% 25%, var(--star-color) 0 1px, transparent 1px),
+    radial-gradient(circle at 78% 14%, var(--star-color) 0 1px, transparent 1px),
+    radial-gradient(circle at 68% 55%, var(--star-color) 0 1px, transparent 1px),
+    radial-gradient(circle at 30% 72%, var(--star-color) 0 1px, transparent 1px);
   transition: opacity 400ms ease;
 }
 
@@ -243,8 +269,8 @@ dd,
   border: 1px solid var(--border);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(3, 5, 8, 0.18), rgba(3, 5, 8, 0.92)),
-    radial-gradient(circle at top, rgba(112, 133, 188, 0.24), transparent 34%),
+    linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom)),
+    radial-gradient(circle at top, var(--hero-glow), transparent 34%),
     center / cover no-repeat;
   box-shadow: var(--shadow);
 }
@@ -306,21 +332,21 @@ dd,
 .hero-copy .meta-label,
 .hero-copy .meta-card strong,
 .hero-copy .hero-link {
-  color: #f5f7fb;
+  color: var(--text-on-img);
 }
 
 .hero-copy .eyebrow {
-  color: rgba(245, 247, 251, 0.48);
+  color: var(--soft-on-img);
 }
 
 .hero-copy .hero-description,
 .hero-copy .meta-label {
-  color: rgba(245, 247, 251, 0.72);
+  color: var(--muted-on-img);
 }
 
 .hero-copy .meta-card {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: var(--surface-on-img);
+  border-color: var(--border-on-img);
 }
 
 .hero-copy .hero-link {
@@ -478,14 +504,14 @@ h2 {
   left: -2px;
   right: -2px;
   height: 1px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--countdown-split);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   pointer-events: none;
 }
 
 .countdown-unit {
   font-size: 0.55rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--soft);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   margin-top: 6px;
@@ -515,7 +541,7 @@ h2 {
 
 .countdown-display.is-critical .countdown-val {
   color: #ff6b6b;
-  text-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+  text-shadow: 0 0 12px var(--critical-glow);
 }
 
 .countdown-display.is-critical .countdown-unit {
@@ -552,9 +578,7 @@ h2 {
 
 .calendar-header,
 .calendar-nav,
-.calendar-weekdays,
-.calendar-grid,
-.calendar-day-events {
+.calendar-grid {
   display: grid;
 }
 
@@ -647,7 +671,7 @@ h2 {
   max-height: 420px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: var(--shimmer-color) transparent;
 }
 
 .calendar-events-view::-webkit-scrollbar {
@@ -659,7 +683,7 @@ h2 {
 }
 
 .calendar-events-view::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: var(--shimmer-color);
   border-radius: 20px;
 }
 
@@ -865,11 +889,11 @@ h2 {
 
 .mission-card:target,
 .mission-card.is-highlighted {
-  border-color: rgba(255, 255, 255, 0.32);
+  border-color: var(--highlight-border);
   box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.42),
-    0 0 0 1px rgba(255, 255, 255, 0.18),
-    0 0 0 10px rgba(255, 255, 255, 0.05);
+    var(--shadow),
+    0 0 0 1px var(--highlight-border),
+    0 0 0 10px var(--highlight-glow);
   transform: translateY(-2px);
 }
 
@@ -988,7 +1012,7 @@ dd {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.03) 50%,
+    var(--shimmer-color) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   animation: skeleton-shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
@@ -998,7 +1022,7 @@ dd {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.6) 50%,
+    var(--shimmer-color) 50%,
     rgba(255, 255, 255, 0) 100%
   );
 }
