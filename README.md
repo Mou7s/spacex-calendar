@@ -6,9 +6,11 @@
 
 - 在 `/spacex.ics` 发布标准 ICS 日历订阅源
 - 在 `/api/launches` 提供结构化的发射数据 JSON 接口
-- 提供一个轻量级的落地页，包含日历订阅说明和发射日历视图
+- **高性能架构**：引入 Cloudflare KV 实现上游数据缓存，极大降低延迟与封禁风险
+- **SEO 友好**：支持 Open Graph (OG) 社交分享预览卡片，并通过 JSON-LD 注入 Google 结构化事件数据
+- 提供一个轻量级、响应式、支持深色模式和离线运行（PWA）的落地页
+- 落地页根据浏览器语言自动切换中英文，支持桌面和移动端
 - 从 SpaceX 官网的实时数据源拉取数据，而非已停更的 v4 公共 API
-- 落地页根据浏览器语言自动切换中英文
 
 ## 在线使用
 
@@ -42,7 +44,8 @@ public/
   app.js             前端逻辑和国际化
   styles.css         落地页样式
 test/
-  spacex.test.js     数据处理和路由测试
+  spacex.test.js     后端数据处理、ICS生成和路由测试
+  app.test.js        前端基于 JSDOM 的渲染函数和多语言测试
 wrangler.toml        Cloudflare Worker 配置
 ```
 
@@ -52,6 +55,14 @@ wrangler.toml        Cloudflare Worker 配置
 
 ```bash
 npm install
+```
+
+配置 KV 数据库（**必须**）：
+运行以下命令创建你的本地/线上 KV 空间，并将控制台输出的 `id` 更新到 `wrangler.toml` 文件中：
+
+```bash
+npx wrangler kv namespace create SPACEX_KV
+npx wrangler kv namespace create SPACEX_KV --preview
 ```
 
 启动本地开发服务器：
@@ -80,13 +91,18 @@ http://localhost:8787
 npm test
 ```
 
-当前测试覆盖范围：
+当前自动化测试覆盖了前后端两大模块：
 
-- SpaceX 双数据源的合并逻辑
+**后端逻辑 (`spacex.test.js`)：**
+- SpaceX 双数据源的合并与异常处理
 - ICS 生成及 `VEVENT` 输出格式验证
 - 日历文本转义处理
-- Worker 路由行为（`/spacex.ics`）
-- 静态资源回退（`/`）
+- Worker 路由行为（`/spacex.ics`，`/api/launches`）及静态资产回退
+
+**前端逻辑 (`app.test.js`)：**
+- 使用 Node 原生测试与 JSDOM 环境模拟浏览器
+- 纯函数逻辑（多语言转化、状态解析、大小写转化）
+- 核心组件挂载测试（动态向 DOM 插入发射任务卡片）
 
 ## 部署
 
