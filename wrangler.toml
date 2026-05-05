@@ -6,3 +6,8 @@ workers_dev = true
 [assets]
 directory = "./public"
 binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "SPACEX_KV"
+id = "1418127f36b744c282be41d017be1620"
+preview_id = "74360fe4396b4a7ba0a69a6f4888fa20"

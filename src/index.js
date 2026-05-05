@@ -1,5 +1,35 @@
 import { buildCalendarFeed, loadLaunchData } from "./lib/spacex.js";
 
+const CACHE_KEY = "spacex_launches_data";
+const CACHE_TTL = 300; // 5 minutes cache
+
+async function getCachedLaunchData(env, fetchImpl) {
+  if (env.SPACEX_KV) {
+    try {
+      const cached = await env.SPACEX_KV.get(CACHE_KEY, "json");
+      if (cached) {
+        return cached;
+      }
+    } catch (e) {
+      // Ignore KV read errors and fallback to fetch
+      console.error("KV read error:", e);
+    }
+  }
+
+  const data = await loadLaunchData(fetchImpl);
+
+  if (env.SPACEX_KV) {
+    try {
+      await env.SPACEX_KV.put(CACHE_KEY, JSON.stringify(data), { expirationTtl: CACHE_TTL });
+    } catch (e) {
+      // Ignore KV write errors
+      console.error("KV write error:", e);
+    }
+  }
+
+  return data;
+}
+
 function jsonResponse(payload, status = 200, cacheControl = "no-store") {
   return new Response(JSON.stringify(payload), {
     status,
@@ -31,7 +61,7 @@ export default {
 
     if (url.pathname === "/api/launches") {
       try {
-        const data = await loadLaunchData(fetch);
+        const data = await getCachedLaunchData(env, fetch);
         return jsonResponse(data, 200, "public, max-age=300");
       } catch (error) {
         return jsonResponse(
@@ -46,7 +76,7 @@ export default {
 
     if (url.pathname === "/spacex.ics" || url.pathname === "/calendar.ics") {
       try {
-        const data = await loadLaunchData(fetch);
+        const data = await getCachedLaunchData(env, fetch);
         return calendarResponse(buildCalendarFeed(data));
       } catch (error) {
         return jsonResponse(
