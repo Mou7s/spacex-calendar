@@ -952,17 +952,19 @@ async function loadLaunches() {
 }
 
 function initializeLocale() {
-  activeLocale = resolveLocale(navigator.language);
-  applyStaticTranslations();
+  const params = new URLSearchParams(window.location.search);
+  const preferred =
+    params.get("hl") ||
+    localStorage.getItem("preferred-locale") ||
+    navigator.language;
+
+  activeLocale = resolveLocale(preferred);
 }
 
 initializeLocale();
+applyStaticTranslations();
 updateSubscriptionLinks();
-
-window.addEventListener("hashchange", () => {
-  highlightMissionCardFromHash();
-});
-
+window.addEventListener("hashchange", highlightMissionCardFromHash);
 
 document.addEventListener("click", (event) => {
   const btn = event.target.closest(".calendar-nav-button");
@@ -1032,3 +1034,12 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+
+// Export for testing
+export {
+  t,
+  titleCase,
+  localizeStatus,
+  localizeMissionType,
+  renderMissions
+};
