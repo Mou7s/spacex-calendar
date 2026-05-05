@@ -248,7 +248,7 @@ const imageObserver = new IntersectionObserver(
         const el = entry.target;
         const src = el.dataset.src;
         if (src) {
-          el.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.72)), url("${src}")`;
+          el.style.backgroundImage = `url("${src}")`;
           el.classList.add("is-loaded");
         }
         observer.unobserve(el);
@@ -868,8 +868,41 @@ function renderHero(nextLaunch) {
       : t("mission.detailsLink");
 
   if (nextLaunch.image) {
-    hero.style.backgroundImage = `linear-gradient(180deg, rgba(3, 5, 8, 0.18), rgba(3, 5, 8, 0.92)), radial-gradient(circle at top, rgba(112, 133, 188, 0.24), transparent 34%), url("${nextLaunch.image}")`;
+    hero.style.backgroundImage = `radial-gradient(circle at top, rgba(112, 133, 188, 0.24), transparent 34%), url("${nextLaunch.image}")`;
   }
+}
+
+function injectStructuredData(missions) {
+  const existingScript = document.querySelector("#structured-data");
+  if (existingScript) {
+    existingScript.remove();
+  }
+
+  const events = missions
+    .filter((m) => m.launchAt)
+    .map((m) => ({
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: m.title,
+      startDate: m.launchAt,
+      endDate: m.launchWindow?.close || m.launchAt,
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      location: {
+        "@type": "Place",
+        name: m.launchSite || "TBD",
+      },
+      image: m.image ? [m.image] : [],
+      description: `${m.vehicle || "TBD"} launch from ${m.launchSite || "TBD"}.`,
+    }));
+
+  if (events.length === 0) return;
+
+  const script = document.createElement("script");
+  script.id = "structured-data";
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify(events);
+  document.head.appendChild(script);
 }
 
 async function loadLaunches() {
@@ -895,6 +928,7 @@ async function loadLaunches() {
     renderCalendar(payload.missions);
 
     renderMissions(payload.missions);
+    injectStructuredData(payload.missions);
     highlightMissionCardFromHash();
     refreshNote.textContent = t("manifest.refreshedAt", {
       value: new Intl.DateTimeFormat(activeLocale, {

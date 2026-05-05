@@ -269,7 +269,6 @@ dd,
   border: 1px solid var(--border);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom)),
     radial-gradient(circle at top, var(--hero-glow), transparent 34%),
     center / cover no-repeat;
   box-shadow: var(--shadow);
