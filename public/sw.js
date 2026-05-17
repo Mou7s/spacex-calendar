@@ -2,6 +2,8 @@ const CACHE_NAME = "spacex-calendar-v2";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
+  "/robots.txt",
+  "/sitemap.xml",
   "/styles.css",
   "/app.js",
   "/i18n.js",
