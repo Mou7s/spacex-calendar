@@ -1,3 +1,10 @@
+import {
+  getNestedTranslation as getMessageValue,
+  loadLocaleMessages,
+  resolveLocale,
+  translate,
+} from "./i18n.js";
+
 const hero = document.querySelector("#hero");
 const heroTitle = document.querySelector("#hero-title");
 const heroDescription = document.querySelector("#hero-description");
@@ -22,218 +29,8 @@ const calendarEventsList = document.querySelector("#calendar-events-list");
 const themeToggle = document.querySelector("#theme-toggle");
 
 
-const translations = {
-  "zh-CN": {
-    meta: {
-      title: "SpaceX 发射日历",
-      description: "订阅在线 ICS 日历，随时获取最新的 SpaceX 发射计划。",
-    },
-    header: {
-      copy: "订阅在线 ICS 日历，随时获取最新的 SpaceX 发射计划。",
-    },
-    subscribe: {
-      eyebrow: "ICS 订阅",
-      title: "订阅在线日历",
-      copy: "使用下面的订阅地址添加日历。部署到公网 HTTPS 域名后，支持 ICS 订阅的日历应用都可以持续同步。",
-      subscribeLink: "订阅在线日历",
-    },
-    hero: {
-      eyebrow: "实时日历源",
-      loadingTitle: "正在加载发射日历",
-      loadingDescription: "正在拉取 SpaceX 官网当前使用的任务和发射窗口数据。",
-      noMissionsTitle: "暂无即将发射任务",
-      noMissionsDescription: "实时任务源暂时没有返回可用的即将发射任务。",
-      unavailableTitle: "发射数据暂时不可用",
-      unavailableDescription: "当前无法从 SpaceX 数据源拉取最新任务信息。",
-      meta: {
-        nextLaunch: "下一次发射",
-        countdown: "倒计时",
-      },
-      pending: "等待中",
-      syncing: "同步中",
-      retryLater: "稍后再试",
-      unavailable: "不可用",
-      nextLaunchDescription:
-        "{vehicle} 从 {launchSite} 发射，并计划在 {returnSite} 回收。",
-    },
-    overview: {
-      cadenceEyebrow: "发射节奏",
-      cadenceTitle: "近期发射分布",
-      statusEyebrow: "状态",
-      statusTitle: "发射追踪",
-      noLaunchWindows: "当前还没有可展示的发射窗口。",
-      tracker: {
-        missionsLoaded: "任务总数",
-        timedWindows: "有时间窗口的任务",
-        liveNow: "正在直播",
-        viewerTimezone: "当前时区",
-      },
-    },
-    calendar: {
-      eyebrow: "发射日历",
-      title: "按月查看任务",
-      previousMonthAria: "查看上个月",
-      nextMonthAria: "查看下个月",
-      noLaunches: "这个月还没有带日期的发射任务。",
-      dayLabel: "{month}月{day}日",
-      untimed: "时间待定",
-      weekdayShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
-    },
-    manifest: {
-      eyebrow: "任务清单",
-      title: "即将执行的任务",
-      waiting: "等待数据中",
-      refreshedAt: "更新于 {value}",
-    },
-    mission: {
-      vehicle: "火箭",
-      launchSite: "发射场",
-      returnSite: "回收点",
-      watchLive: "观看直播",
-      detailsLink: "任务详情",
-      emptyState: "实时数据源没有返回 upcoming SpaceX 任务。",
-      live: "直播中",
-      unspecified: "未说明",
-      tbd: "待定",
-      sitePending: "待定发射场",
-      recoveryPending: "待定回收点",
-      launchTimingUnavailable: "暂未公布发射时间。",
-      window: "窗口：{open} 至 {close}",
-      launchTarget: "目标发射时间：{local} · {utc}",
-      types: {
-        starlink: "星链",
-        nssl: "国家安全发射",
-      },
-    },
-    countdown: {
-      awaitingTime: "等待时间",
-      windowOpen: "窗口已开启",
-      format: "{days}天 {hours}时 {minutes}分 {seconds}秒",
-      units: {
-        days: "天",
-        hours: "时",
-        minutes: "分",
-        seconds: "秒",
-      },
-    },
-    status: {
-      upcoming: "即将进行",
-      live: "直播中",
-    },
-  },
-  en: {
-    meta: {
-      title: "SpaceX Launch Calendar",
-      description:
-        "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
-    },
-    header: {
-      copy: "Subscribe to an online ICS calendar and keep up with upcoming SpaceX launches.",
-    },
-    subscribe: {
-      eyebrow: "ICS Subscription",
-      title: "Subscribe to Online Calendar",
-      copy: "Use the subscription links below to add this calendar. Once deployed on a public HTTPS domain, calendar apps with ICS subscription support can keep it synced automatically.",
-      subscribeLink: "Subscribe to Calendar",
-    },
-    hero: {
-      eyebrow: "Live Calendar Feed",
-      loadingTitle: "Loading launch calendar",
-      loadingDescription:
-        "Fetching the current mission queue and launch windows from SpaceX website feeds.",
-      noMissionsTitle: "No upcoming missions",
-      noMissionsDescription:
-        "The live mission feed did not return any upcoming launches.",
-      unavailableTitle: "Launch data unavailable",
-      unavailableDescription:
-        "The app could not reach the SpaceX mission feeds just now.",
-      meta: {
-        nextLaunch: "Next launch",
-        countdown: "Countdown",
-      },
-      pending: "Pending",
-      syncing: "Syncing",
-      retryLater: "Retry later",
-      unavailable: "Unavailable",
-      nextLaunchDescription:
-        "{vehicle} from {launchSite} with recovery at {returnSite}.",
-    },
-    overview: {
-      cadenceEyebrow: "Flight cadence",
-      cadenceTitle: "Upcoming launch rhythm",
-      statusEyebrow: "Status",
-      statusTitle: "Launch tracker",
-      noLaunchWindows: "No launch windows are available yet.",
-      tracker: {
-        missionsLoaded: "Missions loaded",
-        timedWindows: "Timed windows",
-        liveNow: "Live now",
-        viewerTimezone: "Viewer timezone",
-      },
-    },
-    calendar: {
-      eyebrow: "Launch calendar",
-      title: "Browse missions by month",
-      previousMonthAria: "View previous month",
-      nextMonthAria: "View next month",
-      noLaunches: "No dated launches are available for this month yet.",
-      dayLabel: "{month} {day}",
-      untimed: "Time TBD",
-      weekdayShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    },
-    manifest: {
-      eyebrow: "Manifest",
-      title: "Upcoming missions",
-      waiting: "Waiting for data",
-      refreshedAt: "Refreshed {value}",
-    },
-    mission: {
-      vehicle: "Vehicle",
-      launchSite: "Launch site",
-      returnSite: "Return site",
-      watchLive: "Watch Live",
-      detailsLink: "Mission Page",
-      emptyState:
-        "No upcoming SpaceX missions were returned by the live data feed.",
-      live: "Live",
-      unspecified: "Unspecified",
-      tbd: "TBD",
-      sitePending: "site pending",
-      recoveryPending: "an unlisted recovery site",
-      launchTimingUnavailable: "Launch timing has not been published yet.",
-      window: "Window: {open} to {close}",
-      launchTarget: "Launch target: {local} · {utc}",
-      types: {
-        starlink: "Starlink",
-        nssl: "National Security Launch",
-      },
-    },
-    countdown: {
-      awaitingTime: "Awaiting time",
-      windowOpen: "Window open",
-      format: "{days}d {hours}h {minutes}m {seconds}s",
-      units: {
-        days: "Days",
-        hours: "Hours",
-        minutes: "Mins",
-        seconds: "Secs",
-      },
-    },
-    status: {
-      upcoming: "Upcoming",
-      live: "Live",
-    },
-  },
-};
-
-translations["zh-CN"].header.github = "GitHub 仓库";
-translations["zh-CN"].header.githubAriaLabel = "在 GitHub 查看项目";
-translations["zh-CN"].header.themeToggleAria = "切换深色/浅色模式";
-translations.en.header.github = "GitHub";
-translations.en.header.githubAriaLabel = "View project on GitHub";
-translations.en.header.themeToggleAria = "Toggle dark/light mode";
-
-let activeLocale = "zh-CN";
+let activeLocale = "en";
+let messages = {};
 let countdownTimerId = null;
 let calendarMonthKeys = [];
 let activeCalendarMonthIndex = 0;
@@ -258,35 +55,12 @@ const imageObserver = new IntersectionObserver(
   { rootMargin: "200px" }
 );
 
-function resolveLocale(preferred) {
-  if (preferred && translations[preferred]) {
-    return preferred;
-  }
-
-  if (preferred && preferred.toLowerCase().startsWith("zh")) {
-    return "zh-CN";
-  }
-
-  return "en";
-}
-
 function getNestedTranslation(key, locale = activeLocale) {
-  return key
-    .split(".")
-    .reduce((value, segment) => value?.[segment], translations[locale]);
+  return getMessageValue(messages, key, locale);
 }
 
 function t(key, replacements = {}, locale = activeLocale) {
-  const template =
-    getNestedTranslation(key, locale) ?? getNestedTranslation(key, "en") ?? key;
-
-  if (typeof template !== "string") {
-    return String(template ?? key);
-  }
-
-  return template.replace(/\{(\w+)\}/g, (_, token) => {
-    return replacements[token] ?? "";
-  });
+  return translate(messages, key, replacements, locale);
 }
 
 function applyStaticTranslations() {
@@ -951,17 +725,19 @@ async function loadLaunches() {
   }
 }
 
-function initializeLocale() {
+async function initializeLocale() {
   const params = new URLSearchParams(window.location.search);
   const preferred =
     params.get("hl") ||
     localStorage.getItem("preferred-locale") ||
     navigator.language;
 
-  activeLocale = resolveLocale(preferred);
+  const localeResult = await loadLocaleMessages(preferred);
+  activeLocale = localeResult.locale;
+  messages = localeResult.messages;
 }
 
-initializeLocale();
+await initializeLocale();
 applyStaticTranslations();
 updateSubscriptionLinks();
 window.addEventListener("hashchange", highlightMissionCardFromHash);
@@ -1037,6 +813,7 @@ if ("serviceWorker" in navigator) {
 
 // Export for testing
 export {
+  resolveLocale,
   t,
   titleCase,
   localizeStatus,

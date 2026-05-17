@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpaceX Calendar Todo</title>
+    <meta
+      name="description"
+      content="SpaceX 发射日历项目的下一步改进路线图。"
+    />
+    <style>
+      @font-face {
+        font-family: "D-DIN";
+        src: url("/D-DIN.woff2") format("woff2");
+        font-display: swap;
+      }
+
+      :root {
+        --bg: #05070a;
+        --panel: rgba(255, 255, 255, 0.065);
+        --panel-strong: rgba(255, 255, 255, 0.105);
+        --border: rgba(255, 255, 255, 0.14);
+        --text: #f6f7fb;
+        --muted: rgba(246, 247, 251, 0.7);
+        --soft: rgba(246, 247, 251, 0.48);
+        --green: #8bf0a4;
+        --gold: #ffd479;
+        --blue: #9cc8ff;
+        --red: #ff8f8f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 24% 0%, rgba(65, 88, 140, 0.78), transparent 34%),
+          radial-gradient(circle at 84% 12%, rgba(40, 92, 84, 0.42), transparent 28%),
+          linear-gradient(180deg, #040507 0%, #071018 45%, #040506 100%);
+        color: var(--text);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "D-DIN", Arial, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        width: min(1160px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 30px 0 64px;
+      }
+
+      .site-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding-bottom: 30px;
+      }
+
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+
+      .brand-mark {
+        font-size: clamp(2.1rem, 6vw, 4.2rem);
+        line-height: 0.9;
+        text-transform: uppercase;
+      }
+
+      .brand-sub,
+      .eyebrow,
+      .priority,
+      .item-meta span,
+      .nav-link {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+      }
+
+      .brand-sub {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .nav-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.045);
+        color: var(--text);
+        font-size: 0.72rem;
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: 360px;
+        display: grid;
+        align-items: end;
+        padding: clamp(28px, 7vw, 66px);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        background:
+          linear-gradient(90deg, rgba(4, 5, 7, 0.92), rgba(4, 5, 7, 0.44), rgba(4, 5, 7, 0.9)),
+          url("https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=1800&q=80")
+            center / cover;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 44%;
+        background: linear-gradient(180deg, transparent, rgba(5, 7, 10, 0.86));
+        pointer-events: none;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 760px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--soft);
+        font-size: 0.74rem;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 18px;
+        font-size: clamp(2.4rem, 7vw, 5.6rem);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .hero p:last-child {
+        max-width: 650px;
+        margin: 0;
+        color: rgba(246, 247, 251, 0.76);
+        font-size: clamp(1rem, 2vw, 1.18rem);
+        line-height: 1.7;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 18px 0 34px;
+      }
+
+      .summary-card,
+      .todo-item,
+      .note-panel {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .summary-card {
+        padding: 18px;
+      }
+
+      .summary-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 2rem;
+        line-height: 1;
+      }
+
+      .summary-card span {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+        margin: 34px 0 16px;
+      }
+
+      .section-header h2 {
+        margin: 0;
+        font-size: clamp(1.7rem, 4vw, 2.8rem);
+        letter-spacing: 0;
+      }
+
+      .section-header p {
+        max-width: 420px;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .todo-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .todo-item {
+        display: grid;
+        grid-template-columns: 132px 1fr;
+        gap: 22px;
+        padding: 20px;
+      }
+
+      .priority {
+        align-self: start;
+        display: inline-flex;
+        justify-content: center;
+        width: 100%;
+        padding: 9px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 0.7rem;
+      }
+
+      .priority.now {
+        color: var(--green);
+      }
+
+      .priority.next {
+        color: var(--gold);
+      }
+
+      .priority.later {
+        color: var(--blue);
+      }
+
+      .priority.watch {
+        color: var(--red);
+      }
+
+      .todo-copy h3 {
+        margin-bottom: 8px;
+        font-size: 1.28rem;
+        letter-spacing: 0;
+      }
+
+      .todo-copy p {
+        margin-bottom: 12px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .item-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .item-meta span {
+        padding: 7px 9px;
+        border-radius: 999px;
+        background: var(--panel-strong);
+        color: var(--soft);
+        font-size: 0.66rem;
+      }
+
+      .note-panel {
+        margin-top: 18px;
+        padding: 22px;
+      }
+
+      .note-panel h2 {
+        margin-bottom: 10px;
+        font-size: 1.45rem;
+        letter-spacing: 0;
+      }
+
+      .note-panel ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      @media (max-width: 760px) {
+        .site-header,
+        .section-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+
+        .summary-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .todo-item {
+          grid-template-columns: 1fr;
+        }
+
+        .priority {
+          width: fit-content;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: 440px;
+          padding: 26px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="site-header">
+        <div class="brand">
+          <span class="brand-mark">SPACEX</span>
+          <span class="brand-sub">Calendar Todo</span>
+        </div>
+        <nav class="nav" aria-label="Project links">
+          <a class="nav-link" href="/">返回首页</a>
+          <a class="nav-link" href="/spacex.ics">ICS Feed</a>
+          <a class="nav-link" href="/api/launches">API</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-content">
+            <p class="eyebrow">Recommended Next Work</p>
+            <h1>下一步做什么</h1>
+            <p>
+              这个项目的核心已经清楚：从 SpaceX 官网数据源合并任务和发射窗口，输出稳定 ICS，
+              再用轻量静态页展示。接下来最值得做的是降低维护成本、提高订阅可靠性，并补齐可验证的用户体验。
+            </p>
+          </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Project summary">
+          <div class="summary-card">
+            <strong>1</strong>
+            <span>优先保护 ICS 稳定性，这是项目最核心的用户价值。</span>
+          </div>
+          <div class="summary-card">
+            <strong>2</strong>
+            <span>把前端翻译和渲染拆小，后续功能会更容易加。</span>
+          </div>
+          <div class="summary-card">
+            <strong>3</strong>
+            <span>用 E2E 覆盖订阅、日历浏览、错误态这些真实路径。</span>
+          </div>
+          <div class="summary-card">
+            <strong>4</strong>
+            <span>谨慎扩功能，避免把静态落地页做重。</span>
+          </div>
+        </section>
+
+        <section class="section-header">
+          <div>
+            <p class="eyebrow">Phase 1</p>
+            <h2>近期最推荐</h2>
+          </div>
+          <p>这些改动风险低、收益直接，适合优先排进下一轮。</p>
+        </section>
+
+        <section class="todo-list">
+          <article class="todo-item">
+            <span class="priority now">P0 / Now</span>
+            <div class="todo-copy">
+              <h3>为 ICS 输出补更严格的回归测试</h3>
+              <p>
+                重点覆盖 UID 不变化、Content-Type、DTSTART/DTEND、转义、折行、无时间任务跳过等行为。
+                这是订阅型产品的地基，后续改 UI 或数据源都不能影响日历客户端同步。
+              </p>
+              <div class="item-meta">
+                <span>价值：防破坏订阅</span>
+                <span>验收：npm test 覆盖关键 ICS 字段</span>
+                <span>范围：test/spacex.test.js</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="todo-item">
+            <span class="priority now">P0 / Now</span>
+            <div class="todo-copy">
+              <h3>拆出前端翻译数据</h3>
+              <p>
+                当前中英文文案集中在 app.js，文件会随着功能增长越来越难读。建议拆成独立
+                translations 模块，仍然保持浏览器原生 ES module，不引入框架。
+              </p>
+              <div class="item-meta">
+                <span>价值：降低维护成本</span>
+                <span>验收：中英文页面无回退 key</span>
+                <span>范围：public/app.js</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="todo-item">
+            <span class="priority now">P1 / Now</span>
+            <div class="todo-copy">
+              <h3>给上游数据异常做可观察性</h3>
+              <p>
+                保留现有 SpaceX 数据源，但在 API 错误响应里区分 tiles 源、timings 源、JSON 结构变化、
+                KV 读写失败。这样线上出问题时能快速判断是上游改版还是缓存/Worker 问题。
+              </p>
+              <div class="item-meta">
+                <span>价值：更快定位故障</span>
+                <span>验收：错误测试覆盖来源标记</span>
+                <span>范围：src/lib/spacex.js</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-header">
+          <div>
+            <p class="eyebrow">Phase 2</p>
+            <h2>中期增强</h2>
+          </div>
+          <p>这些会明显提升体验，但建议在核心稳定后再做。</p>
+        </section>
+
+        <section class="todo-list">
+          <article class="todo-item">
+            <span class="priority next">P1 / Next</span>
+            <div class="todo-copy">
+              <h3>补 Playwright E2E 测试</h3>
+              <p>
+                覆盖首页加载、语言切换后的关键文案、订阅链接生成、月历翻页、任务卡片渲染、API 失败态。
+                这比单元测试更接近真实用户路径。
+              </p>
+              <div class="item-meta">
+                <span>价值：防 UI 回归</span>
+                <span>验收：本地和 CI 可跑 E2E</span>
+                <span>范围：test/e2e</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="todo-item">
+            <span class="priority next">P1 / Next</span>
+            <div class="todo-copy">
+              <h3>月历日期点击联动任务列表</h3>
+              <p>
+                当前已有月历和任务列表，下一步可以让点击某个发射日期时滚动并高亮对应任务。
+                这是小功能，但会让页面从“展示”更接近“可浏览工具”。
+              </p>
+              <div class="item-meta">
+                <span>价值：提升浏览效率</span>
+                <span>验收：键盘和鼠标都可触发</span>
+                <span>范围：public/app.js</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="todo-item">
+            <span class="priority next">P2 / Next</span>
+            <div class="todo-copy">
+              <h3>增加手动时区选择</h3>
+              <p>
+                默认使用浏览器时区很好，但跨地区关注发射的人可能想看 UTC、美国东部时间或发射场当地时间。
+                建议只影响页面展示，不改变 ICS 里的 UTC 时间。
+              </p>
+              <div class="item-meta">
+                <span>价值：适合跨时区用户</span>
+                <span>验收：刷新后保留选择</span>
+                <span>范围：public/app.js</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-header">
+          <div>
+            <p class="eyebrow">Phase 3</p>
+            <h2>谨慎评估</h2>
+          </div>
+          <p>这些功能有吸引力，但会带来权限、数据或复杂度成本。</p>
+        </section>
+
+        <section class="todo-list">
+          <article class="todo-item">
+            <span class="priority later">P2 / Later</span>
+            <div class="todo-copy">
+              <h3>单任务分享链接</h3>
+              <p>
+                可以为任务卡片生成带 hash 的链接，并在打开后自动定位到任务。比社交分享 API 更轻，
+                也更符合静态页面路线。
+              </p>
+              <div class="item-meta">
+                <span>价值：传播单个任务</span>
+                <span>验收：URL 可直达任务卡片</span>
+                <span>范围：public/app.js</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="todo-item">
+            <span class="priority later">P2 / Later</span>
+            <div class="todo-copy">
+              <h3>发射历史归档</h3>
+              <p>
+                如果 SpaceX 仍提供稳定历史数据源，可以增加“已完成”标签页。不要为了归档引入数据库，
+                除非明确要做长期历史产品。
+              </p>
+              <div class="item-meta">
+                <span>价值：补全浏览场景</span>
+                <span>验收：数据源稳定且测试覆盖</span>
+                <span>范围：数据源待确认</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="todo-item">
+            <span class="priority watch">P3 / Watch</span>
+            <div class="todo-copy">
+              <h3>浏览器发射提醒通知</h3>
+              <p>
+                Web Notification API 听起来很适合，但权限请求、离线调度、Service Worker 唤醒能力都有限。
+                只有在明确用户需要网页端提醒时再做，且不要影响 ICS 订阅主路径。
+              </p>
+              <div class="item-meta">
+                <span>价值：可选提醒</span>
+                <span>验收：用户主动开启</span>
+                <span>范围：public/sw.js</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="note-panel">
+          <h2>执行顺序建议</h2>
+          <ul>
+            <li>先补 ICS 回归测试，再调整任何 Worker 或数据规范化逻辑。</li>
+            <li>前端先拆翻译，再做月历联动和时区选择，避免在大 app.js 里继续堆功能。</li>
+            <li>每次触碰 Worker 逻辑后跑 node --check src/index.js、node --check src/lib/spacex.js 和 npm test。</li>
+            <li>每次触碰前端逻辑后跑 node --check public/app.js 和 npm test。</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "Calendario de lanzamientos de SpaceX",
+    "description": "Suscríbete a un calendario ICS en línea y sigue los próximos lanzamientos de SpaceX."
+  },
+  "header": {
+    "copy": "Suscríbete a un calendario ICS en línea y sigue los próximos lanzamientos de SpaceX.",
+    "github": "GitHub",
+    "githubAriaLabel": "Ver el proyecto en GitHub",
+    "themeToggleAria": "Cambiar modo oscuro/claro"
+  },
+  "subscribe": {
+    "eyebrow": "Suscripción ICS",
+    "title": "Suscribirse al calendario",
+    "copy": "Usa los enlaces de suscripción para añadir este calendario. Cuando esté desplegado en un dominio HTTPS público, las apps compatibles con ICS podrán mantenerlo sincronizado.",
+    "subscribeLink": "Suscribirse"
+  },
+  "hero": {
+    "eyebrow": "Feed de calendario en vivo",
+    "loadingTitle": "Cargando calendario de lanzamientos",
+    "loadingDescription": "Obteniendo la cola de misiones y ventanas de lanzamiento desde los feeds del sitio de SpaceX.",
+    "noMissionsTitle": "No hay misiones próximas",
+    "noMissionsDescription": "El feed en vivo no devolvió lanzamientos próximos.",
+    "unavailableTitle": "Datos de lanzamiento no disponibles",
+    "unavailableDescription": "La app no pudo acceder ahora a los feeds de misiones de SpaceX.",
+    "meta": {
+      "nextLaunch": "Próximo lanzamiento",
+      "countdown": "Cuenta regresiva"
+    },
+    "pending": "Pendiente",
+    "syncing": "Sincronizando",
+    "retryLater": "Intentar más tarde",
+    "unavailable": "No disponible",
+    "nextLaunchDescription": "{vehicle} desde {launchSite}, con recuperación en {returnSite}."
+  },
+  "overview": {
+    "cadenceEyebrow": "Cadencia de vuelo",
+    "cadenceTitle": "Ritmo de próximos lanzamientos",
+    "statusEyebrow": "Estado",
+    "statusTitle": "Seguimiento de lanzamientos",
+    "noLaunchWindows": "Aún no hay ventanas de lanzamiento para mostrar.",
+    "tracker": {
+      "missionsLoaded": "Misiones cargadas",
+      "timedWindows": "Ventanas con hora",
+      "liveNow": "En vivo ahora",
+      "viewerTimezone": "Zona horaria"
+    }
+  },
+  "calendar": {
+    "eyebrow": "Calendario de lanzamientos",
+    "title": "Ver misiones por mes",
+    "previousMonthAria": "Ver mes anterior",
+    "nextMonthAria": "Ver mes siguiente",
+    "noLaunches": "No hay lanzamientos con fecha para este mes.",
+    "dayLabel": "{day} de {month}",
+    "untimed": "Hora por confirmar",
+    "weekdayShort": [
+      "Dom",
+      "Lun",
+      "Mar",
+      "Mié",
+      "Jue",
+      "Vie",
+      "Sáb"
+    ]
+  },
+  "manifest": {
+    "eyebrow": "Manifiesto",
+    "title": "Próximas misiones",
+    "waiting": "Esperando datos",
+    "refreshedAt": "Actualizado {value}"
+  },
+  "mission": {
+    "vehicle": "Vehículo",
+    "launchSite": "Sitio de lanzamiento",
+    "returnSite": "Sitio de recuperación",
+    "watchLive": "Ver en vivo",
+    "detailsLink": "Página de la misión",
+    "emptyState": "El feed en vivo no devolvió misiones próximas de SpaceX.",
+    "live": "En vivo",
+    "unspecified": "Sin especificar",
+    "tbd": "Por confirmar",
+    "sitePending": "sitio pendiente",
+    "recoveryPending": "un sitio de recuperación no indicado",
+    "launchTimingUnavailable": "La hora de lanzamiento aún no se ha publicado.",
+    "window": "Ventana: {open} a {close}",
+    "launchTarget": "Objetivo de lanzamiento: {local} · {utc}",
+    "types": {
+      "starlink": "Starlink",
+      "nssl": "Lanzamiento de seguridad nacional"
+    }
+  },
+  "countdown": {
+    "awaitingTime": "Esperando hora",
+    "windowOpen": "Ventana abierta",
+    "format": "{days}d {hours}h {minutes}m {seconds}s",
+    "units": {
+      "days": "Días",
+      "hours": "Horas",
+      "minutes": "Min",
+      "seconds": "Seg"
+    }
+  },
+  "status": {
+    "upcoming": "Próximo",
+    "live": "En vivo"
+  }
+}

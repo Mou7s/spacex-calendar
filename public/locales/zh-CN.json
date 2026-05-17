@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "SpaceX 发射日历",
+    "description": "订阅在线 ICS 日历，随时获取最新的 SpaceX 发射计划。"
+  },
+  "header": {
+    "copy": "订阅在线 ICS 日历，随时获取最新的 SpaceX 发射计划。",
+    "github": "GitHub 仓库",
+    "githubAriaLabel": "在 GitHub 查看项目",
+    "themeToggleAria": "切换深色/浅色模式"
+  },
+  "subscribe": {
+    "eyebrow": "ICS 订阅",
+    "title": "订阅在线日历",
+    "copy": "使用下面的订阅地址添加日历。部署到公网 HTTPS 域名后，支持 ICS 订阅的日历应用都可以持续同步。",
+    "subscribeLink": "订阅在线日历"
+  },
+  "hero": {
+    "eyebrow": "实时日历源",
+    "loadingTitle": "正在加载发射日历",
+    "loadingDescription": "正在拉取 SpaceX 官网当前使用的任务和发射窗口数据。",
+    "noMissionsTitle": "暂无即将发射任务",
+    "noMissionsDescription": "实时任务源暂时没有返回可用的即将发射任务。",
+    "unavailableTitle": "发射数据暂时不可用",
+    "unavailableDescription": "当前无法从 SpaceX 数据源拉取最新任务信息。",
+    "meta": {
+      "nextLaunch": "下一次发射",
+      "countdown": "倒计时"
+    },
+    "pending": "等待中",
+    "syncing": "同步中",
+    "retryLater": "稍后再试",
+    "unavailable": "不可用",
+    "nextLaunchDescription": "{vehicle} 从 {launchSite} 发射，并计划在 {returnSite} 回收。"
+  },
+  "overview": {
+    "cadenceEyebrow": "发射节奏",
+    "cadenceTitle": "近期发射分布",
+    "statusEyebrow": "状态",
+    "statusTitle": "发射追踪",
+    "noLaunchWindows": "当前还没有可展示的发射窗口。",
+    "tracker": {
+      "missionsLoaded": "任务总数",
+      "timedWindows": "有时间窗口的任务",
+      "liveNow": "正在直播",
+      "viewerTimezone": "当前时区"
+    }
+  },
+  "calendar": {
+    "eyebrow": "发射日历",
+    "title": "按月查看任务",
+    "previousMonthAria": "查看上个月",
+    "nextMonthAria": "查看下个月",
+    "noLaunches": "这个月还没有带日期的发射任务。",
+    "dayLabel": "{month}月{day}日",
+    "untimed": "时间待定",
+    "weekdayShort": [
+      "周日",
+      "周一",
+      "周二",
+      "周三",
+      "周四",
+      "周五",
+      "周六"
+    ]
+  },
+  "manifest": {
+    "eyebrow": "任务清单",
+    "title": "即将执行的任务",
+    "waiting": "等待数据中",
+    "refreshedAt": "更新于 {value}"
+  },
+  "mission": {
+    "vehicle": "火箭",
+    "launchSite": "发射场",
+    "returnSite": "回收点",
+    "watchLive": "观看直播",
+    "detailsLink": "任务详情",
+    "emptyState": "实时数据源没有返回 upcoming SpaceX 任务。",
+    "live": "直播中",
+    "unspecified": "未说明",
+    "tbd": "待定",
+    "sitePending": "待定发射场",
+    "recoveryPending": "待定回收点",
+    "launchTimingUnavailable": "暂未公布发射时间。",
+    "window": "窗口：{open} 至 {close}",
+    "launchTarget": "目标发射时间：{local} · {utc}",
+    "types": {
+      "starlink": "星链",
+      "nssl": "国家安全发射"
+    }
+  },
+  "countdown": {
+    "awaitingTime": "等待时间",
+    "windowOpen": "窗口已开启",
+    "format": "{days}天 {hours}时 {minutes}分 {seconds}秒",
+    "units": {
+      "days": "天",
+      "hours": "时",
+      "minutes": "分",
+      "seconds": "秒"
+    }
+  },
+  "status": {
+    "upcoming": "即将进行",
+    "live": "直播中"
+  }
+}

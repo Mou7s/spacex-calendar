@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "SpaceX 打ち上げカレンダー",
+    "description": "オンライン ICS カレンダーを購読して、SpaceX の今後の打ち上げ予定を確認できます。"
+  },
+  "header": {
+    "copy": "オンライン ICS カレンダーを購読して、SpaceX の今後の打ち上げ予定を確認できます。",
+    "github": "GitHub",
+    "githubAriaLabel": "GitHub でプロジェクトを見る",
+    "themeToggleAria": "ダーク/ライトモードを切り替え"
+  },
+  "subscribe": {
+    "eyebrow": "ICS 購読",
+    "title": "オンラインカレンダーを購読",
+    "copy": "下の購読リンクでカレンダーを追加できます。公開 HTTPS ドメインにデプロイすると、ICS 購読に対応したカレンダーアプリで自動同期できます。",
+    "subscribeLink": "カレンダーを購読"
+  },
+  "hero": {
+    "eyebrow": "ライブカレンダーフィード",
+    "loadingTitle": "打ち上げカレンダーを読み込み中",
+    "loadingDescription": "SpaceX 公式サイトのミッション一覧と打ち上げ時間枠を取得しています。",
+    "noMissionsTitle": "今後のミッションはありません",
+    "noMissionsDescription": "ライブデータフィードから今後の打ち上げが返されませんでした。",
+    "unavailableTitle": "打ち上げデータを利用できません",
+    "unavailableDescription": "現在 SpaceX のミッションフィードに接続できません。",
+    "meta": {
+      "nextLaunch": "次の打ち上げ",
+      "countdown": "カウントダウン"
+    },
+    "pending": "待機中",
+    "syncing": "同期中",
+    "retryLater": "後でもう一度",
+    "unavailable": "利用不可",
+    "nextLaunchDescription": "{vehicle} が {launchSite} から打ち上げられ、{returnSite} で回収予定です。"
+  },
+  "overview": {
+    "cadenceEyebrow": "打ち上げペース",
+    "cadenceTitle": "今後の打ち上げリズム",
+    "statusEyebrow": "ステータス",
+    "statusTitle": "打ち上げトラッカー",
+    "noLaunchWindows": "表示できる打ち上げ時間枠はまだありません。",
+    "tracker": {
+      "missionsLoaded": "読み込み済みミッション",
+      "timedWindows": "時間枠あり",
+      "liveNow": "ライブ中",
+      "viewerTimezone": "表示タイムゾーン"
+    }
+  },
+  "calendar": {
+    "eyebrow": "打ち上げカレンダー",
+    "title": "月別にミッションを見る",
+    "previousMonthAria": "前の月を表示",
+    "nextMonthAria": "次の月を表示",
+    "noLaunches": "この月には日付付きの打ち上げがまだありません。",
+    "dayLabel": "{month}月{day}日",
+    "untimed": "時刻未定",
+    "weekdayShort": [
+      "日",
+      "月",
+      "火",
+      "水",
+      "木",
+      "金",
+      "土"
+    ]
+  },
+  "manifest": {
+    "eyebrow": "マニフェスト",
+    "title": "今後のミッション",
+    "waiting": "データ待機中",
+    "refreshedAt": "{value} 更新"
+  },
+  "mission": {
+    "vehicle": "機体",
+    "launchSite": "打ち上げ場",
+    "returnSite": "回収地点",
+    "watchLive": "ライブを見る",
+    "detailsLink": "ミッションページ",
+    "emptyState": "ライブデータフィードから今後の SpaceX ミッションが返されませんでした。",
+    "live": "ライブ",
+    "unspecified": "未指定",
+    "tbd": "未定",
+    "sitePending": "打ち上げ場未定",
+    "recoveryPending": "未掲載の回収地点",
+    "launchTimingUnavailable": "打ち上げ時刻はまだ公開されていません。",
+    "window": "時間枠: {open} から {close}",
+    "launchTarget": "目標打ち上げ時刻: {local} · {utc}",
+    "types": {
+      "starlink": "Starlink",
+      "nssl": "国家安全保障打ち上げ"
+    }
+  },
+  "countdown": {
+    "awaitingTime": "時刻待ち",
+    "windowOpen": "時間枠開始",
+    "format": "{days}日 {hours}時間 {minutes}分 {seconds}秒",
+    "units": {
+      "days": "日",
+      "hours": "時",
+      "minutes": "分",
+      "seconds": "秒"
+    }
+  },
+  "status": {
+    "upcoming": "予定",
+    "live": "ライブ"
+  }
+}

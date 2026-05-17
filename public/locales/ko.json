@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "SpaceX 발사 캘린더",
+    "description": "온라인 ICS 캘린더를 구독하고 예정된 SpaceX 발사 일정을 확인하세요."
+  },
+  "header": {
+    "copy": "온라인 ICS 캘린더를 구독하고 예정된 SpaceX 발사 일정을 확인하세요.",
+    "github": "GitHub",
+    "githubAriaLabel": "GitHub에서 프로젝트 보기",
+    "themeToggleAria": "다크/라이트 모드 전환"
+  },
+  "subscribe": {
+    "eyebrow": "ICS 구독",
+    "title": "온라인 캘린더 구독",
+    "copy": "아래 구독 링크로 캘린더를 추가하세요. 공개 HTTPS 도메인에 배포하면 ICS 구독을 지원하는 캘린더 앱에서 자동으로 동기화됩니다.",
+    "subscribeLink": "캘린더 구독"
+  },
+  "hero": {
+    "eyebrow": "실시간 캘린더 피드",
+    "loadingTitle": "발사 캘린더 불러오는 중",
+    "loadingDescription": "SpaceX 웹사이트 피드에서 현재 미션 목록과 발사 시간을 가져오고 있습니다.",
+    "noMissionsTitle": "예정된 미션 없음",
+    "noMissionsDescription": "실시간 미션 피드에서 예정된 발사를 반환하지 않았습니다.",
+    "unavailableTitle": "발사 데이터를 사용할 수 없음",
+    "unavailableDescription": "지금은 SpaceX 미션 피드에 연결할 수 없습니다.",
+    "meta": {
+      "nextLaunch": "다음 발사",
+      "countdown": "카운트다운"
+    },
+    "pending": "대기 중",
+    "syncing": "동기화 중",
+    "retryLater": "나중에 다시 시도",
+    "unavailable": "사용 불가",
+    "nextLaunchDescription": "{vehicle}이(가) {launchSite}에서 발사되며 {returnSite}에서 회수될 예정입니다."
+  },
+  "overview": {
+    "cadenceEyebrow": "발사 간격",
+    "cadenceTitle": "예정된 발사 흐름",
+    "statusEyebrow": "상태",
+    "statusTitle": "발사 추적",
+    "noLaunchWindows": "아직 표시할 발사 시간이 없습니다.",
+    "tracker": {
+      "missionsLoaded": "불러온 미션",
+      "timedWindows": "시간이 있는 미션",
+      "liveNow": "현재 라이브",
+      "viewerTimezone": "현재 시간대"
+    }
+  },
+  "calendar": {
+    "eyebrow": "발사 캘린더",
+    "title": "월별 미션 보기",
+    "previousMonthAria": "이전 달 보기",
+    "nextMonthAria": "다음 달 보기",
+    "noLaunches": "이 달에는 날짜가 있는 발사가 아직 없습니다.",
+    "dayLabel": "{month}월 {day}일",
+    "untimed": "시간 미정",
+    "weekdayShort": [
+      "일",
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토"
+    ]
+  },
+  "manifest": {
+    "eyebrow": "매니페스트",
+    "title": "예정된 미션",
+    "waiting": "데이터 대기 중",
+    "refreshedAt": "{value} 업데이트"
+  },
+  "mission": {
+    "vehicle": "발사체",
+    "launchSite": "발사장",
+    "returnSite": "회수 지점",
+    "watchLive": "라이브 보기",
+    "detailsLink": "미션 페이지",
+    "emptyState": "실시간 데이터 피드에서 예정된 SpaceX 미션을 반환하지 않았습니다.",
+    "live": "라이브",
+    "unspecified": "지정되지 않음",
+    "tbd": "미정",
+    "sitePending": "발사장 미정",
+    "recoveryPending": "공개되지 않은 회수 지점",
+    "launchTimingUnavailable": "발사 시간이 아직 공개되지 않았습니다.",
+    "window": "발사 시간: {open} - {close}",
+    "launchTarget": "목표 발사 시간: {local} · {utc}",
+    "types": {
+      "starlink": "Starlink",
+      "nssl": "국가 안보 발사"
+    }
+  },
+  "countdown": {
+    "awaitingTime": "시간 대기 중",
+    "windowOpen": "발사 시간 시작",
+    "format": "{days}일 {hours}시간 {minutes}분 {seconds}초",
+    "units": {
+      "days": "일",
+      "hours": "시",
+      "minutes": "분",
+      "seconds": "초"
+    }
+  },
+  "status": {
+    "upcoming": "예정",
+    "live": "라이브"
+  }
+}

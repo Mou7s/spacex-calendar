@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "SpaceX Startkalender",
+    "description": "Abonniere einen Online-ICS-Kalender und verfolge kommende SpaceX-Starts."
+  },
+  "header": {
+    "copy": "Abonniere einen Online-ICS-Kalender und verfolge kommende SpaceX-Starts.",
+    "github": "GitHub",
+    "githubAriaLabel": "Projekt auf GitHub ansehen",
+    "themeToggleAria": "Dunkel-/Hellmodus umschalten"
+  },
+  "subscribe": {
+    "eyebrow": "ICS-Abonnement",
+    "title": "Online-Kalender abonnieren",
+    "copy": "Nutze die Links unten, um diesen Kalender hinzuzufügen. Nach der Bereitstellung auf einer öffentlichen HTTPS-Domain können ICS-fähige Kalender-Apps ihn automatisch synchronisieren.",
+    "subscribeLink": "Kalender abonnieren"
+  },
+  "hero": {
+    "eyebrow": "Live-Kalenderfeed",
+    "loadingTitle": "Startkalender wird geladen",
+    "loadingDescription": "Aktuelle Missionen und Startfenster werden aus den SpaceX-Website-Feeds geladen.",
+    "noMissionsTitle": "Keine kommenden Missionen",
+    "noMissionsDescription": "Der Live-Feed hat keine kommenden Starts zurückgegeben.",
+    "unavailableTitle": "Startdaten nicht verfügbar",
+    "unavailableDescription": "Die SpaceX-Missionsfeeds sind momentan nicht erreichbar.",
+    "meta": {
+      "nextLaunch": "Nächster Start",
+      "countdown": "Countdown"
+    },
+    "pending": "Ausstehend",
+    "syncing": "Synchronisierung",
+    "retryLater": "Später erneut versuchen",
+    "unavailable": "Nicht verfügbar",
+    "nextLaunchDescription": "{vehicle} startet von {launchSite}, mit Bergung bei {returnSite}."
+  },
+  "overview": {
+    "cadenceEyebrow": "Startfrequenz",
+    "cadenceTitle": "Rhythmus kommender Starts",
+    "statusEyebrow": "Status",
+    "statusTitle": "Startverfolgung",
+    "noLaunchWindows": "Es sind noch keine Startfenster verfügbar.",
+    "tracker": {
+      "missionsLoaded": "Geladene Missionen",
+      "timedWindows": "Zeitfenster",
+      "liveNow": "Jetzt live",
+      "viewerTimezone": "Zeitzone"
+    }
+  },
+  "calendar": {
+    "eyebrow": "Startkalender",
+    "title": "Missionen nach Monat durchsuchen",
+    "previousMonthAria": "Vorherigen Monat anzeigen",
+    "nextMonthAria": "Nächsten Monat anzeigen",
+    "noLaunches": "Für diesen Monat sind noch keine datierten Starts verfügbar.",
+    "dayLabel": "{day}. {month}",
+    "untimed": "Zeit offen",
+    "weekdayShort": [
+      "So",
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa"
+    ]
+  },
+  "manifest": {
+    "eyebrow": "Manifest",
+    "title": "Kommende Missionen",
+    "waiting": "Warten auf Daten",
+    "refreshedAt": "Aktualisiert {value}"
+  },
+  "mission": {
+    "vehicle": "Träger",
+    "launchSite": "Startplatz",
+    "returnSite": "Bergungsort",
+    "watchLive": "Live ansehen",
+    "detailsLink": "Missionsseite",
+    "emptyState": "Der Live-Datenfeed hat keine kommenden SpaceX-Missionen zurückgegeben.",
+    "live": "Live",
+    "unspecified": "Nicht angegeben",
+    "tbd": "Offen",
+    "sitePending": "Startplatz offen",
+    "recoveryPending": "ein nicht angegebener Bergungsort",
+    "launchTimingUnavailable": "Die Startzeit wurde noch nicht veröffentlicht.",
+    "window": "Fenster: {open} bis {close}",
+    "launchTarget": "Zielstartzeit: {local} · {utc}",
+    "types": {
+      "starlink": "Starlink",
+      "nssl": "Nationaler Sicherheitsstart"
+    }
+  },
+  "countdown": {
+    "awaitingTime": "Warten auf Zeit",
+    "windowOpen": "Fenster geöffnet",
+    "format": "{days}T {hours}Std {minutes}Min {seconds}Sek",
+    "units": {
+      "days": "Tage",
+      "hours": "Std",
+      "minutes": "Min",
+      "seconds": "Sek"
+    }
+  },
+  "status": {
+    "upcoming": "Bevorstehend",
+    "live": "Live"
+  }
+}

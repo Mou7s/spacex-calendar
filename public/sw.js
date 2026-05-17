@@ -1,9 +1,18 @@
-const CACHE_NAME = "spacex-calendar-v1";
+const CACHE_NAME = "spacex-calendar-v2";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
   "/styles.css",
   "/app.js",
+  "/i18n.js",
+  "/locales/supported.json",
+  "/locales/de.json",
+  "/locales/en.json",
+  "/locales/es.json",
+  "/locales/fr.json",
+  "/locales/ja.json",
+  "/locales/ko.json",
+  "/locales/zh-CN.json",
   "/D-DIN.woff2",
   "/icon-512.png",
   "/manifest.json",

@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { JSDOM } from "jsdom";
 
 // 1. Setup DOM environment before importing app.js
@@ -65,7 +66,19 @@ globalThis.IntersectionObserver = class {
   observe() {}
   unobserve() {}
 };
-globalThis.fetch = async () => new Response(JSON.stringify({ missions: [] }));
+globalThis.fetch = async (url) => {
+  const pathname = new URL(String(url), "http://localhost").pathname;
+
+  if (pathname.startsWith("/locales/")) {
+    const locale = pathname.split("/").pop();
+    const body = await readFile(new URL(`../public/locales/${locale}`, import.meta.url), "utf8");
+    return new Response(body, {
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  return new Response(JSON.stringify({ missions: [] }));
+};
 
 // 2. Import app.js dynamically after environment is ready
 const app = await import("../public/app.js");
@@ -79,6 +92,18 @@ test("titleCase formats text properly", () => {
 test("localizeStatus formats mission status", () => {
   assert.equal(app.localizeStatus("upcoming"), "Upcoming");
   assert.equal(app.localizeStatus(""), "Unspecified");
+});
+
+test("resolveLocale maps supported language variants", () => {
+  const locales = ["zh-CN", "en", "ja", "ko", "es", "fr", "de"];
+
+  assert.equal(app.resolveLocale("zh-TW", locales), "zh-CN");
+  assert.equal(app.resolveLocale("ja-JP", locales), "ja");
+  assert.equal(app.resolveLocale("ko-KR", locales), "ko");
+  assert.equal(app.resolveLocale("es-MX", locales), "es");
+  assert.equal(app.resolveLocale("fr-CA", locales), "fr");
+  assert.equal(app.resolveLocale("de-AT", locales), "de");
+  assert.equal(app.resolveLocale("pt-BR", locales), "en");
 });
 
 test("renderMissions correctly renders mission cards to the DOM", () => {
