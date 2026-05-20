@@ -29,6 +29,7 @@ const calendarMonthLabel = document.querySelector("#calendar-month-label");
 const calendarGrid = document.querySelector("#calendar-grid");
 const calendarEventsList = document.querySelector("#calendar-events-list");
 const themeToggle = document.querySelector("#theme-toggle");
+const timezoneSelector = document.querySelector("#timezone-selector");
 
 
 let activeLocale = "en";
@@ -41,6 +42,7 @@ let activeCalendarMonthIndex = 0;
 let upcomingPayload = null;
 let historyPayload = null;
 let missionHighlightTimerId = null;
+let activeTimezone = null; // null = browser local timezone
 
 const imageObserver = new IntersectionObserver(
   (entries, observer) => {
@@ -118,6 +120,14 @@ function updateSubscriptionLinks() {
   webcalUrl.textContent = webcal;
 }
 
+const TIMEZONE_OPTIONS = [
+  { key: "local", tz: null },
+  { key: "utc",   tz: "UTC" },
+  { key: "et",    tz: "America/New_York" },
+  { key: "ct",    tz: "America/Chicago" },
+  { key: "pt",    tz: "America/Los_Angeles" },
+];
+
 function getDateTimeFormatter(withZone = true, timeZone) {
   const options = {
     month: "short",
@@ -130,8 +140,10 @@ function getDateTimeFormatter(withZone = true, timeZone) {
     options.timeZoneName = "short";
   }
 
-  if (timeZone) {
-    options.timeZone = timeZone;
+  // Explicit override > active user selection > browser default
+  const tz = timeZone !== undefined ? timeZone : activeTimezone;
+  if (tz) {
+    options.timeZone = tz;
   }
 
   return new Intl.DateTimeFormat(activeLocale, options);
@@ -152,6 +164,47 @@ const formatDateTimeUtc = (iso) => {
 
   return getDateTimeFormatter(true, "UTC").format(new Date(iso));
 };
+
+function renderTimezoneSelector() {
+  if (!timezoneSelector) {
+    return;
+  }
+
+  timezoneSelector.replaceChildren();
+
+  for (const option of TIMEZONE_OPTIONS) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "tz-btn";
+    btn.dataset.tz = option.tz || "";
+    btn.textContent = t(`timezone.${option.key}`);
+    btn.setAttribute("aria-label", t(`timezone.aria.${option.key}`));
+    if (activeTimezone === option.tz) {
+      btn.classList.add("is-active");
+      btn.setAttribute("aria-pressed", "true");
+    } else {
+      btn.setAttribute("aria-pressed", "false");
+    }
+    btn.addEventListener("click", () => setActiveTimezone(option.tz));
+    timezoneSelector.append(btn);
+  }
+}
+
+function setActiveTimezone(tz) {
+  activeTimezone = tz;
+  renderTimezoneSelector();
+
+  // Re-render all time-sensitive UI with the new timezone
+  if (upcomingPayload) {
+    renderHero(upcomingPayload.nextLaunch);
+    renderTracker(upcomingPayload.missions);
+    renderMissions(upcomingPayload.missions);
+    refreshCalendar(true);
+  }
+  if (historyPayload) {
+    renderHistoryMissions(historyPayload.missions || []);
+  }
+}
 
 const titleCase = (value) =>
   value
@@ -539,14 +592,16 @@ function renderTracker(missions) {
   const liveCount = missions.filter((mission) => mission.isLive).length;
   const trackedWindows = missions.filter((mission) => mission.launchAt).length;
 
+  // Show the selected timezone label or browser default
+  const tzDisplay = activeTimezone
+    ? activeTimezone.split("/").pop().replace(/_/g, " ")
+    : Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   const rows = [
     [t("overview.tracker.missionsLoaded"), String(total)],
     [t("overview.tracker.timedWindows"), String(trackedWindows)],
     [t("overview.tracker.liveNow"), String(liveCount)],
-    [
-      t("overview.tracker.viewerTimezone"),
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ],
+    [t("overview.tracker.viewerTimezone"), tzDisplay],
   ];
 
   for (const [label, value] of rows) {
@@ -977,6 +1032,7 @@ async function initializeLocale() {
 
 await initializeLocale();
 applyStaticTranslations();
+renderTimezoneSelector();
 updateSubscriptionLinks();
 window.addEventListener("hashchange", highlightMissionCardFromHash);
 

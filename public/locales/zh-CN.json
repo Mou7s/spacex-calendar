@@ -122,5 +122,19 @@
   "status": {
     "upcoming": "即将进行",
     "live": "直播中"
+  },
+  "timezone": {
+    "local": "本地",
+    "utc": "UTC",
+    "et": "ET",
+    "ct": "CT",
+    "pt": "PT",
+    "aria": {
+      "local": "使用浏览器本地时区",
+      "utc": "使用 UTC 时间",
+      "et": "使用东部时间（卡纳维拉尔角）",
+      "ct": "使用中部时间（Starbase）",
+      "pt": "使用太平洋时间（范登堡）"
+    }
   }
 }

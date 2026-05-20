@@ -871,6 +871,46 @@ h2 {
   padding-bottom: 0;
 }
 
+/* Timezone Selector */
+.timezone-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.tz-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--btn-surface);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 160ms ease;
+  text-transform: uppercase;
+}
+
+.tz-btn:hover {
+  background: var(--btn-hover);
+  border-color: var(--btn-hover-border);
+  transform: translateY(-1px);
+}
+
+.tz-btn.is-active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.tz-btn.is-active:hover {
+  background: var(--text);
+  color: var(--bg);
+  opacity: 0.9;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;

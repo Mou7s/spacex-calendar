@@ -122,5 +122,19 @@
   "status": {
     "upcoming": "Upcoming",
     "live": "Live"
+  },
+  "timezone": {
+    "local": "Local",
+    "utc": "UTC",
+    "et": "ET",
+    "ct": "CT",
+    "pt": "PT",
+    "aria": {
+      "local": "Use browser local timezone",
+      "utc": "Use UTC",
+      "et": "Use Eastern Time (Cape Canaveral)",
+      "ct": "Use Central Time (Starbase)",
+      "pt": "Use Pacific Time (Vandenberg)"
+    }
   }
 }

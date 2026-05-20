@@ -36,7 +36,7 @@
   - 点击日历上的日期时，右侧事件列表自动平滑滚动（scrollIntoView）到该日期的任务卡片。
   - 触发被定位卡片的短暂高亮视觉反馈（利用已有的 `highlightMissionCard` 方法）。
 
-### [ ] 5. 前端引入手动时区选择器 (Timezone Selector)
+### [x] 5. 前端引入手动时区选择器 (Timezone Selector)
 - **描述**: 网页端完全依赖浏览器本地时区，跨国关注发射的用户希望能自由切换 UTC 或发射场当地时间（东部时间 ET / 西部时间 PT）。
 - **改动范围**: `public/index.html`, `public/app.js`, `public/styles.css`, `public/locales/*.json`
 - **验收标准**:
