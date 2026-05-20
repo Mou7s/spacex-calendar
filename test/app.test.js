@@ -18,12 +18,14 @@ const dom = new JSDOM(`
       <div id="tracker"></div>
       <section id="missions-grid"></section>
       <p id="refresh-note"></p>
+      <section id="history-grid"></section>
+      <p id="history-refresh-note"></p>
       <a id="calendar-link"></a>
       <code id="ics-url"></code>
       <code id="webcal-url"></code>
       <meta id="meta-description" content="" />
-      <button id="calendar-prev"></button>
-      <button id="calendar-next"></button>
+      <button class="calendar-nav-button" id="calendar-prev"></button>
+      <button class="calendar-nav-button" id="calendar-next"></button>
       <strong id="calendar-month-label"></strong>
       <div id="calendar-grid"></div>
       <div id="calendar-events-list"></div>
@@ -77,7 +79,11 @@ globalThis.fetch = async (url) => {
     });
   }
 
-  return new Response(JSON.stringify({ missions: [] }));
+  if (pathname === "/api/history-launches") {
+    return new Response(JSON.stringify({ refreshedAt: "2026-05-19T00:00:00.000Z", missions: [] }));
+  }
+
+  return new Response(JSON.stringify({ refreshedAt: "2026-05-19T00:00:00.000Z", missions: [] }));
 };
 
 // 2. Import app.js dynamically after environment is ready
@@ -92,6 +98,12 @@ test("titleCase formats text properly", () => {
 test("localizeStatus formats mission status", () => {
   assert.equal(app.localizeStatus("upcoming"), "Upcoming");
   assert.equal(app.localizeStatus(""), "Unspecified");
+});
+
+test("localizeHistoryStatus formats success states", () => {
+  assert.equal(app.localizeHistoryStatus(true), "Success");
+  assert.equal(app.localizeHistoryStatus(false), "Failure");
+  assert.equal(app.localizeHistoryStatus(null), "Unknown");
 });
 
 test("resolveLocale maps supported language variants", () => {
@@ -138,4 +150,104 @@ test("renderMissions correctly renders mission cards to the DOM", () => {
   
   const vehicleEl = cards[0].querySelector(".vehicle");
   assert.equal(vehicleEl.textContent, "Falcon 9");
+});
+
+test("renderHistoryMissions renders success failure and unknown cards", () => {
+  const mockMissions = [
+    {
+      id: "history-1",
+      title: "Success Mission",
+      vehicle: "Falcon 9",
+      launchSite: "LC-39A",
+      launchAt: "2020-05-30T19:22:00.000Z",
+      success: true,
+      details: "A successful mission.",
+      missionUrl: "https://example.com/success",
+      image: null
+    },
+    {
+      id: "history-2",
+      title: "Failure Mission",
+      vehicle: "Falcon 9",
+      launchSite: "SLC-40",
+      launchAt: "2021-06-28T14:21:00.000Z",
+      success: false,
+      details: null,
+      missionUrl: null,
+      image: null
+    },
+    {
+      id: "history-3",
+      title: "Unknown Mission",
+      vehicle: null,
+      launchSite: null,
+      launchAt: "2010-06-04T18:45:00.000Z",
+      success: null,
+      details: null,
+      missionUrl: null,
+      image: null
+    }
+  ];
+
+  app.renderHistoryMissions(mockMissions);
+
+  const grid = document.querySelector("#history-grid");
+  const cards = grid.querySelectorAll(".mission-card");
+  const badges = grid.querySelectorAll(".mission-badge");
+
+  assert.equal(cards.length, 3);
+  assert.equal(cards[0].querySelector(".mission-title").textContent, "Failure Mission");
+  assert.equal(badges[0].textContent, "Failure");
+  assert.equal(badges[1].textContent, "Success");
+  assert.equal(badges[2].textContent, "Unknown");
+  assert.equal(cards[1].querySelector(".history-details-link").textContent, "Launch details");
+  assert.equal(cards[1].querySelector(".return-site").closest("div").querySelector("dt").textContent, "Details");
+  assert.equal(cards[0].querySelector(".return-site").textContent, "No external page");
+  assert.equal(cards[2].querySelector(".vehicle").textContent, "TBD");
+});
+
+test("renderCalendar includes upcoming and history missions", () => {
+  const calendarMissions = [
+    ...app.markCalendarMissions([
+      {
+        id: "upcoming-1",
+        correlationId: "UPCOMING1",
+        slug: "upcoming-mission",
+        title: "Upcoming Mission",
+        missionType: "starlink",
+        isLive: false,
+        launchAt: "2026-05-10T12:00:00Z"
+      }
+    ], "upcoming"),
+    ...app.markCalendarMissions([
+      {
+        id: "history-1",
+        title: "History Mission",
+        success: true,
+        launchAt: "2020-05-30T19:22:00.000Z"
+      }
+    ], "history")
+  ];
+
+  const months = app.getCalendarMonths(calendarMissions);
+
+  assert.deepEqual(months, ["2020-05", "2026-05"]);
+
+  app.updateCalendarState(calendarMissions, { launchAt: "2026-05-10T12:00:00Z" });
+
+  assert.equal(document.querySelector("#calendar-month-label").textContent, "May 2026");
+  assert.equal(
+    document.querySelector("#calendar-events-list .event-list-title").textContent,
+    "Upcoming Mission"
+  );
+
+  document.querySelector("#calendar-prev").click();
+
+  const events = document.querySelectorAll("#calendar-events-list .event-list-item");
+  assert.equal(document.querySelector("#calendar-month-label").textContent, "May 2020");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].getAttribute("href"), "#history-mission-history-1");
+  assert.equal(events[0].querySelector(".event-list-title").textContent, "History Mission");
+  assert.equal(events[0].querySelector(".event-list-meta").textContent, "Success");
+  assert.equal(events[0].classList.contains("is-history-event"), true);
 });

@@ -70,6 +70,24 @@
     "waiting": "Warten auf Daten",
     "refreshedAt": "Aktualisiert {value}"
   },
+  "history": {
+    "eyebrow": "Historie",
+    "title": "Jüngste Starts",
+    "waiting": "Warten auf Historie",
+    "refreshedAt": "Historie aktualisiert {value}",
+    "unavailable": "Starthistorie nicht verfügbar",
+    "emptyState": "Es wurden keine jüngsten SpaceX-Starts zurückgegeben.",
+    "noDetails": "Für diesen Start sind keine Missionsdetails verfügbar.",
+    "detailsLabel": "Details",
+    "detailsAvailable": "Details verfügbar",
+    "noLink": "Keine externe Seite",
+    "detailsLink": "Startdetails",
+    "status": {
+      "success": "Erfolg",
+      "failure": "Fehlgeschlagen",
+      "unknown": "Unbekannt"
+    }
+  },
   "mission": {
     "vehicle": "Träger",
     "launchSite": "Startplatz",

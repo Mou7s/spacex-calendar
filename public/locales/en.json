@@ -70,6 +70,24 @@
     "waiting": "Waiting for data",
     "refreshedAt": "Refreshed {value}"
   },
+  "history": {
+    "eyebrow": "History",
+    "title": "Recent launches",
+    "waiting": "Waiting for history",
+    "refreshedAt": "History refreshed {value}",
+    "unavailable": "Launch history unavailable",
+    "emptyState": "No recent SpaceX launches were returned.",
+    "noDetails": "No mission details are available for this launch.",
+    "detailsLabel": "Details",
+    "detailsAvailable": "Details available",
+    "noLink": "No external page",
+    "detailsLink": "Launch details",
+    "status": {
+      "success": "Success",
+      "failure": "Failure",
+      "unknown": "Unknown"
+    }
+  },
   "mission": {
     "vehicle": "Vehicle",
     "launchSite": "Launch site",

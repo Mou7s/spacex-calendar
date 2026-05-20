@@ -70,6 +70,24 @@
     "waiting": "等待数据中",
     "refreshedAt": "更新于 {value}"
   },
+  "history": {
+    "eyebrow": "历史记录",
+    "title": "近期历史发射",
+    "waiting": "等待历史数据",
+    "refreshedAt": "历史数据更新于 {value}",
+    "unavailable": "历史发射数据暂时不可用",
+    "emptyState": "没有返回近期 SpaceX 历史发射。",
+    "noDetails": "这次发射暂无任务详情。",
+    "detailsLabel": "详情",
+    "detailsAvailable": "可查看详情",
+    "noLink": "暂无外部页面",
+    "detailsLink": "发射详情",
+    "status": {
+      "success": "成功",
+      "failure": "失败",
+      "unknown": "未知"
+    }
+  },
   "mission": {
     "vehicle": "火箭",
     "launchSite": "发射场",

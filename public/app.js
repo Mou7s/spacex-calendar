@@ -15,6 +15,8 @@ const monthStrip = document.querySelector("#month-strip");
 const tracker = document.querySelector("#tracker");
 const missionsGrid = document.querySelector("#missions-grid");
 const refreshNote = document.querySelector("#refresh-note");
+const historyGrid = document.querySelector("#history-grid");
+const historyRefreshNote = document.querySelector("#history-refresh-note");
 const missionCardTemplate = document.querySelector("#mission-card-template");
 const calendarLink = document.querySelector("#calendar-link");
 const icsUrl = document.querySelector("#ics-url");
@@ -33,9 +35,11 @@ let activeLocale = "en";
 let messages = {};
 let countdownTimerId = null;
 let calendarMonthKeys = [];
+let calendarMissions = [];
 let activeCalendarMonthIndex = 0;
 
-let latestPayload = null;
+let upcomingPayload = null;
+let historyPayload = null;
 let missionHighlightTimerId = null;
 
 const imageObserver = new IntersectionObserver(
@@ -76,8 +80,8 @@ function applyStaticTranslations() {
     element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
   }
 
-  if (latestPayload) {
-    renderCalendar(latestPayload.missions);
+  if (upcomingPayload || historyPayload) {
+    refreshCalendar();
   }
 
 }
@@ -90,6 +94,18 @@ function localizeStatus(value) {
   return (
     getNestedTranslation(`status.${value.toLowerCase()}`) || titleCase(value)
   );
+}
+
+function localizeHistoryStatus(success) {
+  if (success === true) {
+    return t("history.status.success");
+  }
+
+  if (success === false) {
+    return t("history.status.failure");
+  }
+
+  return t("history.status.unknown");
 }
 
 function updateSubscriptionLinks() {
@@ -146,6 +162,16 @@ function buildMissionAnchorId(mission) {
   return `mission-${mission.slug || mission.correlationId || mission.id}`;
 }
 
+function buildHistoryMissionAnchorId(mission) {
+  return `history-mission-${mission.id || mission.correlationId}`;
+}
+
+function buildCalendarAnchorId(mission) {
+  return mission.calendarGroup === "history"
+    ? buildHistoryMissionAnchorId(mission)
+    : buildMissionAnchorId(mission);
+}
+
 function highlightMissionCard(targetId) {
   if (!targetId) {
     return;
@@ -200,6 +226,68 @@ function getCalendarMonths(missions) {
   }
 
   return keys.sort((a, b) => a.localeCompare(b));
+}
+
+function sortMissionsNewestFirst(missions) {
+  return [...missions].sort((left, right) => {
+    const leftTime = left.launchAt ? Date.parse(left.launchAt) : Number.NEGATIVE_INFINITY;
+    const rightTime = right.launchAt ? Date.parse(right.launchAt) : Number.NEGATIVE_INFINITY;
+    return rightTime - leftTime;
+  });
+}
+
+function markCalendarMissions(missions, calendarGroup) {
+  return sortMissionsNewestFirst(missions).map((mission) => ({
+    ...mission,
+    calendarGroup,
+  }));
+}
+
+function getCalendarMissions() {
+  return [
+    ...markCalendarMissions(upcomingPayload?.missions || [], "upcoming"),
+    ...markCalendarMissions(historyPayload?.missions || [], "history"),
+  ].filter((mission) => mission.launchAt);
+}
+
+function resolveDefaultCalendarMonthIndex(monthKeys, missions, nextLaunch) {
+  const nextMonthKey = getCalendarMonthKey(nextLaunch?.launchAt);
+  const nextIndex = nextMonthKey ? monthKeys.indexOf(nextMonthKey) : -1;
+
+  if (nextIndex >= 0) {
+    return nextIndex;
+  }
+
+  const fallbackMission = missions
+    .filter((mission) => mission.launchAt)
+    .sort((left, right) => Date.parse(right.launchAt) - Date.parse(left.launchAt))[0];
+  const fallbackMonthKey = getCalendarMonthKey(fallbackMission?.launchAt);
+  const fallbackIndex = fallbackMonthKey ? monthKeys.indexOf(fallbackMonthKey) : -1;
+
+  return Math.max(0, fallbackIndex);
+}
+
+function updateCalendarState(missions, nextLaunch, preserveActiveMonth = false) {
+  const previousMonthKey = calendarMonthKeys[activeCalendarMonthIndex];
+  calendarMissions = missions;
+  calendarMonthKeys = getCalendarMonths(missions);
+
+  if (preserveActiveMonth && previousMonthKey) {
+    const previousIndex = calendarMonthKeys.indexOf(previousMonthKey);
+    activeCalendarMonthIndex = previousIndex >= 0 ? previousIndex : 0;
+  } else {
+    activeCalendarMonthIndex = resolveDefaultCalendarMonthIndex(
+      calendarMonthKeys,
+      missions,
+      nextLaunch
+    );
+  }
+
+  renderCalendar(missions);
+}
+
+function refreshCalendar(preserveActiveMonth = false) {
+  updateCalendarState(getCalendarMissions(), upcomingPayload?.nextLaunch, preserveActiveMonth);
 }
 
 
@@ -266,8 +354,8 @@ function renderCalendar(missions) {
   }
 
   const monthKey = calendarMonthKeys[activeCalendarMonthIndex];
-  const monthMissions = missions.filter(
-    (mission) => getCalendarMonthKey(mission.launchAt) === monthKey
+  const monthMissions = sortMissionsNewestFirst(
+    missions.filter((mission) => getCalendarMonthKey(mission.launchAt) === monthKey)
   );
   const missionMap = new Map();
 
@@ -304,6 +392,27 @@ function renderCalendar(missions) {
     const events = missionMap.get(day.isoDate) || [];
     if (events.length > 0) {
       cell.classList.add("has-events");
+      cell.addEventListener("click", () => {
+        // Clear selected state on other cells in the grid
+        calendarGrid.querySelectorAll(".calendar-day").forEach((c) => {
+          c.classList.remove("is-selected");
+        });
+        // Select the clicked cell
+        cell.classList.add("is-selected");
+
+        const firstMission = events[0];
+        const anchorId = buildCalendarAnchorId(firstMission);
+
+        // 1. Scroll the right-hand events list to the corresponding list item
+        const link = calendarEventsList.querySelector(`[href="#${anchorId}"]`);
+        if (link) {
+          link.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          link.classList.add("is-active");
+          setTimeout(() => {
+            link.classList.remove("is-active");
+          }, 1200);
+        }
+      });
     }
 
     cell.append(dayNumber);
@@ -321,7 +430,10 @@ function renderCalendar(missions) {
   for (const mission of monthMissions) {
     const link = document.createElement("a");
     link.className = "event-list-item";
-    link.href = `#${buildMissionAnchorId(mission)}`;
+    if (mission.calendarGroup === "history") {
+      link.classList.add("is-history-event");
+    }
+    link.href = `#${buildCalendarAnchorId(mission)}`;
 
     const dateBox = document.createElement("div");
     dateBox.className = "event-list-date";
@@ -340,7 +452,11 @@ function renderCalendar(missions) {
     const meta = document.createElement("div");
     meta.className = "event-list-meta";
 
-    if (mission.isLive) {
+    if (mission.calendarGroup === "history") {
+      const status = document.createElement("span");
+      status.textContent = localizeHistoryStatus(mission.success);
+      meta.append(status);
+    } else if (mission.isLive) {
       const live = document.createElement("span");
       live.className = "event-list-live";
       live.textContent = t("mission.live");
@@ -359,16 +475,18 @@ function renderCalendar(missions) {
       meta.append(untimed);
     }
 
-    const type = document.createElement("span");
-    type.textContent = localizeMissionType(mission.missionType);
-    meta.append(type);
+    if (mission.calendarGroup !== "history") {
+      const type = document.createElement("span");
+      type.textContent = localizeMissionType(mission.missionType);
+      meta.append(type);
+    }
 
     details.append(title, meta);
     link.append(dateBox, details);
     
     link.addEventListener("click", () => {
       window.setTimeout(() => {
-        highlightMissionCard(buildMissionAnchorId(mission));
+        highlightMissionCard(buildCalendarAnchorId(mission));
       }, 0);
     });
 
@@ -538,6 +656,106 @@ function renderMissions(missions) {
   }
 }
 
+function renderHistorySkeletons() {
+  historyGrid.replaceChildren();
+  for (let i = 0; i < 6; i++) {
+    const card = document.createElement("article");
+    card.className = "mission-card skeleton-card";
+    card.innerHTML = `
+      <div class="skeleton-image is-skeleton"></div>
+      <div class="mission-content">
+        <div class="mission-topline">
+          <div class="skeleton-badge is-skeleton"></div>
+          <div class="skeleton-type is-skeleton"></div>
+        </div>
+        <div class="skeleton-title is-skeleton"></div>
+        <div class="skeleton-window is-skeleton"></div>
+        <div class="mission-facts">
+          <div class="skeleton-fact is-skeleton"></div>
+          <div class="skeleton-fact is-skeleton"></div>
+          <div class="skeleton-fact is-skeleton"></div>
+        </div>
+      </div>
+    `;
+    historyGrid.append(card);
+  }
+}
+
+function formatHistoryDate(iso) {
+  if (!iso) {
+    return t("mission.tbd");
+  }
+
+  return new Intl.DateTimeFormat(activeLocale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(iso));
+}
+
+function renderHistoryMissions(missions) {
+  historyGrid.replaceChildren();
+
+  const sortedMissions = sortMissionsNewestFirst(missions);
+
+  if (!sortedMissions.length) {
+    const emptyState = document.createElement("div");
+    emptyState.className = "empty-state";
+    emptyState.textContent = t("history.emptyState");
+    historyGrid.append(emptyState);
+    return;
+  }
+
+  for (const mission of sortedMissions) {
+    const fragment = missionCardTemplate.content.cloneNode(true);
+    const card = fragment.querySelector(".mission-card");
+    const image = fragment.querySelector(".mission-image");
+    const badge = fragment.querySelector(".mission-badge");
+    const type = fragment.querySelector(".mission-type");
+    const title = fragment.querySelector(".mission-title");
+    const windowText = fragment.querySelector(".mission-window");
+    const vehicle = fragment.querySelector(".vehicle");
+    const launchSite = fragment.querySelector(".launch-site");
+    const returnSite = fragment.querySelector(".return-site");
+    const returnSiteLabel = returnSite.closest("div")?.querySelector("dt");
+    const terms = fragment.querySelectorAll("[data-i18n]");
+
+    for (const term of terms) {
+      term.textContent = t(term.dataset.i18n);
+    }
+
+    card.classList.add("history-card");
+    badge.textContent = localizeHistoryStatus(mission.success);
+    badge.classList.toggle("is-success", mission.success === true);
+    badge.classList.toggle("is-failure", mission.success === false);
+    type.textContent = formatHistoryDate(mission.launchAt);
+    title.textContent = mission.title;
+    windowText.textContent = mission.details || t("history.noDetails");
+    vehicle.textContent = mission.vehicle || t("mission.tbd");
+    launchSite.textContent = mission.launchSite || t("mission.tbd");
+    returnSiteLabel.textContent = t("history.detailsLabel");
+    returnSite.textContent = mission.missionUrl ? t("history.detailsAvailable") : t("history.noLink");
+    card.id = buildHistoryMissionAnchorId(mission);
+    card.dataset.mission = mission.id || mission.correlationId;
+
+    if (mission.image) {
+      image.dataset.src = mission.image;
+      imageObserver.observe(image);
+    }
+
+    if (mission.missionUrl) {
+      const link = document.createElement("a");
+      link.className = "history-details-link";
+      link.href = mission.missionUrl;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.textContent = t("history.detailsLink");
+      fragment.querySelector(".mission-content").append(link);
+    }
+
+    historyGrid.append(fragment);
+  }
+}
+
 function startCountdown(nextLaunch) {
   if (countdownTimerId) {
     window.clearInterval(countdownTimerId);
@@ -689,17 +907,12 @@ async function loadLaunches() {
     }
 
     const payload = await response.json();
-    latestPayload = payload;
+    upcomingPayload = payload;
 
-    calendarMonthKeys = getCalendarMonths(payload.missions);
-    activeCalendarMonthIndex = Math.max(
-      0,
-      calendarMonthKeys.indexOf(getCalendarMonthKey(payload.nextLaunch?.launchAt))
-    );
     renderHero(payload.nextLaunch);
     renderMonthSummary(payload.monthSummary);
     renderTracker(payload.missions);
-    renderCalendar(payload.missions);
+    refreshCalendar();
 
     renderMissions(payload.missions);
     injectStructuredData(payload.missions);
@@ -716,12 +929,37 @@ async function loadLaunches() {
     heroDescription.textContent = t("hero.unavailableDescription");
     nextWindow.textContent = t("hero.retryLater");
     countdown.textContent = t("hero.unavailable");
-    latestPayload = null;
-    calendarMonthKeys = [];
-    activeCalendarMonthIndex = 0;
-    renderCalendar([]);
+    upcomingPayload = null;
+    refreshCalendar();
 
     missionsGrid.innerHTML = `<div class="empty-state">${error.message}</div>`;
+  }
+}
+
+async function loadHistoryLaunches() {
+  renderHistorySkeletons();
+  try {
+    const response = await fetch("/api/history-launches");
+
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    historyPayload = payload;
+    renderHistoryMissions(payload.missions || []);
+    refreshCalendar();
+    historyRefreshNote.textContent = t("history.refreshedAt", {
+      value: new Intl.DateTimeFormat(activeLocale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(payload.refreshedAt)),
+    });
+  } catch (error) {
+    historyPayload = null;
+    refreshCalendar(true);
+    historyGrid.innerHTML = `<div class="empty-state">${error.message}</div>`;
+    historyRefreshNote.textContent = t("history.unavailable");
   }
 }
 
@@ -744,19 +982,19 @@ window.addEventListener("hashchange", highlightMissionCardFromHash);
 
 document.addEventListener("click", (event) => {
   const btn = event.target.closest(".calendar-nav-button");
-  if (!btn || !latestPayload) {
+  if (!btn || !calendarMonthKeys.length) {
     return;
   }
 
   if (btn.id === "calendar-prev") {
     if (activeCalendarMonthIndex > 0) {
       activeCalendarMonthIndex -= 1;
-      renderCalendar(latestPayload.missions);
+      renderCalendar(calendarMissions);
     }
   } else if (btn.id === "calendar-next") {
     if (activeCalendarMonthIndex < calendarMonthKeys.length - 1) {
       activeCalendarMonthIndex += 1;
-      renderCalendar(latestPayload.missions);
+      renderCalendar(calendarMissions);
     }
   }
 });
@@ -795,6 +1033,7 @@ window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e
 });
 
 loadLaunches();
+loadHistoryLaunches();
 
 // --- PWA ---
 
@@ -818,5 +1057,13 @@ export {
   titleCase,
   localizeStatus,
   localizeMissionType,
+  localizeHistoryStatus,
+  buildHistoryMissionAnchorId,
+  getCalendarMonths,
+  markCalendarMissions,
+  updateCalendarState,
+  refreshCalendar,
+  renderHistoryMissions,
+  renderCalendar,
   renderMissions
 };

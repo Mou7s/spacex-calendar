@@ -1,88 +1,60 @@
-# SpaceX Calendar Todo
+# SpaceX Calendar Todo List
 
-这个项目的核心已经清楚：从 SpaceX 官网数据源合并任务和发射窗口，输出稳定 ICS，再用轻量静态页展示。下一步建议优先降低维护成本、提高订阅可靠性，并补齐可验证的用户体验。
+这个 Todo 列表总结了当前项目在日历稳定性、系统健壮性、用户体验以及测试完备性方面的潜在问题与优化方向。
 
-## 近期最推荐
+---
 
-### P0 - 为 ICS 输出补更严格的回归测试
+## 🚀 P0 - 核心日历与接口稳定性
 
-重点覆盖 UID 不变化、Content-Type、DTSTART/DTEND、转义、折行、无时间任务跳过等行为。ICS 订阅是项目最核心的用户价值，后续改 UI 或数据源都不应该影响日历客户端同步。
+### [x] 1. 修复 ICS 订阅中 `SEQUENCE` 和 `DTSTAMP` 的高频变动问题
+- **描述**: 当前 `DTSTAMP`、`LAST-MODIFIED` 和 `SEQUENCE` 均绑定至 `data.refreshedAt`，导致每次 KV 缓存刷新（每 5 分钟）日历文件中的所有事件版本均发生改变。这会导致日历客户端（如 Apple Calendar）认为所有事件被修改，触发无意义的频繁同步。
+- **改动范围**: `src/lib/spacex.js` 的 `buildCalendarFeed` 和 `buildCalendarEvent`
+- **验收标准**:
+  - `SEQUENCE` 仅在任务的核心属性（如发射时间 `launchAt`）发生实质改变时增加，或在无状态下基于关键时间/地点的 Hash 保持稳定。
+  - `DTSTAMP` 和 `LAST-MODIFIED` 不随生成时间频繁变动，使用稳定的发射时间 `launchAt` 或任务的首发时间作为 fallback。
+  - 运行 `npm test` 通过，且 ICS 输出保持稳定。
 
-- 价值：防止破坏订阅行为
-- 验收：`npm test` 覆盖关键 ICS 字段和边界输入
-- 范围：`test/spacex.test.js`
+### [x] 2. 引入上游 API 的容灾与优雅降级机制
+- **描述**: `Promise.all` 强耦合了 tiles 和 timings 两个上游数据源。一旦 Azure Edge CDN（timings）出现短暂波动，整个接口就会直接报错 502。
+- **改动范围**: `src/lib/spacex.js` 中的 `loadLaunchData`
+- **验收标准**:
+  - 当 `TIMINGS_URL` 失败时，程序能够优雅降级，允许仅依赖 `CONTENT_URL` 里的粗略发射计划（或通过最近一次成功数据）渲染，而不直接报 502。
+### [x] 3. 实现 KV 过期缓存灾备（Stale-While-Revalidate）
+- **描述**: 当前 KV 缓存过期后，第一个请求会同步拉取上游接口。如果上游超时或不可用，该请求直接返回 502。
+- **改动范围**: `src/index.js`
+- **验收标准**:
+  - 实施 "Stale-While-Revalidate" 策略，或者在 fetch 上游发生异常时，尝试读取 KV 中已过期的历史缓存数据作为降级返回，确保订阅服务不中断。
 
-### P0 - 拆出前端翻译数据
+---
 
-当前翻译已经拆成 `public/locales/*.json`，并由 `public/i18n.js` 负责加载、匹配和英文回退。后续新增语言时，优先新增 locale JSON，而不是把文案写回 `public/app.js`。
+## 🎨 P1 - 用户体验与交互优化
 
-- 价值：降低维护成本
-- 验收：新增语言可以通过 `?hl=` 参数加载，现有前端测试通过
-- 范围：`public/locales/*.json`，`public/i18n.js`
+### [x] 4. 实现 Mini Calendar（日历视图）与发射事件列表的点击联动
+- **描述**: 目前在 Mini Calendar 中点击带有发射标记的日期没有任何交互反应，用户无法通过点击日历快速定位事件。
+- **改动范围**: `public/app.js`, `public/styles.css`
+- **验收标准**:
+  - 点击日历上的日期时，右侧事件列表自动平滑滚动（scrollIntoView）到该日期的任务卡片。
+  - 触发被定位卡片的短暂高亮视觉反馈（利用已有的 `highlightMissionCard` 方法）。
 
-### P1 - 给上游数据异常做可观察性
+### [ ] 5. 前端引入手动时区选择器 (Timezone Selector)
+- **描述**: 网页端完全依赖浏览器本地时区，跨国关注发射的用户希望能自由切换 UTC 或发射场当地时间（东部时间 ET / 西部时间 PT）。
+- **改动范围**: `public/index.html`, `public/app.js`, `public/styles.css`, `public/locales/*.json`
+- **验收标准**:
+  - 在页面合适位置增加轻量级的时区切换控件。
+  - 切换时区仅改变前端网页的发射时间展示，不改变 `.ics` 日历文件中的 UTC 绝对时间。
 
-保留现有 SpaceX 数据源，但在 API 错误响应里区分 tiles 源、timings 源、JSON 结构变化、KV 读写失败。这样线上出问题时能快速判断是上游改版还是缓存/Worker 问题。
+---
 
-- 价值：更快定位线上故障
-- 验收：错误测试覆盖来源标记和失败信息
-- 范围：`src/lib/spacex.js`，`src/index.js`
+## ⚙️ P2 - 国际化与测试完备性
 
-## 中期增强
+### [ ] 6. 完善国际化 (i18n) 语言支持与回退逻辑
+- **描述**: 当前 `locales` 目录下有多国语言包，但 `i18n.js` 中硬编码了 `defaultSupportedLocales = ["zh-CN", "en"]`。如果 `supported.json` 拉取失败，其他语言（德、法、日、韩、西）将无法被正常识别。
+- **改动范围**: `public/i18n.js`, `public/app.js`
+- **验收标准**:
+  - 规范化支持 the supported 语言列表，即使接口或资源加载遇到异常，也能正确按预设规则安全回退到英文。
 
-### P1 - 补 Playwright E2E 测试
-
-覆盖首页加载、语言切换后的关键文案、订阅链接生成、月历翻页、任务卡片渲染、API 失败态。E2E 测试比单元测试更接近真实用户路径。
-
-- 价值：防 UI 回归
-- 验收：本地和 CI 可跑 E2E
-- 范围：`test/e2e`
-
-### P1 - 月历日期点击联动任务列表
-
-当前已有月历和任务列表，下一步可以让点击某个发射日期时滚动并高亮对应任务。这是小功能，但会让页面从“展示”更接近“可浏览工具”。
-
-- 价值：提升浏览效率
-- 验收：鼠标和键盘都可触发，焦点状态清晰
-- 范围：`public/app.js`，`public/styles.css`
-
-### P2 - 增加手动时区选择
-
-默认使用浏览器时区很好，但跨地区关注发射的人可能想看 UTC、美国东部时间或发射场当地时间。建议只影响页面展示，不改变 ICS 里的 UTC 时间。
-
-- 价值：适合跨时区用户
-- 验收：刷新后保留选择，ICS 输出不变
-- 范围：`public/app.js`，`public/styles.css`
-
-## 谨慎评估
-
-### P2 - 单任务分享链接
-
-可以为任务卡片生成带 hash 的链接，并在打开后自动定位到任务。比直接接入社交分享 API 更轻，也更符合静态页面路线。
-
-- 价值：方便传播单个任务
-- 验收：URL 可直达任务卡片并高亮
-- 范围：`public/app.js`
-
-### P2 - 发射历史归档
-
-如果 SpaceX 仍提供稳定历史数据源，可以增加“已完成”标签页。不要为了归档引入数据库，除非明确要做长期历史产品。
-
-- 价值：补全浏览场景
-- 验收：数据源稳定且测试覆盖
-- 范围：数据源待确认
-
-### P3 - 浏览器发射提醒通知
-
-Web Notification API 听起来很适合，但权限请求、离线调度、Service Worker 唤醒能力都有限。只有在明确用户需要网页端提醒时再做，且不要影响 ICS 订阅主路径。
-
-- 价值：可选提醒能力
-- 验收：用户主动开启，关闭后不再打扰
-- 范围：`public/sw.js`，`public/app.js`
-
-## 执行顺序建议
-
-1. 先补 ICS 回归测试，再调整任何 Worker 或数据规范化逻辑。
-2. 前端先拆翻译，再做月历联动和时区选择，避免在大的 `app.js` 里继续堆功能。
-3. 每次触碰 Worker 逻辑后运行 `node --check src/index.js`、`node --check src/lib/spacex.js` 和 `npm test`。
-4. 每次触碰前端逻辑后运行 `node --check public/app.js` 和 `npm test`。
+### [ ] 7. 补齐 Playwright 端到端 (E2E) 测试
+- **描述**: 目前只有单元测试和 JSDOM 内存模拟测试，缺乏真实浏览器环境的端到端交互验证（如语言切换、日历翻页、时区切换等）。
+- **改动范围**: 新增 `test/e2e` 测试套件，配置 `playwright`
+- **验收标准**:
+  - 本地和 CI 环境能够一键运行 E2E 测试，验证页面核心交互通路无回归风险。

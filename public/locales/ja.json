@@ -70,6 +70,24 @@
     "waiting": "データ待機中",
     "refreshedAt": "{value} 更新"
   },
+  "history": {
+    "eyebrow": "履歴",
+    "title": "最近の打ち上げ",
+    "waiting": "履歴データ待機中",
+    "refreshedAt": "履歴を {value} 更新",
+    "unavailable": "打ち上げ履歴を利用できません",
+    "emptyState": "最近の SpaceX 打ち上げは返されませんでした。",
+    "noDetails": "この打ち上げのミッション詳細はありません。",
+    "detailsLabel": "詳細",
+    "detailsAvailable": "詳細あり",
+    "noLink": "外部ページなし",
+    "detailsLink": "打ち上げ詳細",
+    "status": {
+      "success": "成功",
+      "failure": "失敗",
+      "unknown": "不明"
+    }
+  },
   "mission": {
     "vehicle": "機体",
     "launchSite": "打ち上げ場",

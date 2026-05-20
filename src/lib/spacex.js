@@ -1,7 +1,10 @@
 export const CONTENT_URL =
   "https://content.spacex.com/api/spacex-website/launches-page-tiles/upcoming";
+export const ALL_LAUNCHES_URL =
+  "https://content.spacex.com/api/spacex-website/launches-page-tiles";
 export const TIMINGS_URL =
   "https://sxcontent9668.azureedge.us/cms-assets/future_missions.json";
+export const HISTORY_LIMIT = 50;
 
 export function toIsoFromSeconds(value) {
   if (!value && value !== 0) {
@@ -74,6 +77,62 @@ export function normalizeMission(tile, timing) {
     launchAt,
     returnAt: tile.returnDateTime || null,
     launchWindow,
+  };
+}
+
+export function resolveHistoryImage(launch) {
+  return resolveImage(launch);
+}
+
+export function resolvePastLaunchAt(tile) {
+  if (!tile.launchDate) {
+    return null;
+  }
+
+  const time = tile.launchTime || "00:00:00";
+  const parsed = Date.parse(`${tile.launchDate}T${time}Z`);
+
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return new Date(parsed).toISOString();
+}
+
+export function normalizeHistoryMission(tile) {
+  const launchAt = resolvePastLaunchAt(tile);
+
+  return {
+    id: tile.id,
+    correlationId: tile.correlationId,
+    slug: tile.link,
+    missionUrl: buildMissionUrl(tile.link),
+    title: tile.title,
+    shortTitle: tile.shortTitle,
+    missionType: tile.missionType,
+    vehicle: tile.vehicle,
+    launchSite: tile.launchSite,
+    returnSite: tile.returnSite,
+    callToAction: tile.callToAction,
+    status: tile.missionStatus,
+    isLive: Boolean(tile.isLive),
+    directToCell: Boolean(tile.directToCell),
+    image: resolveHistoryImage(tile),
+    launchAt,
+    returnAt: null,
+    launchWindow: {
+      open: launchAt,
+      close: null,
+      tZero: launchAt,
+      precision: tile.launchTime ? "exact" : "day",
+    },
+    success: tile.missionStatus === "final" ? true : null,
+    details: null,
+    links: {
+      article: null,
+      webcast: null,
+      wikipedia: null,
+    },
   };
 }
 
@@ -176,12 +235,16 @@ export function buildCalendarEvent(mission, dtStamp, sequence) {
     return null;
   }
 
+  const eventDtStamp = mission.firstDiscovered ? formatIcsDate(mission.firstDiscovered) : dtStamp;
+  const eventLastModified = mission.lastModified ? formatIcsDate(mission.lastModified) : dtStamp;
+  const eventSequence = mission.sequence ?? sequence;
+
   const lines = [
     "BEGIN:VEVENT",
     `UID:${mission.correlationId || mission.id}@spacexcalendar.local`,
-    `DTSTAMP:${dtStamp}`,
-    `LAST-MODIFIED:${dtStamp}`,
-    `SEQUENCE:${sequence}`,
+    `DTSTAMP:${eventDtStamp}`,
+    `LAST-MODIFIED:${eventLastModified}`,
+    `SEQUENCE:${eventSequence}`,
     `DTSTART:${formatIcsDate(mission.launchAt)}`,
     `SUMMARY:${escapeIcsText(mission.title)}`,
     `DESCRIPTION:${escapeIcsText(buildMissionDescription(mission))}`,
@@ -246,10 +309,23 @@ export async function fetchJson(fetchImpl, url) {
 }
 
 export async function loadLaunchData(fetchImpl = fetch) {
-  const [tiles, timings] = await Promise.all([
+  const [tilesResult, timingsResult] = await Promise.allSettled([
     fetchJson(fetchImpl, CONTENT_URL),
     fetchJson(fetchImpl, TIMINGS_URL),
   ]);
+
+  if (tilesResult.status === "rejected") {
+    throw new Error(`Failed to load upcoming tiles: ${tilesResult.reason.message || tilesResult.reason}`);
+  }
+
+  const tiles = tilesResult.value;
+  let timings = {};
+
+  if (timingsResult.status === "fulfilled") {
+    timings = timingsResult.value;
+  } else {
+    console.warn("Graceful degradation: Failed to load timings data, falling back to empty timings", timingsResult.reason);
+  }
 
   const missions = sortMissions(
     tiles.map((tile) => normalizeMission(tile, timings[tile.correlationId]))
@@ -263,6 +339,24 @@ export async function loadLaunchData(fetchImpl = fetch) {
     },
     nextLaunch: missions.find((mission) => mission.launchAt) || missions[0] || null,
     monthSummary: buildMonthSummary(missions),
+    missions,
+  };
+}
+
+export async function loadHistoryLaunchData(fetchImpl = fetch) {
+  const tiles = await fetchJson(fetchImpl, ALL_LAUNCHES_URL);
+  const missions = tiles
+    .filter((tile) => tile.missionStatus === "final")
+    .map(normalizeHistoryMission)
+    .filter((mission) => mission.launchAt)
+    .sort((left, right) => Date.parse(right.launchAt) - Date.parse(left.launchAt))
+    .slice(0, HISTORY_LIMIT);
+
+  return {
+    refreshedAt: new Date().toISOString(),
+    source: {
+      launches: ALL_LAUNCHES_URL,
+    },
     missions,
   };
 }

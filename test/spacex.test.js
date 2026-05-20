@@ -5,6 +5,7 @@ import worker from "../src/index.js";
 import {
   buildCalendarFeed,
   escapeIcsText,
+  loadHistoryLaunchData,
   loadLaunchData,
 } from "../src/lib/spacex.js";
 
@@ -65,6 +66,44 @@ const sampleTimings = {
   },
 };
 
+const sampleHistoryResponse = {
+  id: "history-recent",
+  correlationId: "HISTORY_RECENT",
+  link: "sl-10-22",
+  title: "Starlink Mission",
+  shortTitle: null,
+  missionType: "starlink",
+  vehicle: "Falcon 9",
+  launchSite: "SLC-40, Florida",
+  returnSite: "Droneship",
+  callToAction: "WATCH",
+  missionStatus: "final",
+  isLive: false,
+  directToCell: false,
+  launchDate: "2025-09-03",
+  launchTime: "07:56:00",
+  imageDesktop: { url: "https://example.com/recent.jpg" },
+};
+
+const olderHistoryTile = {
+  id: "history-older",
+  correlationId: "HISTORY_OLDER",
+  link: "crew-5",
+  title: "Crew-5 Mission",
+  shortTitle: null,
+  missionType: "crew",
+  vehicle: "Falcon 9",
+  launchSite: "LC-39A, Florida",
+  returnSite: null,
+  callToAction: "WATCH",
+  missionStatus: "final",
+  isLive: false,
+  directToCell: false,
+  launchDate: "2022-10-05",
+  launchTime: "16:00:00",
+  imageDesktop: { url: "https://example.com/older.jpg" },
+};
+
 function createFetchStub() {
   return async (url) => {
     if (String(url).includes("launches-page-tiles/upcoming")) {
@@ -82,6 +121,21 @@ function createFetchStub() {
     }
 
     throw new Error(`Unexpected fetch: ${url}`);
+  };
+}
+
+function createFetchStubWithHistory(historyResponse = [olderHistoryTile, sampleHistoryResponse]) {
+  const launchFetch = createFetchStub();
+
+  return async (url, init = {}) => {
+    if (String(url).includes("launches-page-tiles") && !String(url).includes("upcoming")) {
+      return new Response(JSON.stringify(historyResponse), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    return launchFetch(url, init);
   };
 }
 
@@ -105,6 +159,22 @@ test("buildCalendarFeed emits valid VEVENT entries with DTEND when available", a
   assert.match(calendar, /LAST-MODIFIED:\d{8}T\d{6}Z/);
   assert.match(calendar, /SEQUENCE:\d+/);
   assert.match(calendar, /DTEND:20260420T072200Z/);
+});
+
+test("loadHistoryLaunchData normalizes recent launch history", async () => {
+  const data = await loadHistoryLaunchData(createFetchStubWithHistory());
+
+  assert.equal(data.missions.length, 2);
+  assert.equal(data.missions[0].id, "history-recent");
+  assert.equal(data.missions[0].title, "Starlink Mission");
+  assert.equal(data.missions[0].vehicle, "Falcon 9");
+  assert.equal(data.missions[0].launchSite, "SLC-40, Florida");
+  assert.equal(data.missions[0].launchAt, "2025-09-03T07:56:00.000Z");
+  assert.equal(data.missions[0].status, "final");
+  assert.equal(data.missions[0].success, true);
+  assert.equal(data.missions[0].missionUrl, "https://www.spacex.com/launches/sl-10-22/");
+  assert.equal(data.missions[1].id, "history-older");
+  assert.equal(data.missions[1].image, "https://example.com/older.jpg");
 });
 
 test("escapeIcsText escapes newlines commas and semicolons", () => {
@@ -132,6 +202,62 @@ test("worker serves calendar route with text/calendar", async () => {
   }
 });
 
+test("worker serves history launch route as JSON", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = createFetchStubWithHistory();
+
+  try {
+    const response = await worker.fetch(
+      new Request("https://calendar.example.com/api/history-launches"),
+      { ASSETS: { fetch: () => new Response("not used") } }
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
+    assert.equal(payload.missions.length, 2);
+    assert.equal(payload.missions[0].title, "Starlink Mission");
+    assert.equal(payload.missions[0].launchAt, "2025-09-03T07:56:00.000Z");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("worker returns 502 when history launch route fails", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("launches-page-tiles") && !String(url).includes("upcoming")) {
+      return new Response("nope", { status: 503 });
+    }
+
+    return createFetchStub()(url);
+  };
+
+  try {
+    const response = await worker.fetch(
+      new Request("https://calendar.example.com/api/history-launches"),
+      { ASSETS: { fetch: () => new Response("not used") } }
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(payload.error, "Unable to load SpaceX launch history right now.");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("calendar feed remains limited to upcoming launches", async () => {
+  const data = await loadLaunchData(createFetchStubWithHistory());
+  const history = await loadHistoryLaunchData(createFetchStubWithHistory());
+  const calendar = buildCalendarFeed(data);
+
+  assert.equal(history.missions.length, 2);
+  assert.doesNotMatch(calendar, /Crew-5 Mission/);
+  assert.doesNotMatch(calendar, /sl-10-22/);
+  assert.match(calendar, /Starlink Mission/);
+});
+
 test("worker falls back to static assets for root route", async () => {
   const response = await worker.fetch(new Request("https://calendar.example.com/"), {
     ASSETS: {
@@ -145,4 +271,164 @@ test("worker falls back to static assets for root route", async () => {
 
   assert.equal(response.status, 200);
   assert.equal(await response.text(), "<html>ok</html>");
+});
+
+test("buildCalendarFeed supports enriched stable versions", () => {
+  const enrichedMissions = [
+    {
+      id: "abc",
+      correlationId: "ABC",
+      link: "starlink-abc",
+      title: "Starlink ABC",
+      missionType: "starlink",
+      vehicle: "Falcon 9",
+      launchSite: "SLC-40",
+      returnSite: "Droneship",
+      launchAt: "2026-05-20T12:00:00.000Z",
+      launchWindow: { open: null, close: null },
+      firstDiscovered: "2026-05-01T00:00:00.000Z",
+      lastModified: "2026-05-15T00:00:00.000Z",
+      sequence: 5,
+    },
+  ];
+
+  const calendar = buildCalendarFeed({
+    refreshedAt: "2026-05-20T18:00:00.000Z",
+    missions: enrichedMissions,
+  });
+
+  assert.match(calendar, /DTSTAMP:20260501T000000Z/);
+  assert.match(calendar, /LAST-MODIFIED:20260515T000000Z/);
+  assert.match(calendar, /SEQUENCE:5/);
+});
+
+test("loadLaunchData gracefully degrades when timings API fails", async () => {
+  const fetchStub = async (url) => {
+    if (String(url).includes("launches-page-tiles/upcoming")) {
+      return new Response(JSON.stringify(sampleTiles), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    if (String(url).includes("future_missions.json")) {
+      return new Response("Internal Server Error", {
+        status: 500,
+      });
+    }
+
+    throw new Error(`Unexpected fetch: ${url}`);
+  };
+
+  const data = await loadLaunchData(fetchStub);
+
+  assert.equal(data.missions.length, 2);
+  assert.equal(data.missions[0].launchAt, null);
+  assert.equal(data.missions[0].launchWindow.precision, "unknown");
+});
+
+test("getCachedData returns stale data and triggers background revalidation when ctx is available", async () => {
+  const staleData = {
+    refreshedAt: new Date(Date.now() - 600 * 1000).toISOString(), // 10 minutes ago (stale)
+    missions: [{ id: "mock-stale", title: "Stale Mission", launchWindow: { open: null, close: null } }],
+  };
+
+  let kvPutCalled = false;
+  let kvPutValue = null;
+
+  const mockKv = {
+    get: async (key) => {
+      if (key === "spacex_launches_data") return staleData;
+      return null;
+    },
+    put: async (key, val, options) => {
+      if (key === "spacex_launches_data") {
+        kvPutCalled = true;
+        kvPutValue = JSON.parse(val);
+      }
+    },
+  };
+
+  let waitUntilCalled = false;
+  let waitUntilPromise = null;
+  const mockCtx = {
+    waitUntil: (promise) => {
+      waitUntilCalled = true;
+      waitUntilPromise = promise;
+    },
+  };
+
+  const originalFetch = globalThis.fetch;
+  // Stub fetch to return fresh data
+  globalThis.fetch = async () => {
+    return new Response(JSON.stringify(sampleTiles), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await worker.fetch(
+      new Request("https://calendar.example.com/api/launches"),
+      { SPACEX_KV: mockKv },
+      mockCtx
+    );
+
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    // Verify it returned the stale data immediately
+    assert.equal(data.missions[0].id, "mock-stale");
+    assert.equal(data.missions[0].title, "Stale Mission");
+
+    // Verify background revalidation was triggered
+    assert.equal(waitUntilCalled, true);
+    assert.ok(waitUntilPromise instanceof Promise);
+
+    // Wait for the background revalidation to complete
+    await waitUntilPromise;
+
+    // Verify KV was updated with the fresh data
+    assert.equal(kvPutCalled, true);
+    assert.equal(kvPutValue.missions.length, 2);
+    assert.equal(kvPutValue.missions[0].title, "Starlink Mission");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("getCachedData falls back to stale data on sync fetch failure when ctx is absent", async () => {
+  const staleData = {
+    refreshedAt: new Date(Date.now() - 600 * 1000).toISOString(), // 10 minutes ago (stale)
+    missions: [{ id: "mock-stale", title: "Stale Mission", launchWindow: { open: null, close: null } }],
+  };
+
+  const mockKv = {
+    get: async (key) => {
+      if (key === "spacex_launches_data") return staleData;
+      return null;
+    },
+    put: async () => {},
+  };
+
+  const originalFetch = globalThis.fetch;
+  // Stub fetch to fail
+  globalThis.fetch = async () => {
+    throw new Error("Upstream Timeout");
+  };
+
+  try {
+    // Call without ctx to force synchronous revalidation
+    const response = await worker.fetch(
+      new Request("https://calendar.example.com/api/launches"),
+      { SPACEX_KV: mockKv }
+    );
+
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    // Verify it fell back to stale data successfully
+    assert.equal(data.missions[0].id, "mock-stale");
+    assert.equal(data.missions[0].title, "Stale Mission");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
