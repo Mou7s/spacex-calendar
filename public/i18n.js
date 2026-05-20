@@ -1,6 +1,6 @@
 export const fallbackLocale = "en";
 
-export const defaultSupportedLocales = ["zh-CN", "en"];
+export const defaultSupportedLocales = ["zh-CN", "en", "ja", "ko", "es", "fr", "de"];
 
 const loadedMessages = {};
 let loadedSupportedLocales = null;
