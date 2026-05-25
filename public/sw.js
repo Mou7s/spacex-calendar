@@ -1,4 +1,4 @@
-const CACHE_NAME = "spacex-calendar-v2";
+const CACHE_NAME = "spacex-calendar-v10";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -46,19 +46,18 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // API calls: Stale-While-Revalidate
+  // API calls: Network-first so completed launches do not linger on the homepage.
   if (url.pathname === "/api/launches") {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(request).then((cachedResponse) => {
-          const fetchPromise = fetch(request)
-            .then((networkResponse) => {
+        return fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.ok) {
               cache.put(request, networkResponse.clone());
-              return networkResponse;
-            })
-            .catch(() => cachedResponse); // Fallback to cache if network fails
-          return cachedResponse || fetchPromise;
-        });
+            }
+            return networkResponse;
+          })
+          .catch(() => cache.match(request));
       })
     );
     return;

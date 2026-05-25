@@ -1,13 +1,105 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import worker from "../src/index.js";
+import launchesApi from "../server/api/launches.get.js";
+import historyApi from "../server/api/history-launches.get.js";
+import detailsApi from "../server/api/launches/[slug].get.js";
+import spacexIcsRoute from "../server/routes/spacex.ics.js";
+import calendarIcsRoute from "../server/routes/calendar.ics.js";
+
 import {
   buildCalendarFeed,
   escapeIcsText,
   loadHistoryLaunchData,
   loadLaunchData,
-} from "../src/lib/spacex.js";
+  loadMissionDetails,
+} from "../server/utils/spacex.js";
+
+// Mock worker fetch to delegate directly to our new Nuxt Nitro handlers
+const worker = {
+  async fetch(request, env = {}, ctx = {}) {
+    const url = new URL(request.url);
+    const mockEvent = {
+      context: {
+        cloudflare: {
+          env,
+          context: ctx
+        },
+        params: {}
+      },
+      node: {
+        req: {
+          url: url.pathname
+        },
+        res: {
+          setHeader() {}
+        }
+      }
+    };
+    
+    try {
+      if (url.pathname === "/spacex.ics") {
+        const response = await spacexIcsRoute(mockEvent);
+        return new Response(response, {
+          status: 200,
+          headers: new Headers({ "content-type": "text/calendar; charset=utf-8" })
+        });
+      }
+
+      if (url.pathname === "/calendar.ics") {
+        const response = await calendarIcsRoute(mockEvent);
+        return new Response(response, {
+          status: 200,
+          headers: new Headers({ "content-type": "text/calendar; charset=utf-8" })
+        });
+      }
+
+      if (url.pathname === "/api/launches") {
+        const response = await launchesApi(mockEvent);
+        return new Response(JSON.stringify(response), {
+          status: 200,
+          headers: new Headers({ "content-type": "application/json; charset=utf-8" })
+        });
+      }
+
+      if (url.pathname === "/api/history-launches") {
+        const response = await historyApi(mockEvent);
+        return new Response(JSON.stringify(response), {
+          status: 200,
+          headers: new Headers({ "content-type": "application/json; charset=utf-8" })
+        });
+      }
+
+      const detailsMatch = url.pathname.match(/^\/api\/launches\/([a-z0-9-]+)$/i);
+      if (detailsMatch) {
+        mockEvent.context.params = { slug: detailsMatch[1] };
+        const response = await detailsApi(mockEvent);
+        return new Response(JSON.stringify(response), {
+          status: 200,
+          headers: new Headers({ "content-type": "application/json; charset=utf-8" })
+        });
+      }
+
+      if (url.pathname === "/") {
+        return new Response("<html>ok</html>", {
+          status: 200,
+          headers: new Headers({ "content-type": "text/html; charset=utf-8" })
+        });
+      }
+
+      return new Response("Not Found", { status: 404 });
+    } catch (error) {
+      console.error("DEBUG ERROR IN MOCK WORKER FETCH:", error);
+      return new Response(JSON.stringify({
+        error: error.message || "Internal Server Error",
+        detail: error.data || String(error)
+      }), {
+        status: error.statusCode || 502,
+        headers: new Headers({ "content-type": "application/json; charset=utf-8" })
+      });
+    }
+  }
+};
 
 const sampleTiles = [
   {
@@ -104,6 +196,79 @@ const olderHistoryTile = {
   imageDesktop: { url: "https://example.com/older.jpg" },
 };
 
+const sampleMissionDetails = {
+  id: 4373,
+  documentId: "detail-doc",
+  correlationId: "ABC123",
+  missionId: "starlink-1",
+  title: "Starlink Mission",
+  callToAction: "WATCH",
+  followDragonEnabled: false,
+  vehicleTrackerEnabled: null,
+  returnFromIssEnabled: false,
+  toTheIssEnabled: false,
+  imageDesktop: {
+    url: "https://example.com/detail.jpg",
+    width: 2600,
+    height: 1200,
+    mime: "image/jpeg",
+    alternativeText: "Falcon 9 on the pad",
+    formats: {
+      large: { url: "https://example.com/detail-large.jpg" },
+    },
+  },
+  infographicDesktop: {
+    url: "https://example.com/infographic.webp",
+    width: 2400,
+    height: 1354,
+    mime: "image/webp",
+  },
+  preLaunchTimeline: {
+    title: "Countdown",
+    disclaimer: null,
+    timeHeader: "Hr/Min/Sec",
+    descriptionHeader: "Event",
+    timelineEntries: [
+      { time: "00:38:00", description: "SpaceX Launch Director verifies go for propellant load" },
+      { time: "00:01:00", description: "Command flight computer to begin final prelaunch checks" },
+    ],
+  },
+  postLaunchTimeline: {
+    title: "Launch, Landing, and Deployment",
+    disclaimer: "All Times Approximate",
+    timeHeader: "Hr/Min/Sec",
+    descriptionHeader: "Event",
+    timelineEntries: [
+      { time: "00:01:10", description: "Max Q" },
+    ],
+  },
+  astronauts: [],
+  webcasts: [
+    {
+      id: 2433,
+      videoId: "2055306091710275636",
+      streamingVideoType: "x.com",
+      title: null,
+      date: null,
+      isFeatured: null,
+      imageDesktop: null,
+      imageMobile: null,
+    },
+  ],
+  paragraphs: [
+    {
+      id: 12077,
+      content:
+        'SpaceX’s Falcon 9 is targeting the launch of 29 <a href="https://www.starlink.com/" target="_">Starlink</a> satellites to low-Earth orbit.',
+    },
+    {
+      id: 12079,
+      content:
+        "This will be the 28th flight for the first stage booster supporting this mission. Following stage separation, the first stage will land on the A Shortfall of Gravitas droneship.",
+    },
+  ],
+};
+
 function createFetchStub() {
   return async (url) => {
     if (String(url).includes("launches-page-tiles/upcoming")) {
@@ -124,6 +289,21 @@ function createFetchStub() {
   };
 }
 
+function createFetchStubWithDetails(detailsResponse = sampleMissionDetails) {
+  const launchFetch = createFetchStub();
+
+  return async (url, init = {}) => {
+    if (String(url).includes("api/spacex-website/missions/starlink-1")) {
+      return new Response(JSON.stringify(detailsResponse), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    return launchFetch(url, init);
+  };
+}
+
 function createFetchStubWithHistory(historyResponse = [olderHistoryTile, sampleHistoryResponse]) {
   const launchFetch = createFetchStub();
 
@@ -140,7 +320,7 @@ function createFetchStubWithHistory(historyResponse = [olderHistoryTile, sampleH
 }
 
 test("loadLaunchData merges SpaceX tiles and timing feeds", async () => {
-  const data = await loadLaunchData(createFetchStub());
+  const data = await loadLaunchData(createFetchStub(), new Date("2026-04-01T00:00:00.000Z"));
 
   assert.equal(data.missions.length, 2);
   assert.equal(data.nextLaunch.title, "Starlink Mission");
@@ -148,8 +328,66 @@ test("loadLaunchData merges SpaceX tiles and timing feeds", async () => {
   assert.equal(data.missions[1].launchWindow.close, "2026-04-20T07:22:00.000Z");
 });
 
+test("loadLaunchData filters launches that are already in the past", async () => {
+  const pastTile = {
+    ...sampleTiles[0],
+    id: "past",
+    correlationId: "PAST123",
+    link: "past-mission",
+    title: "Past Mission",
+  };
+  const futureTile = {
+    ...sampleTiles[1],
+    id: "future",
+    correlationId: "FUTURE123",
+    link: "future-mission",
+    title: "Future Mission",
+  };
+  const fetchStub = async (url) => {
+    if (String(url).includes("launches-page-tiles/upcoming")) {
+      return new Response(JSON.stringify([pastTile, futureTile]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    if (String(url).includes("future_missions.json")) {
+      return new Response(
+        JSON.stringify({
+          PAST123: {
+            CorrelationId: "PAST123",
+            PrimaryLaunchDate: { Seconds: 1779357600, Nanos: 0 },
+            PrimaryLaunchWindow: null,
+            TZeroLaunchDate: null,
+            IsPrimaryLaunchTimeGiven: true,
+          },
+          FUTURE123: {
+            CorrelationId: "FUTURE123",
+            PrimaryLaunchDate: { Seconds: 1780452000, Nanos: 0 },
+            PrimaryLaunchWindow: null,
+            TZeroLaunchDate: null,
+            IsPrimaryLaunchTimeGiven: true,
+          },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      );
+    }
+
+    throw new Error(`Unexpected fetch: ${url}`);
+  };
+
+  const data = await loadLaunchData(fetchStub, new Date("2026-05-24T12:00:00.000Z"));
+
+  assert.equal(data.missions.length, 1);
+  assert.equal(data.nextLaunch.title, "Future Mission");
+  assert.equal(data.missions[0].launchAt, "2026-06-03T02:00:00.000Z");
+});
+
 test("buildCalendarFeed emits valid VEVENT entries with DTEND when available", async () => {
-  const data = await loadLaunchData(createFetchStub());
+  const data = await loadLaunchData(createFetchStub(), new Date("2026-04-01T00:00:00.000Z"));
   const calendar = buildCalendarFeed(data);
 
   assert.match(calendar, /BEGIN:VCALENDAR/);
@@ -159,6 +397,28 @@ test("buildCalendarFeed emits valid VEVENT entries with DTEND when available", a
   assert.match(calendar, /LAST-MODIFIED:\d{8}T\d{6}Z/);
   assert.match(calendar, /SEQUENCE:\d+/);
   assert.match(calendar, /DTEND:20260420T072200Z/);
+});
+
+test("loadMissionDetails normalizes SpaceX mission detail pages", async () => {
+  const data = await loadMissionDetails("starlink-1", createFetchStubWithDetails());
+
+  assert.equal(data.details.slug, "starlink-1");
+  assert.equal(data.details.title, "Starlink Mission");
+  assert.equal(data.details.media.imageDesktop.url, "https://example.com/detail-large.jpg");
+  assert.equal(data.details.media.infographicDesktop.url, "https://example.com/infographic.webp");
+  assert.equal(data.details.paragraphs[0].links[0].href, "https://www.starlink.com/");
+  assert.match(data.details.paragraphs[0].text, /Starlink \(https:\/\/www\.starlink\.com\/\)/);
+  assert.match(data.details.summary, /28th flight/);
+  assert.equal(data.details.timelines.preLaunch.entries.length, 2);
+  assert.equal(data.details.timelines.postLaunch.disclaimer, "All Times Approximate");
+  assert.equal(data.details.webcasts[0].url, "https://x.com/SpaceX/status/2055306091710275636");
+});
+
+test("loadMissionDetails rejects unsafe slugs", async () => {
+  await assert.rejects(
+    () => loadMissionDetails("../secret", createFetchStubWithDetails()),
+    /Invalid mission slug/
+  );
 });
 
 test("loadHistoryLaunchData normalizes recent launch history", async () => {
@@ -223,6 +483,27 @@ test("worker serves history launch route as JSON", async () => {
   }
 });
 
+test("worker serves mission details by slug as JSON", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = createFetchStubWithDetails();
+
+  try {
+    const response = await worker.fetch(
+      new Request("https://calendar.example.com/api/launches/starlink-1"),
+      { ASSETS: { fetch: () => new Response("not used") } }
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
+    assert.equal(payload.details.slug, "starlink-1");
+    assert.equal(payload.details.timelines.preLaunch.title, "Countdown");
+    assert.match(payload.details.summary, /A Shortfall of Gravitas/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("worker returns 502 when history launch route fails", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url) => {
@@ -248,7 +529,7 @@ test("worker returns 502 when history launch route fails", async () => {
 });
 
 test("calendar feed remains limited to upcoming launches", async () => {
-  const data = await loadLaunchData(createFetchStubWithHistory());
+  const data = await loadLaunchData(createFetchStubWithHistory(), new Date("2026-04-01T00:00:00.000Z"));
   const history = await loadHistoryLaunchData(createFetchStubWithHistory());
   const calendar = buildCalendarFeed(data);
 

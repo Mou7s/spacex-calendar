@@ -4,6 +4,8 @@ export const ALL_LAUNCHES_URL =
   "https://content.spacex.com/api/spacex-website/launches-page-tiles";
 export const TIMINGS_URL =
   "https://sxcontent9668.azureedge.us/cms-assets/future_missions.json";
+export const MISSION_DETAILS_URL =
+  "https://content.spacex.com/api/spacex-website/missions";
 export const HISTORY_LIMIT = 50;
 
 export function toIsoFromSeconds(value) {
@@ -48,10 +50,148 @@ export function resolveImage(tile) {
   );
 }
 
+export function resolveMediaAsset(asset) {
+  if (!asset) {
+    return null;
+  }
+
+  return {
+    url:
+      asset.formats?.large?.url ||
+      asset.formats?.medium?.url ||
+      asset.url ||
+      null,
+    originalUrl: asset.url || null,
+    alt: asset.alternativeText || asset.caption || asset.name || null,
+    width: asset.width || null,
+    height: asset.height || null,
+    mime: asset.mime || null,
+  };
+}
+
 export function buildMissionUrl(slug) {
   return slug
     ? `https://www.spacex.com/launches/${slug}/`
     : "https://www.spacex.com/launches/";
+}
+
+export function stripHtml(value) {
+  return String(value || "")
+    .replace(/<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, "$2 ($1)")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function extractLinksFromHtml(value) {
+  const links = [];
+  const html = String(value || "");
+  const pattern = /<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
+  let match;
+
+  while ((match = pattern.exec(html))) {
+    links.push({
+      href: match[1],
+      text: stripHtml(match[2]),
+    });
+  }
+
+  return links;
+}
+
+export function normalizeTimeline(timeline) {
+  if (!timeline) {
+    return null;
+  }
+
+  return {
+    title: timeline.title || timeline.name || null,
+    disclaimer: timeline.disclaimer || null,
+    timeHeader: timeline.timeHeader || null,
+    descriptionHeader: timeline.descriptionHeader || null,
+    entries: (timeline.timelineEntries || []).map((entry) => ({
+      time: entry.time || null,
+      description: entry.description || null,
+    })),
+  };
+}
+
+export function buildWebcastUrl(webcast) {
+  if (!webcast?.videoId) {
+    return null;
+  }
+
+  if (webcast.streamingVideoType === "youtube") {
+    return `https://www.youtube.com/watch?v=${webcast.videoId}`;
+  }
+
+  if (webcast.streamingVideoType === "x.com") {
+    return `https://x.com/SpaceX/status/${webcast.videoId}`;
+  }
+
+  return null;
+}
+
+export function normalizeMissionDetails(details) {
+  const paragraphs = (details.paragraphs || []).map((paragraph) => ({
+    html: paragraph.content || "",
+    text: stripHtml(paragraph.content),
+    links: extractLinksFromHtml(paragraph.content),
+  }));
+
+  return {
+    id: details.id,
+    documentId: details.documentId || null,
+    correlationId: details.correlationId || null,
+    slug: details.missionId || null,
+    missionUrl: buildMissionUrl(details.missionId),
+    title: details.title || null,
+    callToAction: details.callToAction || null,
+    endDate: details.endDate || null,
+    flags: {
+      followDragonEnabled: Boolean(details.followDragonEnabled),
+      vehicleTrackerEnabled: Boolean(details.vehicleTrackerEnabled),
+      returnFromIssEnabled: Boolean(details.returnFromIssEnabled),
+      toTheIssEnabled: Boolean(details.toTheIssEnabled),
+      toTheIssTense: details.toTheIssTense || null,
+    },
+    summary: paragraphs.map((paragraph) => paragraph.text).filter(Boolean).join("\n\n"),
+    paragraphs,
+    media: {
+      imageDesktop: resolveMediaAsset(details.imageDesktop),
+      imageMobile: resolveMediaAsset(details.imageMobile),
+      videoDesktop: resolveMediaAsset(details.videoDesktop),
+      videoMobile: resolveMediaAsset(details.videoMobile),
+      infographicDesktop: resolveMediaAsset(details.infographicDesktop),
+      infographicMobile: resolveMediaAsset(details.infographicMobile),
+    },
+    timelines: {
+      preLaunch: normalizeTimeline(details.preLaunchTimeline),
+      postLaunch: normalizeTimeline(details.postLaunchTimeline),
+    },
+    astronauts: (details.astronauts || []).map((astronaut) => ({
+      name: astronaut.name || astronaut.title || null,
+      role: astronaut.role || null,
+      image: resolveMediaAsset(astronaut.image || astronaut.imageDesktop),
+    })),
+    webcasts: (details.webcasts || []).map((webcast) => ({
+      id: webcast.id,
+      title: webcast.title || null,
+      date: webcast.date || null,
+      videoId: webcast.videoId || null,
+      streamingVideoType: webcast.streamingVideoType || null,
+      isFeatured: Boolean(webcast.isFeatured),
+      url: buildWebcastUrl(webcast),
+      imageDesktop: resolveMediaAsset(webcast.imageDesktop),
+      imageMobile: resolveMediaAsset(webcast.imageMobile),
+    })),
+  };
 }
 
 export function normalizeMission(tile, timing) {
@@ -142,6 +282,21 @@ export function sortMissions(missions) {
     const rightTime = right.launchAt ? Date.parse(right.launchAt) : Number.MAX_SAFE_INTEGER;
     return leftTime - rightTime;
   });
+}
+
+export function isFutureMission(mission, now = new Date()) {
+  if (!mission.launchAt) {
+    return true;
+  }
+
+  const launchAt = Date.parse(mission.launchAt);
+  const currentTime = now instanceof Date ? now.getTime() : Date.parse(now);
+
+  if (Number.isNaN(launchAt) || Number.isNaN(currentTime)) {
+    return true;
+  }
+
+  return launchAt >= currentTime;
 }
 
 export function buildMonthSummary(missions) {
@@ -308,7 +463,7 @@ export async function fetchJson(fetchImpl, url) {
   return response.json();
 }
 
-export async function loadLaunchData(fetchImpl = fetch) {
+export async function loadLaunchData(fetchImpl = fetch, now = new Date()) {
   const [tilesResult, timingsResult] = await Promise.allSettled([
     fetchJson(fetchImpl, CONTENT_URL),
     fetchJson(fetchImpl, TIMINGS_URL),
@@ -328,7 +483,9 @@ export async function loadLaunchData(fetchImpl = fetch) {
   }
 
   const missions = sortMissions(
-    tiles.map((tile) => normalizeMission(tile, timings[tile.correlationId]))
+    tiles
+      .map((tile) => normalizeMission(tile, timings[tile.correlationId]))
+      .filter((mission) => isFutureMission(mission, now))
   );
 
   return {
@@ -340,6 +497,24 @@ export async function loadLaunchData(fetchImpl = fetch) {
     nextLaunch: missions.find((mission) => mission.launchAt) || missions[0] || null,
     monthSummary: buildMonthSummary(missions),
     missions,
+  };
+}
+
+export async function loadMissionDetails(slug, fetchImpl = fetch) {
+  const normalizedSlug = String(slug || "").trim();
+
+  if (!/^[a-z0-9-]+$/i.test(normalizedSlug)) {
+    throw new Error("Invalid mission slug");
+  }
+
+  const details = await fetchJson(fetchImpl, `${MISSION_DETAILS_URL}/${normalizedSlug}`);
+
+  return {
+    refreshedAt: new Date().toISOString(),
+    source: {
+      mission: `${MISSION_DETAILS_URL}/${normalizedSlug}`,
+    },
+    details: normalizeMissionDetails(details),
   };
 }
 

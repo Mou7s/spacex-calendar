@@ -106,7 +106,18 @@
     "types": {
       "starlink": "星链",
       "nssl": "国家安全发射"
-    }
+    },
+    "detailsHeading": "任务简报",
+    "preLaunchTimeline": "发射前流程",
+    "postLaunchTimeline": "发射后流程",
+    "webcastLink": "直播",
+    "infographicLink": "图解",
+    "selectionEyebrow": "任务详情",
+    "selectionTitle": "在发射日历中选择任务",
+    "selectionCopy": "从日历右侧列表选择一次发射，这里会显示 SpaceX 任务详情、直播链接和发射流程。",
+    "detailsLoading": "正在加载任务详情...",
+    "detailsUnavailable": "这次任务的详情暂时不可用。",
+    "infographicAlt": "SpaceX 任务图解"
   },
   "countdown": {
     "awaitingTime": "等待时间",

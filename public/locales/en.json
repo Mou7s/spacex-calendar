@@ -106,7 +106,18 @@
     "types": {
       "starlink": "Starlink",
       "nssl": "National Security Launch"
-    }
+    },
+    "detailsHeading": "Mission brief",
+    "preLaunchTimeline": "Countdown",
+    "postLaunchTimeline": "Launch sequence",
+    "webcastLink": "Webcast",
+    "infographicLink": "Infographic",
+    "selectionEyebrow": "Mission details",
+    "selectionTitle": "Select a mission on the calendar",
+    "selectionCopy": "Choose a launch from the calendar list to view SpaceX mission details, webcast links, and launch timelines here.",
+    "detailsLoading": "Loading mission details...",
+    "detailsUnavailable": "Mission details are unavailable right now.",
+    "infographicAlt": "SpaceX mission infographic"
   },
   "countdown": {
     "awaitingTime": "Awaiting time",

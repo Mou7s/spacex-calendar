@@ -2,5 +2,12 @@ node_modules/
 .wrangler/
 .DS_Store
 dist/
+.output/
 coverage/
 *.log
+
+# Nuxt generated
+.nuxt/
+.npm-cache/
+
+.data
