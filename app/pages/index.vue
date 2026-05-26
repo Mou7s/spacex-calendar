@@ -295,15 +295,18 @@
         
         <!-- Detailed State -->
         <div v-else class="selected-mission-card">
-          <!-- Back button for mobile/aesthetic flow -->
-          <button class="tz-btn" style="margin-bottom: 1.5rem" @click="selectedMission = null" type="button">
-            &larr; {{ t('calendar.title') }}
-          </button>
+          <!-- Left Column: Mission Image -->
+          <div 
+            class="selected-mission-image" 
+            :style="selectedMission.image ? { backgroundImage: `url(${selectedMission.image})` } : {}"
+          ></div>
           
-          <!-- Mission Image Banner -->
-          <div v-if="selectedMission.image" class="selected-mission-image-banner" :style="{ backgroundImage: `url(${selectedMission.image})` }"></div>
-          
+          <!-- Right Column: Mission Content -->
           <div class="selected-mission-content">
+            <!-- Back button inside content to keep the grid clean -->
+            <button class="tz-btn" style="margin-bottom: 1.5rem" @click="selectedMission = null" type="button">
+              &larr; {{ t('calendar.title') }}
+            </button>
             <h2 class="selected-mission-title">{{ selectedMission.title }}</h2>
             <div class="mission-topline" style="margin-bottom: 1rem">
               <span class="mission-badge" :class="{ 'is-live': selectedMission.isLive }">
@@ -945,14 +948,5 @@ body {
 }
 .faq-icon {
   transition: transform 0.3s ease;
-}
-.selected-mission-image-banner {
-  width: 100%;
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 16px;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border);
 }
 </style>
