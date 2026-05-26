@@ -445,6 +445,33 @@
                     </ol>
                   </div>
                 </div>
+
+                <!-- Infographic Preview Box -->
+                <div v-if="details.media?.infographicDesktop?.url" class="mt-6">
+                  <div class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-2">
+                    {{ locale === 'zh-CN' ? '任务发射图解' : 'Mission Infographic' }}
+                  </div>
+                  
+                  <div 
+                    class="relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-950/40 cursor-pointer group shadow-lg transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-700 max-h-[300px] flex justify-center items-center"
+                    @click="isInfographicOpen = true"
+                  >
+                    <!-- Preview Image -->
+                    <img
+                      :src="details.media.infographicDesktop.originalUrl || details.media.infographicDesktop.url"
+                      :alt="selectedMission?.title"
+                      class="max-w-full max-h-[300px] object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out select-none opacity-85 group-hover:opacity-100"
+                    />
+                    
+                    <!-- Premium Glass Hover Scrim -->
+                    <div class="absolute inset-0 bg-neutral-950/30 group-hover:bg-neutral-950/50 backdrop-blur-[1px] group-hover:backdrop-blur-[2px] transition-all duration-300 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100">
+                      <div class="bg-neutral-900/90 border border-neutral-700 text-white rounded-xl px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider shadow-2xl backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                        <span class="iconify i-heroicons-magnifying-glass-plus size-4 text-primary-400 animate-pulse"></span>
+                        <span>{{ locale === 'zh-CN' ? '点击查看超清互动图解' : 'Click to View Full Infographic' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
