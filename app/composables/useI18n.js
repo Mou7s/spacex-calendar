@@ -1,13 +1,13 @@
 import { ref } from 'vue'
 import { useRequestHeaders } from '#app'
 
-import de from '~/public/locales/de.json'
-import en from '~/public/locales/en.json'
-import es from '~/public/locales/es.json'
-import fr from '~/public/locales/fr.json'
-import ja from '~/public/locales/ja.json'
-import ko from '~/public/locales/ko.json'
-import zhCN from '~/public/locales/zh-CN.json'
+import de from '~~/public/locales/de.json'
+import en from '~~/public/locales/en.json'
+import es from '~~/public/locales/es.json'
+import fr from '~~/public/locales/fr.json'
+import ja from '~~/public/locales/ja.json'
+import ko from '~~/public/locales/ko.json'
+import zhCN from '~~/public/locales/zh-CN.json'
 
 const fallbackLocale = "en"
 const supportedLocales = ["zh-CN", "en", "ja", "ko", "es", "fr", "de"]
