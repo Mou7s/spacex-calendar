@@ -507,9 +507,10 @@
       <UModal
         v-if="details?.media?.infographicDesktop?.url"
         v-model:open="isInfographicOpen"
+        :ui="{ content: 'max-w-5xl sm:max-w-6xl lg:max-w-7xl xl:max-w-[95vw] w-full' }"
       >
         <template #content>
-          <div class="relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-2 flex flex-col items-center max-w-4xl w-full mx-auto shadow-2xl backdrop-blur-md">
+          <div class="relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-2 flex flex-col items-center w-full shadow-2xl backdrop-blur-md">
             <!-- Header -->
             <div class="w-full flex justify-between items-center px-4 py-3 border-b border-neutral-800/80">
               <strong class="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
@@ -525,11 +526,11 @@
               />
             </div>
             <!-- Image Container with Scrollbar -->
-            <div class="w-full overflow-y-auto max-h-[75vh] p-2 flex justify-center bg-neutral-950 rounded-2xl">
+            <div class="w-full overflow-y-auto max-h-[85vh] p-2 flex justify-center bg-neutral-950 rounded-2xl">
               <img
                 :src="details.media.infographicDesktop.url"
                 :alt="selectedMission?.title"
-                class="max-w-full h-auto object-contain rounded-xl select-none"
+                class="w-full h-auto object-contain rounded-xl select-none"
                 draggable="false"
               />
             </div>
