@@ -74,7 +74,7 @@
       </section>
 
       <!-- Hero / Next Launch Section -->
-      <section class="hero" id="hero">
+      <section class="hero" id="hero" :style="heroStyle">
         <div class="hero-copy">
           <p class="eyebrow">{{ t('hero.eyebrow') }}</p>
           <h1>{{ nextLaunchTitle }}</h1>
@@ -300,6 +300,9 @@
             &larr; {{ t('calendar.title') }}
           </button>
           
+          <!-- Mission Image Banner -->
+          <div v-if="selectedMission.image" class="selected-mission-image-banner" :style="{ backgroundImage: `url(${selectedMission.image})` }"></div>
+          
           <div class="selected-mission-content">
             <h2 class="selected-mission-title">{{ selectedMission.title }}</h2>
             <div class="mission-topline" style="margin-bottom: 1rem">
@@ -442,6 +445,15 @@ const { data: historyPayload } = await useFetch<any>('/api/history-launches')
 
 // Dynamic JSON-LD injection for Google SEO
 const nextLaunch = computed(() => upcomingPayload.value?.nextLaunch)
+
+const heroStyle = computed(() => {
+  if (nextLaunch.value?.image) {
+    return {
+      backgroundImage: `radial-gradient(circle at top, var(--hero-glow), transparent 34%), url("${nextLaunch.value.image}")`
+    }
+  }
+  return {}
+})
 
 useHead({
   title: computed(() => {
@@ -933,5 +945,14 @@ body {
 }
 .faq-icon {
   transition: transform 0.3s ease;
+}
+.selected-mission-image-banner {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
 }
 </style>
