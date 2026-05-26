@@ -465,8 +465,7 @@
               </UButton>
               <UButton
                 v-if="details.media?.infographicDesktop?.url"
-                :to="details.media.infographicDesktop.url"
-                target="_blank"
+                @click="isInfographicOpen = true"
                 color="neutral"
                 variant="subtle"
                 size="sm"
@@ -503,6 +502,40 @@
           </UAccordion>
         </UCard>
       </section>
+
+      <!-- Infographic Lightbox Modal -->
+      <UModal
+        v-if="details?.media?.infographicDesktop?.url"
+        v-model:open="isInfographicOpen"
+      >
+        <template #content>
+          <div class="relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-2 flex flex-col items-center max-w-4xl w-full mx-auto shadow-2xl backdrop-blur-md">
+            <!-- Header -->
+            <div class="w-full flex justify-between items-center px-4 py-3 border-b border-neutral-800/80">
+              <strong class="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+                {{ selectedMission?.title }} Infographic
+              </strong>
+              <UButton
+                icon="i-heroicons-x-mark"
+                color="neutral"
+                variant="ghost"
+                class="rounded-lg text-neutral-400 hover:text-white"
+                @click="isInfographicOpen = false"
+                aria-label="Close"
+              />
+            </div>
+            <!-- Image Container with Scrollbar -->
+            <div class="w-full overflow-y-auto max-h-[75vh] p-2 flex justify-center bg-neutral-950 rounded-2xl">
+              <img
+                :src="details.media.infographicDesktop.url"
+                :alt="selectedMission?.title"
+                class="max-w-full h-auto object-contain rounded-xl select-none"
+                draggable="false"
+              />
+            </div>
+          </div>
+        </template>
+      </UModal>
     </main>
   </div>
 </template>
@@ -870,10 +903,12 @@ const selectedMissionKey = computed(() => selectedMission.value?.key || null)
 
 const loadingDetails = ref(false)
 const details = ref<any>(null)
+const isInfographicOpen = ref(false)
 
 const selectMission = async (mission: any, scrollPage = true) => {
   selectedMission.value = mission
   focusedDateIso.value = mission.launchAt?.slice(0, 10) || null
+  isInfographicOpen.value = false // Reset modal on new selection
 
   // Scroll into selected mission detail view immediately for instant visual feedback
   if (import.meta.client && scrollPage) {
