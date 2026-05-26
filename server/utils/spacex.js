@@ -41,11 +41,11 @@ export function resolveWindow(timing) {
 
 export function resolveImage(tile) {
   return (
+    tile.imageDesktop?.url ||
     tile.imageDesktop?.formats?.large?.url ||
     tile.imageDesktop?.formats?.medium?.url ||
-    tile.imageDesktop?.url ||
-    tile.imageMobile?.formats?.large?.url ||
     tile.imageMobile?.url ||
+    tile.imageMobile?.formats?.large?.url ||
     null
   );
 }
