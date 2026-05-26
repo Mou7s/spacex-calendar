@@ -537,9 +537,9 @@
         :ui="{ content: 'max-w-5xl sm:max-w-6xl lg:max-w-7xl xl:max-w-[95vw] w-full' }"
       >
         <template #content>
-          <div class="relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-2 flex flex-col items-center w-full shadow-2xl backdrop-blur-md">
+          <div class="relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-2 flex flex-col items-center w-full max-h-[90vh] shadow-2xl backdrop-blur-md">
             <!-- Header -->
-            <div class="w-full flex justify-between items-center px-4 py-3 border-b border-neutral-800/80">
+            <div class="w-full flex justify-between items-center px-4 py-3 border-b border-neutral-800/80 shrink-0">
               <strong class="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
                 {{ selectedMission?.title }} Infographic
               </strong>
@@ -576,7 +576,7 @@
             
             <!-- Interactive Image Container with click-to-zoom -->
             <div 
-              class="w-full max-h-[85vh] p-2 bg-neutral-950 rounded-2xl transition-all duration-300"
+              class="w-full flex-1 min-h-0 p-2 bg-neutral-950 rounded-2xl transition-all duration-300"
               :class="isZoomed ? 'overflow-auto flex justify-start items-start' : 'overflow-y-auto flex justify-center items-center'"
             >
               <img
