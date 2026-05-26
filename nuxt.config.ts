@@ -2,7 +2,8 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: [
-    '@nuxthub/core'
+    '@nuxthub/core',
+    '@nuxt/ui'
   ],
   css: [
     '~/assets/css/styles.css'

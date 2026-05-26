@@ -1,454 +1,507 @@
 <template>
-  <div class="page-shell">
+  <div class="page-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <header class="site-header">
-      <div class="brand">
-        <span class="brand-mark">SPACEX</span>
-        <span class="brand-sub">CALENDAR</span>
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-b border-neutral-800/80 pb-6 mb-8">
+      <div class="brand flex gap-3 items-baseline">
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-mono">SPACEX</span>
+        <span class="text-[10px] tracking-[0.3em] text-neutral-400 font-bold uppercase">CALENDAR</span>
       </div>
-      <div class="header-actions">
-        <p class="header-copy">{{ t('header.copy') }}</p>
+      <div class="flex items-center gap-4 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
+        <p class="text-xs text-neutral-400 hidden lg:block mr-2">{{ t('header.copy') }}</p>
         
-        <!-- Language Switcher -->
-        <div class="lang-selector">
-          <select :value="activeLocale" @change="e => setLocale((e.target as HTMLSelectElement).value)" aria-label="Change language">
-            <option v-for="lang in supportedLocales" :key="lang" :value="lang">
-              {{ lang === 'zh-CN' ? '简体中文' : lang.toUpperCase() }}
-            </option>
-          </select>
-        </div>
+        <!-- Language Selector -->
+        <USelect
+          :value="activeLocale"
+          @change="e => setLocale((e.target as HTMLSelectElement).value)"
+          :options="localeItems"
+          size="sm"
+          color="neutral"
+          variant="subtle"
+          aria-label="Change language"
+          class="min-w-[120px]"
+        />
 
         <!-- Theme Toggle -->
-        <button class="theme-toggle" @click="toggleTheme" type="button" :aria-label="t('header.themeToggleAria')">
-          <svg v-if="theme === 'dark'" class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
-            <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="12" y1="1" x2="12" y2="3"/>
-              <line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/>
-              <line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </g>
-          </svg>
-          <svg v-else class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+        <UButton
+          :icon="colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'"
+          color="neutral"
+          variant="subtle"
+          class="rounded-full"
+          @click="toggleTheme"
+          :aria-label="t('header.themeToggleAria')"
+        />
 
         <!-- GitHub Link -->
-        <a
-          class="github-link"
-          href="https://github.com/Mou7s/spacex-calendar"
+        <UButton
+          icon="i-simple-icons-github"
+          color="neutral"
+          variant="outline"
+          class="rounded-full font-semibold uppercase tracking-wider text-[10px]"
+          to="https://github.com/Mou7s/spacex-calendar"
           target="_blank"
-          rel="noreferrer"
-          :aria-label="t('header.githubAriaLabel')"
-          title="GitHub"
+          aria-label="GitHub Repository"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path
-              d="M12 0.5C5.37 0.5 0 5.87 0 12.5C0 17.8 3.44 22.3 8.21 23.89C8.81 24 9.03 23.63 9.03 23.31C9.03 23.02 9.02 22.06 9.01 20.79C5.67 21.52 4.97 19.38 4.97 19.38C4.42 17.97 3.63 17.6 3.63 17.6C2.55 16.86 3.71 16.88 3.71 16.88C4.91 16.97 5.54 18.11 5.54 18.11C6.6 19.95 8.32 19.42 9 19.11C9.11 18.34 9.42 17.81 9.76 17.51C7.09 17.2 4.29 16.17 4.29 11.58C4.29 10.27 4.76 9.21 5.53 8.38C5.41 8.08 4.99 6.86 5.65 5.21C5.65 5.21 6.66 4.89 8.98 6.46C9.94 6.19 10.96 6.05 11.98 6.05C13 6.05 14.02 6.19 14.98 6.46C17.3 4.89 18.31 5.21 18.31 5.21C18.97 6.86 18.55 8.08 18.43 8.38C19.2 9.21 19.67 10.27 19.67 11.58C19.67 16.18 16.87 17.19 14.19 17.5C14.62 17.87 15 18.61 15 19.76C15 21.41 14.98 22.75 14.98 23.31C14.98 23.63 15.2 24.01 15.81 23.89C20.57 22.29 24 17.8 24 12.5C24 5.87 18.63 0.5 12 0.5Z"
-              fill="currentColor"
-            />
-          </svg>
-          <span>{{ t('header.github') }}</span>
-        </a>
+          GitHub
+        </UButton>
       </div>
     </header>
 
     <main>
       <!-- Subscribe Panel -->
-      <section class="subscribe-panel">
-        <div>
-          <p class="eyebrow">{{ t('subscribe.eyebrow') }}</p>
-          <h2>{{ t('subscribe.title') }}</h2>
-          <p class="section-copy">{{ t('subscribe.copy') }}</p>
-        </div>
-        <div class="subscribe-actions">
-          <a class="subscribe-link" :href="webcalSubscriptionLink">{{ t('subscribe.subscribeLink') }}</a>
-          <code class="subscribe-url">{{ icsSubscriptionLink }}</code>
-          <code class="subscribe-url">{{ webcalSubscriptionLink }}</code>
-        </div>
-      </section>
-
-      <!-- Hero / Next Launch Section -->
-      <section class="hero" id="hero" :style="heroStyle">
-        <div class="hero-copy">
-          <p class="eyebrow">{{ t('hero.eyebrow') }}</p>
-          <h1>{{ nextLaunchTitle }}</h1>
-          <p class="hero-description">{{ nextLaunchDescription }}</p>
-          
-          <div class="hero-meta">
-            <div class="meta-card">
-              <span class="meta-label">{{ t('hero.meta.nextLaunch') }}</span>
-              <strong>{{ nextLaunchTimeFormatted }}</strong>
+      <section class="mb-8">
+        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+          <div class="flex flex-col lg:flex-row justify-between gap-6 items-start lg:items-center">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-primary-400 font-bold mb-1">{{ t('subscribe.eyebrow') }}</p>
+              <h2 class="text-2xl font-bold text-white uppercase tracking-tight mb-2">{{ t('subscribe.title') }}</h2>
+              <p class="text-sm text-neutral-400 max-w-3xl leading-relaxed">{{ t('subscribe.copy') }}</p>
             </div>
-            <div class="meta-card">
-              <span class="meta-label">{{ t('hero.meta.countdown') }}</span>
-              
-              <!-- Live Countdown Display -->
-              <div class="countdown-display">
-                <div class="countdown-block">
-                  <div class="countdown-val">{{ countdown.days }}</div>
-                  <div class="countdown-unit">{{ t('countdown.units.days') }}</div>
-                </div>
-                <div class="countdown-block">
-                  <div class="countdown-val">{{ countdown.hours }}</div>
-                  <div class="countdown-unit">{{ t('countdown.units.hours') }}</div>
-                </div>
-                <div class="countdown-block">
-                  <div class="countdown-val">{{ countdown.minutes }}</div>
-                  <div class="countdown-unit">{{ t('countdown.units.minutes') }}</div>
-                </div>
-                <div class="countdown-block">
-                  <div class="countdown-val">{{ countdown.seconds }}</div>
-                  <div class="countdown-unit">{{ t('countdown.units.seconds') }}</div>
-                </div>
+            <div class="flex flex-col gap-3 w-full lg:max-w-md shrink-0">
+              <UButton
+                :to="webcalSubscriptionLink"
+                color="primary"
+                size="md"
+                block
+                class="rounded-2xl font-bold uppercase tracking-wider text-xs py-3"
+                icon="i-heroicons-calendar-days"
+              >
+                {{ t('subscribe.subscribeLink') }}
+              </UButton>
+              <div class="flex flex-col gap-2">
+                <code class="text-[11px] bg-neutral-950 border border-neutral-800/80 rounded-2xl p-3 text-neutral-300 overflow-x-auto block font-mono">
+                  {{ icsSubscriptionLink }}
+                </code>
               </div>
             </div>
           </div>
+        </UCard>
+      </section>
+
+      <!-- Hero / Next Launch Section -->
+      <section 
+        class="hero relative min-h-[50vh] flex items-end overflow-hidden p-8 sm:p-12 border border-neutral-800 rounded-3xl shadow-2xl mb-8 transition-all duration-500"
+        id="hero"
+        :style="heroStyle"
+      >
+        <!-- Dark gradient scrim -->
+        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent pointer-events-none z-0"></div>
+
+        <div class="hero-copy relative z-10 w-full max-w-4xl">
+          <p class="text-[10px] uppercase tracking-[0.25em] text-neutral-300 font-bold mb-2">{{ t('hero.eyebrow') }}</p>
+          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight uppercase leading-none mb-4 font-mono">
+            {{ nextLaunchTitle }}
+          </h1>
+          <p class="text-sm sm:text-base text-neutral-300 mb-8 max-w-2xl leading-relaxed">
+            {{ nextLaunchDescription }}
+          </p>
           
-          <div class="hero-actions" v-if="upcomingPayload?.nextLaunch?.slug">
-            <button class="hero-link" @click="selectMission(upcomingPayload.nextLaunch)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Next Launch Target Time -->
+            <UCard class="bg-neutral-950/60 border-neutral-800/40 backdrop-blur-md ring-0 rounded-2xl">
+              <span class="text-[10px] uppercase tracking-wider text-neutral-400 font-bold">{{ t('hero.meta.nextLaunch') }}</span>
+              <strong class="block text-lg sm:text-xl font-bold text-white mt-2 font-mono">{{ nextLaunchTimeFormatted }}</strong>
+            </UCard>
+
+            <!-- Countdown Timer -->
+            <UCard class="bg-neutral-950/60 border-neutral-800/40 backdrop-blur-md ring-0 rounded-2xl">
+              <span class="text-[10px] uppercase tracking-wider text-neutral-400 font-bold mb-2 block">{{ t('hero.meta.countdown') }}</span>
+              
+              <div class="flex gap-5 items-center">
+                <div v-for="unit in ['days', 'hours', 'minutes', 'seconds']" :key="unit" class="flex flex-col items-center">
+                  <div class="text-xl sm:text-2xl font-bold text-white font-mono leading-none relative">
+                    {{ countdown[unit as keyof typeof countdown] }}
+                  </div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 mt-1.5 font-bold">
+                    {{ t(`countdown.units.${unit}`) }}
+                  </div>
+                </div>
+              </div>
+            </UCard>
+          </div>
+          
+          <div class="mt-6" v-if="upcomingPayload?.nextLaunch?.slug">
+            <UButton
+              color="neutral"
+              variant="solid"
+              size="sm"
+              class="rounded-full font-bold uppercase tracking-wider text-[10px] px-6 py-2.5 shadow-lg"
+              @click="selectMission(upcomingPayload.nextLaunch)"
+              icon="i-heroicons-information-circle"
+            >
               {{ t('history.detailsLink') }}
-            </button>
+            </UButton>
           </div>
         </div>
       </section>
 
       <!-- Overview Grid (Month Strip & Tracker) -->
-      <section class="overview-grid">
-        <article class="panel panel-wide">
-          <div class="panel-header">
-            <p class="eyebrow">{{ t('overview.cadenceEyebrow') }}</p>
-            <h2>{{ t('overview.cadenceTitle') }}</h2>
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Near Cadence Count Summary -->
+        <UCard class="lg:col-span-2 bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+          <template #header>
+            <div class="pb-1">
+              <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">{{ t('overview.cadenceEyebrow') }}</p>
+              <h3 class="text-base font-bold text-white uppercase">{{ t('overview.cadenceTitle') }}</h3>
+            </div>
+          </template>
+          
+          <div class="flex flex-wrap gap-3">
+            <p v-if="!monthSummary.length" class="text-neutral-400 text-sm">{{ t('overview.noLaunchWindows') }}</p>
+            <div 
+              v-for="item in monthSummary" 
+              :key="item.isoMonth || item.label" 
+              class="bg-neutral-950/80 border border-neutral-800/80 px-4 py-3 rounded-2xl flex flex-col items-center min-w-[90px] text-center"
+            >
+              <strong class="text-xl font-bold text-white font-mono">{{ item.count }}</strong>
+              <span class="text-[9px] text-neutral-400 uppercase font-bold mt-1.5">{{ formatMonthPillLabel(item) }}</span>
+            </div>
           </div>
-          <div class="month-strip">
-            <p v-if="!monthSummary.length">{{ t('overview.noLaunchWindows') }}</p>
-            <article v-for="item in monthSummary" :key="item.isoMonth || item.label" class="month-pill">
-              <strong>{{ item.count }}</strong>
-              <span>{{ formatMonthPillLabel(item) }}</span>
-            </article>
-          </div>
-        </article>
+        </UCard>
 
-        <article class="panel">
-          <div class="panel-header">
-            <p class="eyebrow">{{ t('overview.statusEyebrow') }}</p>
-            <h2>{{ t('overview.statusTitle') }}</h2>
+        <!-- Stats Tracker -->
+        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+          <template #header>
+            <div class="pb-1">
+              <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">{{ t('overview.statusEyebrow') }}</p>
+              <h3 class="text-base font-bold text-white uppercase">{{ t('overview.statusTitle') }}</h3>
+            </div>
+          </template>
+          
+          <div class="flex flex-col gap-2.5">
+            <div class="flex justify-between items-center border-b border-neutral-800/30 pb-2 text-xs">
+              <span class="text-neutral-400">{{ t('overview.tracker.missionsLoaded') }}</span>
+              <strong class="text-white font-mono text-sm">{{ upcomingPayload?.missions?.length || 0 }}</strong>
+            </div>
+            <div class="flex justify-between items-center border-b border-neutral-800/30 pb-2 text-xs">
+              <span class="text-neutral-400">{{ t('overview.tracker.timedWindows') }}</span>
+              <strong class="text-white font-mono text-sm">{{ timedWindowsCount }}</strong>
+            </div>
+            <div class="flex justify-between items-center border-b border-neutral-800/30 pb-2 text-xs">
+              <span class="text-neutral-400">{{ t('overview.tracker.liveNow') }}</span>
+              <strong class="text-white font-mono text-sm">{{ liveCount }}</strong>
+            </div>
+            <div class="flex justify-between items-center pb-1 text-xs">
+              <span class="text-neutral-400">{{ t('overview.tracker.viewerTimezone') }}</span>
+              <strong class="text-white text-[11px] font-mono">{{ activeTimezoneDisplay }}</strong>
+            </div>
           </div>
           
-          <!-- Tracker Info -->
-          <div class="tracker">
-            <div class="tracker-item">
-              <span>{{ t('overview.tracker.missionsLoaded') }}</span>
-              <strong>{{ upcomingPayload?.missions?.length || 0 }}</strong>
-            </div>
-            <div class="tracker-item">
-              <span>{{ t('overview.tracker.timedWindows') }}</span>
-              <strong>{{ timedWindowsCount }}</strong>
-            </div>
-            <div class="tracker-item">
-              <span>{{ t('overview.tracker.liveNow') }}</span>
-              <strong>{{ liveCount }}</strong>
-            </div>
-            <div class="tracker-item">
-              <span>{{ t('overview.tracker.viewerTimezone') }}</span>
-              <strong>{{ activeTimezoneDisplay }}</strong>
-            </div>
-          </div>
-          
-          <!-- Timezone Selector -->
-          <div class="timezone-selector" role="group" aria-label="Display timezone">
-            <button 
+          <!-- Timezone Toggles -->
+          <div class="flex flex-wrap gap-1 mt-4" role="group" aria-label="Display timezone">
+            <UButton
               v-for="opt in TIMEZONE_OPTIONS" 
               :key="opt.key"
-              type="button"
-              class="tz-btn"
-              :class="{ 'is-active': activeTimezone === opt.tz }"
-              :aria-pressed="activeTimezone === opt.tz ? 'true' : 'false'"
-              :aria-label="t(`timezone.aria.${opt.key}`)"
+              size="xs"
+              class="rounded-lg font-bold uppercase text-[9px] tracking-wide"
+              :color="activeTimezone === opt.tz ? 'primary' : 'neutral'"
+              :variant="activeTimezone === opt.tz ? 'solid' : 'subtle'"
               @click="setTimezone(opt.tz)"
             >
               {{ t(`timezone.${opt.key}`) }}
-            </button>
+            </UButton>
           </div>
-        </article>
+        </UCard>
       </section>
 
-      <!-- Calendar Layout Section -->
-      <section class="panel calendar-panel new-calendar-layout" aria-live="polite">
-        <div class="calendar-sidebar">
-          <div class="calendar-header">
-            <div class="panel-header">
-              <p class="eyebrow">{{ t('calendar.eyebrow') }}</p>
-              <h2>{{ t('calendar.title') }}</h2>
-            </div>
-            <div class="calendar-nav">
-              <button 
-                class="calendar-nav-button" 
-                :disabled="activeMonthIndex === 0" 
-                @click="activeMonthIndex = Math.max(0, activeMonthIndex - 1)"
-                type="button" 
-                :aria-label="t('calendar.previousMonthAria')"
-              >
-                <span aria-hidden="true">&#8249;</span>
-              </button>
-              <strong class="calendar-month-label">{{ activeMonthLabel }}</strong>
-              <button 
-                class="calendar-nav-button" 
-                :disabled="activeMonthIndex === monthKeys.length - 1" 
-                @click="activeMonthIndex = Math.min(monthKeys.length - 1, activeMonthIndex + 1)"
-                type="button" 
-                :aria-label="t('calendar.nextMonthAria')"
-              >
-                <span aria-hidden="true">&#8250;</span>
-              </button>
-            </div>
-          </div>
-          
-          <!-- Mini Grid -->
-          <div class="mini-calendar">
-            <div class="calendar-grid">
-              <!-- Weekdays -->
-              <div v-for="dayLabel in t('calendar.weekdayShort')" :key="dayLabel" class="calendar-weekday">
-                {{ dayLabel }}
-              </div>
-              <!-- Grid Days -->
-              <div 
-                v-for="day in gridDays" 
-                :key="day.isoDate"
-                class="calendar-day"
-                :class="{
-                  'is-outside': !day.isCurrentMonth,
-                  'is-today': day.isoDate === todayIso,
-                  'has-events': day.hasEvents,
-                  'is-selected': day.isoDate === selectedDateIso,
-                  'is-date-focused': day.isoDate === focusedDateIso
-                }"
-                @click="day.hasEvents ? focusDate(day.isoDate) : null"
-              >
-                <div class="calendar-day-number">{{ day.dayNumber }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Events List in Current Month -->
-        <div class="calendar-events-view">
-          <div class="events-list">
-            <div v-if="!monthMissions.length" class="empty-state">
-              {{ t('calendar.noLaunches') }}
-            </div>
-            <button 
-              v-for="mission in monthMissions" 
-              :key="mission.key"
-              type="button" 
-              class="event-list-item"
-              :class="{ 
-                'is-history-event': mission.calendarGroup === 'history',
-                'is-selected': mission.key === selectedMissionKey
-              }"
-              :data-date="mission.launchAt.slice(0, 10)"
-              @click="selectMission(mission)"
-            >
-              <div class="event-list-date">
-                <span>{{ formatEventMonth(mission.launchAt) }}</span>
-                <strong>{{ formatEventDay(mission.launchAt) }}</strong>
-              </div>
-              <div class="event-list-details">
-                <div class="event-list-title">{{ mission.title }}</div>
-                <div class="event-list-meta">
-                  <span v-if="mission.calendarGroup === 'history'">
-                    {{ t(`history.status.${mission.success === true ? 'success' : mission.success === false ? 'failure' : 'unknown'}`) }}
-                  </span>
-                  <span v-else-if="mission.isLive" class="event-list-live">
-                    {{ t('mission.live') }}
-                  </span>
-                  <span v-else-if="mission.launchAt">
-                    {{ formatEventTime(mission.launchAt) }}
-                  </span>
-                  <span v-else>
-                    {{ t('calendar.untimed') }}
-                  </span>
-                  
-                  <span v-if="mission.calendarGroup !== 'history'">
-                    {{ t(`mission.types.${mission.missionType?.toLowerCase()}`) || titleCase(mission.missionType) }}
-                  </span>
+      <!-- Calendar Sidebar Layout Section -->
+      <section class="mb-8" aria-live="polite">
+        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+          <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Calendar Navigation & Mini Grid -->
+            <div class="w-full lg:w-[320px] flex flex-col gap-5 shrink-0">
+              <div class="flex justify-between items-center border-b border-neutral-800/50 pb-3">
+                <div>
+                  <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">{{ t('calendar.eyebrow') }}</p>
+                  <h3 class="text-base font-bold text-white uppercase">{{ t('calendar.title') }}</h3>
+                </div>
+                
+                <div class="flex items-center gap-1.5">
+                  <UButton
+                    icon="i-heroicons-chevron-left"
+                    size="xs"
+                    color="neutral"
+                    variant="outline"
+                    class="rounded-lg"
+                    :disabled="activeMonthIndex === 0"
+                    @click="activeMonthIndex = Math.max(0, activeMonthIndex - 1)"
+                    aria-label="Previous month"
+                  />
+                  <strong class="text-[10px] uppercase tracking-wider text-white min-w-[70px] text-center font-bold font-mono">
+                    {{ activeMonthLabel }}
+                  </strong>
+                  <UButton
+                    icon="i-heroicons-chevron-right"
+                    size="xs"
+                    color="neutral"
+                    variant="outline"
+                    class="rounded-lg"
+                    :disabled="activeMonthIndex === monthKeys.length - 1"
+                    @click="activeMonthIndex = Math.min(monthKeys.length - 1, activeMonthIndex + 1)"
+                    aria-label="Next month"
+                  />
                 </div>
               </div>
-            </button>
+
+              <!-- Mini Grid -->
+              <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                <div v-for="dayLabel in t('calendar.weekdayShort')" :key="dayLabel" class="text-[10px] text-neutral-400 font-bold uppercase py-1">
+                  {{ dayLabel }}
+                </div>
+                
+                <!-- Grid Days -->
+                <button
+                  v-for="day in gridDays"
+                  :key="day.isoDate"
+                  type="button"
+                  class="h-9 w-9 rounded-xl flex items-center justify-center relative transition-all duration-150 cursor-pointer"
+                  :class="{
+                    'text-neutral-600': !day.isCurrentMonth,
+                    'text-white hover:bg-neutral-800': day.isCurrentMonth,
+                    'bg-primary-500 text-neutral-950 font-bold': day.isoDate === todayIso,
+                    'ring-2 ring-white font-bold': day.isoDate === selectedDateIso,
+                    'ring-1 ring-neutral-500': day.isoDate === focusedDateIso && day.isoDate !== selectedDateIso
+                  }"
+                  :disabled="!day.hasEvents"
+                  @click="day.hasEvents ? focusDate(day.isoDate) : null"
+                >
+                  <span class="text-xs">{{ day.dayNumber }}</span>
+                  <!-- Launch Dot -->
+                  <span v-if="day.hasEvents" class="absolute bottom-1 w-1 h-1 rounded-full bg-emerald-400"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Calendar Events List -->
+            <div class="flex-1 border-t lg:border-t-0 lg:border-l border-neutral-800/80 pt-6 lg:pt-0 lg:pl-8 max-h-[380px] overflow-y-auto pr-2">
+              <div class="flex flex-col gap-2.5">
+                <p v-if="!monthMissions.length" class="text-neutral-400 text-sm py-4">{{ t('calendar.noLaunches') }}</p>
+                
+                <UButton
+                  v-for="mission in monthMissions"
+                  :key="mission.key"
+                  color="neutral"
+                  variant="ghost"
+                  class="flex items-center gap-4 text-left p-4 rounded-2xl w-full border border-neutral-800/20"
+                  :class="{
+                    'bg-neutral-800/40 border-neutral-700/60 shadow-md': mission.key === selectedMissionKey
+                  }"
+                  @click="selectMission(mission)"
+                >
+                  <div class="flex flex-col items-center justify-center bg-neutral-950/80 border border-neutral-800 rounded-xl px-3 py-2 text-center min-w-[50px] leading-none shrink-0">
+                    <span class="text-[9px] uppercase tracking-wider text-neutral-400 font-semibold">{{ formatEventMonth(mission.launchAt) }}</span>
+                    <strong class="text-lg font-bold text-white mt-1">{{ formatEventDay(mission.launchAt) }}</strong>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <div class="font-bold text-sm truncate text-white uppercase">{{ mission.title }}</div>
+                    <div class="text-[10px] text-neutral-400 mt-1 flex items-center gap-2">
+                      <span v-if="mission.calendarGroup === 'history'" class="text-emerald-400 font-bold uppercase">
+                        {{ t(`history.status.${mission.success === true ? 'success' : mission.success === false ? 'failure' : 'unknown'}`) }}
+                      </span>
+                      <span v-else-if="mission.isLive" class="text-red-400 font-bold uppercase tracking-wider">
+                        {{ t('mission.live') }}
+                      </span>
+                      <span v-else-if="mission.launchAt">
+                        {{ formatEventTime(mission.launchAt) }}
+                      </span>
+                      <span v-else>
+                        {{ t('calendar.untimed') }}
+                      </span>
+
+                      <span>•</span>
+                      <span>{{ t(`mission.types.${mission.missionType?.toLowerCase()}`) || titleCase(mission.missionType) }}</span>
+                    </div>
+                  </div>
+                </UButton>
+              </div>
+            </div>
           </div>
-        </div>
+        </UCard>
       </section>
 
       <!-- Selected Mission Panel (Full Dynamic Details) -->
-      <section class="selected-mission-panel" aria-live="polite">
+      <section class="mb-8" aria-live="polite">
         <!-- Empty State -->
-        <div v-if="!selectedMission" class="selected-mission-empty">
-          <p class="eyebrow">{{ t('mission.selectionEyebrow') }}</p>
-          <h2>{{ t('mission.selectionTitle') }}</h2>
-          <p>{{ t('mission.selectionCopy') }}</p>
-        </div>
+        <UCard v-if="!selectedMission" class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl p-6 text-center">
+          <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{{ t('mission.selectionEyebrow') }}</p>
+          <h3 class="text-2xl font-bold text-white uppercase mb-2">{{ t('mission.selectionTitle') }}</h3>
+          <p class="text-neutral-400 text-sm max-w-xl mx-auto leading-relaxed">{{ t('mission.selectionCopy') }}</p>
+        </UCard>
         
-        <!-- Detailed State -->
-        <div v-else class="selected-mission-card">
-          <!-- Left Column: Mission Image -->
+        <!-- Detailed Card -->
+        <div v-else class="bg-neutral-900/40 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-5 min-h-[420px] backdrop-blur-md">
+          <!-- Left Column: Mission High-Res Background Image -->
           <div 
-            class="selected-mission-image" 
+            class="md:col-span-2 min-h-[260px] md:min-h-full bg-center bg-cover bg-no-repeat bg-neutral-950 transition-all duration-300 border-b md:border-b-0 md:border-r border-neutral-800/80"
             :style="selectedMission.image ? { backgroundImage: `url(${selectedMission.image})` } : {}"
           ></div>
           
-          <!-- Right Column: Mission Content -->
-          <div class="selected-mission-content">
-            <!-- Back button inside content to keep the grid clean -->
-            <button class="tz-btn" style="margin-bottom: 1.5rem" @click="selectedMission = null" type="button">
-              &larr; {{ t('calendar.title') }}
-            </button>
-            <h2 class="selected-mission-title">{{ selectedMission.title }}</h2>
-            <div class="mission-topline" style="margin-bottom: 1rem">
-              <span 
-                class="mission-badge" 
-                :class="{ 
-                  'is-live': selectedMission.isLive,
-                  'is-success': selectedMission.calendarGroup === 'history' && selectedMission.success === true,
-                  'is-failure': selectedMission.calendarGroup === 'history' && selectedMission.success === false
-                }"
+          <!-- Right Column: Mission Content Details -->
+          <div class="md:col-span-3 p-8 sm:p-10 flex flex-col justify-between">
+            <div>
+              <!-- Back button inside content -->
+              <UButton
+                icon="i-heroicons-arrow-left"
+                size="xs"
+                color="neutral"
+                variant="subtle"
+                class="mb-6 rounded-lg uppercase tracking-wider text-[9px]"
+                @click="selectedMission = null"
               >
-                <template v-if="selectedMission.calendarGroup === 'history'">
-                  {{ t(`history.status.${selectedMission.success === true ? 'success' : selectedMission.success === false ? 'failure' : 'unknown'}`) }}
-                </template>
-                <template v-else>
-                  {{ selectedMission.isLive ? t('mission.live') : t(`status.${selectedMission.status?.toLowerCase()}`) || titleCase(selectedMission.status) }}
-                </template>
-              </span>
-              <span class="mission-type">
-                {{ t(`mission.types.${selectedMission.missionType?.toLowerCase()}`) || titleCase(selectedMission.missionType) }}
-              </span>
-            </div>
-            
-            <p class="mission-window" style="font-size: 1.1rem; color: var(--accent); font-weight: 500; margin-bottom: 1.5rem">
-              {{ getMissionWindowCopy(selectedMission) }}
-            </p>
+                {{ t('calendar.title') }}
+              </UButton>
 
-            <dl class="selected-mission-facts" style="margin-bottom: 2rem">
-              <div>
-                <dt>{{ t('mission.vehicle') }}</dt>
-                <dd>{{ selectedMission.vehicle || t('mission.tbd') }}</dd>
-              </div>
-              <div>
-                <dt>{{ t('mission.launchSite') }}</dt>
-                <dd>{{ selectedMission.launchSite || t('mission.tbd') }}</dd>
-              </div>
-              <div>
-                <dt>{{ t('mission.returnSite') }}</dt>
-                <dd>{{ selectedMission.returnSite || t('mission.tbd') }}</dd>
-              </div>
-            </dl>
-
-            <!-- Dynamic Asynchronous Details -->
-            <div v-if="loadingDetails" class="selected-details-loading">
-              <p>{{ t('mission.detailsLoading') }}</p>
-            </div>
-            
-            <div v-else-if="details" class="selected-details-loaded">
-              <div v-if="details.summary" style="margin-bottom: 2rem">
-                <div class="mission-details-heading" style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem">
-                  {{ t('mission.detailsHeading') }}
-                </div>
-                <p class="selected-mission-summary" style="line-height: 1.6; color: var(--text-secondary)">
-                  {{ details.summary }}
-                </p>
+              <h2 class="text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-tight mb-3">
+                {{ selectedMission.title }}
+              </h2>
+              
+              <div class="flex items-center gap-2 mb-4">
+                <span 
+                  class="px-2 py-0.5 rounded text-[9px] uppercase font-extrabold text-neutral-950" 
+                  :class="{ 
+                    'bg-red-400 animate-pulse': selectedMission.isLive,
+                    'bg-emerald-400': selectedMission.calendarGroup === 'history' && selectedMission.success === true,
+                    'bg-rose-400': selectedMission.calendarGroup === 'history' && selectedMission.success === false,
+                    'bg-neutral-400': selectedMission.calendarGroup !== 'history' && !selectedMission.isLive
+                  }"
+                >
+                  <template v-if="selectedMission.calendarGroup === 'history'">
+                    {{ t(`history.status.${selectedMission.success === true ? 'success' : selectedMission.success === false ? 'failure' : 'unknown'}`) }}
+                  </template>
+                  <template v-else>
+                    {{ selectedMission.isLive ? t('mission.live') : t(`status.${selectedMission.status?.toLowerCase()}`) || titleCase(selectedMission.status) }}
+                  </template>
+                </span>
+                <span class="text-xs text-neutral-400 font-bold uppercase tracking-wider">
+                  {{ t(`mission.types.${selectedMission.missionType?.toLowerCase()}`) || titleCase(selectedMission.missionType) }}
+                </span>
               </div>
               
-              <!-- Timelines Grid -->
-              <div 
-                v-if="details.timelines?.preLaunch?.entries?.length || details.timelines?.postLaunch?.entries?.length" 
-                class="selected-timelines" 
-                style="margin-bottom: 2rem"
-              >
-                <!-- Pre-Launch Timeline -->
-                <div v-if="details.timelines?.preLaunch?.entries?.length" class="selected-timeline">
-                  <h3 style="font-size: 1.1rem; margin-bottom: 1rem">{{ t('mission.preLaunchTimeline') }}</h3>
-                  <p v-if="details.timelines.preLaunch.disclaimer" class="selected-timeline-disclaimer" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
-                    {{ details.timelines.preLaunch.disclaimer }}
-                  </p>
-                  <ol class="selected-timeline-list">
-                    <li v-for="(entry, index) in details.timelines.preLaunch.entries" :key="index">
-                      <span>{{ entry.time }}</span>
-                      <strong>{{ entry.description }}</strong>
-                    </li>
-                  </ol>
-                </div>
+              <p class="text-sm font-semibold text-primary-400 mb-6 leading-relaxed">
+                {{ getMissionWindowCopy(selectedMission) }}
+              </p>
 
-                <!-- Post-Launch Timeline -->
-                <div v-if="details.timelines?.postLaunch?.entries?.length" class="selected-timeline">
-                  <h3 style="font-size: 1.1rem; margin-bottom: 1rem">{{ t('mission.postLaunchTimeline') }}</h3>
-                  <p v-if="details.timelines.postLaunch.disclaimer" class="selected-timeline-disclaimer" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
-                    {{ details.timelines.postLaunch.disclaimer }}
-                  </p>
-                  <ol class="selected-timeline-list">
-                    <li v-for="(entry, index) in details.timelines.postLaunch.entries" :key="index">
-                      <span>{{ entry.time }}</span>
-                      <strong>{{ entry.description }}</strong>
-                    </li>
-                  </ol>
+              <!-- Mission Facts List -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-b border-neutral-800/40 py-6 mb-6">
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mb-1">{{ t('mission.vehicle') }}</div>
+                  <div class="text-sm font-bold text-white font-mono">{{ selectedMission.vehicle || t('mission.tbd') }}</div>
+                </div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mb-1">{{ t('mission.launchSite') }}</div>
+                  <div class="text-sm font-bold text-white">{{ selectedMission.launchSite || t('mission.tbd') }}</div>
+                </div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mb-1">{{ t('mission.returnSite') }}</div>
+                  <div class="text-sm font-bold text-white">{{ selectedMission.returnSite || t('mission.tbd') }}</div>
                 </div>
               </div>
 
-              <!-- Actions/Media Webcasts -->
-              <div class="selected-mission-actions" style="display: flex; gap: 1rem; flex-wrap: wrap">
-                <a 
-                  v-for="webcast in details.webcasts" 
-                  :key="webcast.id" 
-                  :href="webcast.url"
-                  target="_blank"
-                  rel="noreferrer"
-                  class="subscribe-link selected-mission-link"
-                  style="margin: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem"
+              <!-- Dynamic Details Loading -->
+              <div v-if="loadingDetails" class="py-4 text-center">
+                <span class="text-neutral-400 text-sm animate-pulse">{{ t('mission.detailsLoading') }}</span>
+              </div>
+              
+              <div v-else-if="details" class="flex flex-col gap-6">
+                <div v-if="details.summary">
+                  <div class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-2">
+                    {{ t('mission.detailsHeading') }}
+                  </div>
+                  <p class="text-neutral-300 text-sm leading-relaxed font-light">
+                    {{ details.summary }}
+                  </p>
+                </div>
+                
+                <!-- Timelines Grid -->
+                <div 
+                  v-if="details.timelines?.preLaunch?.entries?.length || details.timelines?.postLaunch?.entries?.length"
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
-                  {{ webcast.title || t('mission.watchLive') }}
-                </a>
-                <a 
-                  v-if="details.media?.infographicDesktop?.url" 
-                  :href="details.media.infographicDesktop.url" 
-                  target="_blank" 
-                  rel="noreferrer"
-                  class="subscribe-link selected-mission-link"
-                  style="margin: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem"
-                >
-                  {{ t('mission.infographicLink') }}
-                </a>
+                  <!-- Pre-Launch Timeline -->
+                  <div v-if="details.timelines?.preLaunch?.entries?.length" class="bg-neutral-950/60 border border-neutral-800/60 p-5 rounded-2xl">
+                    <h4 class="text-xs uppercase tracking-widest text-primary-400 font-bold mb-3">{{ t('mission.preLaunchTimeline') }}</h4>
+                    <p v-if="details.timelines.preLaunch.disclaimer" class="text-[10px] text-neutral-400 mb-2 italic">
+                      {{ details.timelines.preLaunch.disclaimer }}
+                    </p>
+                    <ol class="flex flex-col gap-2 text-xs">
+                      <li v-for="(entry, index) in details.timelines.preLaunch.entries" :key="index" class="flex gap-3 justify-between">
+                        <span class="font-mono text-neutral-500">{{ entry.time }}</span>
+                        <strong class="text-neutral-300 font-normal text-right">{{ entry.description }}</strong>
+                      </li>
+                    </ol>
+                  </div>
+
+                  <!-- Post-Launch Timeline -->
+                  <div v-if="details.timelines?.postLaunch?.entries?.length" class="bg-neutral-950/60 border border-neutral-800/60 p-5 rounded-2xl">
+                    <h4 class="text-xs uppercase tracking-widest text-primary-400 font-bold mb-3">{{ t('mission.postLaunchTimeline') }}</h4>
+                    <p v-if="details.timelines.postLaunch.disclaimer" class="text-[10px] text-neutral-400 mb-2 italic">
+                      {{ details.timelines.postLaunch.disclaimer }}
+                    </p>
+                    <ol class="flex flex-col gap-2 text-xs">
+                      <li v-for="(entry, index) in details.timelines.postLaunch.entries" :key="index" class="flex gap-3 justify-between">
+                        <span class="font-mono text-neutral-500">{{ entry.time }}</span>
+                        <strong class="text-neutral-300 font-normal text-right">{{ entry.description }}</strong>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div v-else-if="!loadingDetails" class="selected-details-unavailable" style="color: var(--text-muted)">
-              <p>{{ t('mission.detailsUnavailable') }}</p>
+
+            <!-- Media / Webcast links -->
+            <div v-if="details?.webcasts?.length || details?.media?.infographicDesktop?.url" class="flex flex-wrap gap-3 mt-8 border-t border-neutral-800/20 pt-6">
+              <UButton
+                v-for="webcast in details.webcasts"
+                :key="webcast.id"
+                :to="webcast.url"
+                target="_blank"
+                color="primary"
+                variant="subtle"
+                size="sm"
+                class="rounded-xl font-bold uppercase text-xs px-4"
+                icon="i-heroicons-play-circle"
+              >
+                {{ webcast.title || t('mission.watchLive') }}
+              </UButton>
+              <UButton
+                v-if="details.media?.infographicDesktop?.url"
+                :to="details.media.infographicDesktop.url"
+                target="_blank"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                class="rounded-xl font-bold uppercase text-xs px-4"
+                icon="i-heroicons-photo"
+              >
+                {{ t('mission.infographicLink') }}
+              </UButton>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Beautiful FAQ accordion at the bottom for SEO optimization -->
-      <section class="panel faq-panel" style="margin-top: 3rem; padding: 2rem">
-        <div class="panel-header" style="margin-bottom: 2rem">
-          <p class="eyebrow">FAQ & Guides</p>
-          <h2 style="font-size: 2rem; background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent">
-            常见问题与日历指南
-          </h2>
-        </div>
-        
-        <div class="faq-accordion" style="display: flex; flex-direction: column; gap: 1rem">
-          <details class="faq-item" style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem; cursor: pointer; transition: all 0.3s ease" v-for="i in [1, 2, 3, 4]" :key="i">
-            <summary style="font-weight: 600; font-size: 1.1rem; color: var(--accent); outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center">
-              <span>{{ getFaqQuestion(i) }}</span>
-              <span class="faq-icon">&darr;</span>
-            </summary>
-            <p style="margin-top: 1rem; line-height: 1.6; color: var(--text-secondary); cursor: default" v-html="getFaqAnswer(i)"></p>
-          </details>
-        </div>
+      <!-- Localized FAQ Accordion using UAccordion -->
+      <section class="mt-8">
+        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md p-2">
+          <template #header>
+            <div class="pb-1">
+              <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">FAQ & Guides</p>
+              <h3 class="text-base font-bold text-white uppercase">{{ activeLocale === 'zh-CN' ? '常见问题与日历指南' : 'Frequently Asked Questions' }}</h3>
+            </div>
+          </template>
+          
+          <UAccordion
+            :items="faqItems"
+            multiple
+            variant="ghost"
+            color="neutral"
+            class="mt-2"
+          >
+            <template #body="{ item }">
+              <p class="text-sm text-neutral-400 leading-relaxed font-light p-4 pt-0" v-html="item.content"></p>
+            </template>
+          </UAccordion>
+        </UCard>
       </section>
     </main>
   </div>
@@ -461,21 +514,24 @@ import { useI18n } from '~/composables/useI18n'
 
 const { t, activeLocale, supportedLocales, setLocale } = useI18n()
 
+// Color Mode & Theme Switcher
+const colorMode = useColorMode()
+const toggleTheme = () => {
+  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+}
+
+// Locale Items mapping for USelect options
+const localeItems = computed(() => supportedLocales.map(lang => ({
+  value: lang,
+  label: lang === 'zh-CN' ? '简体中文' : lang.toUpperCase()
+})))
+
 // Fetch landing page launch and history payload on Server Side
 const { data: upcomingPayload } = await useFetch<any>('/api/launches')
 const { data: historyPayload } = await useFetch<any>('/api/history-launches')
 
 // Dynamic JSON-LD injection for Google SEO
 const nextLaunch = computed(() => upcomingPayload.value?.nextLaunch)
-
-const heroStyle = computed(() => {
-  if (nextLaunch.value?.image) {
-    return {
-      backgroundImage: `radial-gradient(circle at top, var(--hero-glow), transparent 34%), url("${nextLaunch.value.image}")`
-    }
-  }
-  return {}
-})
 
 useHead({
   title: computed(() => {
@@ -624,8 +680,8 @@ const nextLaunchDescription = computed(() => {
   
   return t("hero.nextLaunchDescription", {
     vehicle: mission.vehicle || t("mission.tbd"),
-    launchSite: mission.launchSite || t("mission.tbd"),
-    returnSite: mission.returnSite || t("mission.tbd")
+    launchSite: mission.launchSite || t("mission.sitePending"),
+    returnSite: mission.returnSite || t("mission.recoveryPending")
   })
 })
 
@@ -893,9 +949,9 @@ const titleCase = (value: string) => {
     : t("mission.unspecified")
 }
 
-// FAQ dynamic localized keys for SEO
+// FAQ dynamic localized keys for SEO Accordion
 const getFaqQuestion = (num: number) => {
-  if (num === 1) return activeLocale.value === 'zh-CN' ? '如何将 SpaceX 发射日程订阅导入到 Google 日历 / 苹果日历？' : 'How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?'
+  if (num === 1) return activeLocale.value === 'zh-CN' ? '如何将 SpaceX 发发射日程订阅导入到 Google 日历 / 苹果日历？' : 'How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?'
   if (num === 2) return activeLocale.value === 'zh-CN' ? '这个日历的更新频率是怎样的？' : 'How often is this launch calendar updated?'
   if (num === 3) return activeLocale.value === 'zh-CN' ? '它追踪了哪些运载火箭和发射基地？' : 'What launch vehicles and launch sites are tracked?'
   if (num === 4) return activeLocale.value === 'zh-CN' ? '我可以在日历中直接观看发射直播吗？' : 'Can I watch launch live streams directly from the calendar?'
@@ -918,24 +974,24 @@ const getFaqAnswer = (num: number) => {
   return ''
 }
 
-// Client theme handling
-const theme = ref('dark')
-const toggleTheme = () => {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
-  if (import.meta.client) {
-    localStorage.setItem('spacex_calendar_theme', theme.value)
-    document.documentElement.className = theme.value
+// UAccordion item format mapping
+const faqItems = computed(() => [
+  { label: getFaqQuestion(1), content: getFaqAnswer(1) },
+  { label: getFaqQuestion(2), content: getFaqAnswer(2) },
+  { label: getFaqQuestion(3), content: getFaqAnswer(3) },
+  { label: getFaqQuestion(4), content: getFaqAnswer(4) }
+])
+
+const heroStyle = computed(() => {
+  if (nextLaunch.value?.image) {
+    return {
+      backgroundImage: `radial-gradient(circle at top, var(--hero-glow), transparent 34%), url("${nextLaunch.value.image}")`
+    }
   }
-}
+  return {}
+})
 
 onMounted(() => {
-  // Theme check
-  const storedTheme = localStorage.getItem('spacex_calendar_theme')
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  theme.value = storedTheme || (prefersDark ? 'dark' : 'light')
-  document.documentElement.className = theme.value
-  document.documentElement.lang = activeLocale.value
-
   // Start countdown ticker
   updateCountdown()
   timerId = setInterval(updateCountdown, 1000)
@@ -947,25 +1003,9 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* Adjust standard Nuxt container wrapper styles for custom raw layout */
+/* Custom global adjustments */
 body {
   margin: 0;
   padding: 0;
-}
-.lang-selector select {
-  background: var(--surface-secondary);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  outline: none;
-  cursor: pointer;
-}
-.faq-accordion details[open] summary .faq-icon {
-  transform: rotate(180deg);
-}
-.faq-icon {
-  transition: transform 0.3s ease;
 }
 </style>

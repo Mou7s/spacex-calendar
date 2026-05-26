@@ -12,6 +12,7 @@
   "dependencies": {
     "nuxt": "^4.4.6",
     "@nuxthub/core": "^0.10.7",
+    "@nuxt/ui": "^4.8.0",
     "h3": "^1.15.11"
   },
   "devDependencies": {
