@@ -309,8 +309,20 @@
             </button>
             <h2 class="selected-mission-title">{{ selectedMission.title }}</h2>
             <div class="mission-topline" style="margin-bottom: 1rem">
-              <span class="mission-badge" :class="{ 'is-live': selectedMission.isLive }">
-                {{ selectedMission.isLive ? t('mission.live') : t(`status.${selectedMission.status?.toLowerCase()}`) || titleCase(selectedMission.status) }}
+              <span 
+                class="mission-badge" 
+                :class="{ 
+                  'is-live': selectedMission.isLive,
+                  'is-success': selectedMission.calendarGroup === 'history' && selectedMission.success === true,
+                  'is-failure': selectedMission.calendarGroup === 'history' && selectedMission.success === false
+                }"
+              >
+                <template v-if="selectedMission.calendarGroup === 'history'">
+                  {{ t(`history.status.${selectedMission.success === true ? 'success' : selectedMission.success === false ? 'failure' : 'unknown'}`) }}
+                </template>
+                <template v-else>
+                  {{ selectedMission.isLive ? t('mission.live') : t(`status.${selectedMission.status?.toLowerCase()}`) || titleCase(selectedMission.status) }}
+                </template>
               </span>
               <span class="mission-type">
                 {{ t(`mission.types.${selectedMission.missionType?.toLowerCase()}`) || titleCase(selectedMission.missionType) }}
@@ -321,7 +333,7 @@
               {{ getMissionWindowCopy(selectedMission) }}
             </p>
 
-            <dl class="mission-facts" style="margin-bottom: 2rem">
+            <dl class="selected-mission-facts" style="margin-bottom: 2rem">
               <div>
                 <dt>{{ t('mission.vehicle') }}</dt>
                 <dd>{{ selectedMission.vehicle || t('mission.tbd') }}</dd>
@@ -351,32 +363,39 @@
                 </p>
               </div>
               
-              <!-- Countdown / Countdown Timeline -->
-              <div v-if="details.timelines?.preLaunch?.entries?.length" class="selected-timeline" style="margin-bottom: 2rem">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem">{{ t('mission.preLaunchTimeline') }}</h3>
-                <p v-if="details.timelines.preLaunch.disclaimer" class="selected-timeline-disclaimer" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
-                  {{ details.timelines.preLaunch.disclaimer }}
-                </p>
-                <ol class="selected-timeline-list">
-                  <li v-for="(entry, index) in details.timelines.preLaunch.entries" :key="index">
-                    <span>{{ entry.time }}</span>
-                    <strong>{{ entry.description }}</strong>
-                  </li>
-                </ol>
-              </div>
+              <!-- Timelines Grid -->
+              <div 
+                v-if="details.timelines?.preLaunch?.entries?.length || details.timelines?.postLaunch?.entries?.length" 
+                class="selected-timelines" 
+                style="margin-bottom: 2rem"
+              >
+                <!-- Pre-Launch Timeline -->
+                <div v-if="details.timelines?.preLaunch?.entries?.length" class="selected-timeline">
+                  <h3 style="font-size: 1.1rem; margin-bottom: 1rem">{{ t('mission.preLaunchTimeline') }}</h3>
+                  <p v-if="details.timelines.preLaunch.disclaimer" class="selected-timeline-disclaimer" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
+                    {{ details.timelines.preLaunch.disclaimer }}
+                  </p>
+                  <ol class="selected-timeline-list">
+                    <li v-for="(entry, index) in details.timelines.preLaunch.entries" :key="index">
+                      <span>{{ entry.time }}</span>
+                      <strong>{{ entry.description }}</strong>
+                    </li>
+                  </ol>
+                </div>
 
-              <!-- Post-launch sequence timeline -->
-              <div v-if="details.timelines?.postLaunch?.entries?.length" class="selected-timeline" style="margin-bottom: 2rem">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem">{{ t('mission.postLaunchTimeline') }}</h3>
-                <p v-if="details.timelines.postLaunch.disclaimer" class="selected-timeline-disclaimer" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
-                  {{ details.timelines.postLaunch.disclaimer }}
-                </p>
-                <ol class="selected-timeline-list">
-                  <li v-for="(entry, index) in details.timelines.postLaunch.entries" :key="index">
-                    <span>{{ entry.time }}</span>
-                    <strong>{{ entry.description }}</strong>
-                  </li>
-                </ol>
+                <!-- Post-Launch Timeline -->
+                <div v-if="details.timelines?.postLaunch?.entries?.length" class="selected-timeline">
+                  <h3 style="font-size: 1.1rem; margin-bottom: 1rem">{{ t('mission.postLaunchTimeline') }}</h3>
+                  <p v-if="details.timelines.postLaunch.disclaimer" class="selected-timeline-disclaimer" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
+                    {{ details.timelines.postLaunch.disclaimer }}
+                  </p>
+                  <ol class="selected-timeline-list">
+                    <li v-for="(entry, index) in details.timelines.postLaunch.entries" :key="index">
+                      <span>{{ entry.time }}</span>
+                      <strong>{{ entry.description }}</strong>
+                    </li>
+                  </ol>
+                </div>
               </div>
 
               <!-- Actions/Media Webcasts -->
