@@ -516,22 +516,49 @@
               <strong class="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
                 {{ selectedMission?.title }} Infographic
               </strong>
-              <UButton
-                icon="i-heroicons-x-mark"
-                color="neutral"
-                variant="ghost"
-                class="rounded-lg text-neutral-400 hover:text-white"
-                @click="isInfographicOpen = false"
-                aria-label="Close"
-              />
+              
+              <div class="flex items-center gap-2">
+                <!-- Click-to-Zoom Hint Badge -->
+                <span class="text-[9px] uppercase tracking-wider bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded font-mono hidden sm:inline-block">
+                  {{ isZoomed ? (locale === 'zh-CN' ? '点击缩小' : 'Click to Shrink') : (locale === 'zh-CN' ? '点击原图大小' : 'Click to Zoom') }}
+                </span>
+                
+                <!-- View original high-res image button -->
+                <UButton
+                  :to="details.media.infographicDesktop.originalUrl || details.media.infographicDesktop.url"
+                  target="_blank"
+                  color="neutral"
+                  variant="subtle"
+                  size="xs"
+                  class="rounded-lg text-[10px] font-mono"
+                  icon="i-heroicons-arrow-top-right-on-square"
+                >
+                  {{ locale === 'zh-CN' ? '在新标签页打开原图' : 'View Original' }}
+                </UButton>
+                
+                <UButton
+                  icon="i-heroicons-x-mark"
+                  color="neutral"
+                  variant="ghost"
+                  class="rounded-lg text-neutral-400 hover:text-white"
+                  @click="isInfographicOpen = false"
+                  aria-label="Close"
+                />
+              </div>
             </div>
-            <!-- Image Container with Scrollbar -->
-            <div class="w-full overflow-y-auto max-h-[85vh] p-2 flex justify-center bg-neutral-950 rounded-2xl">
+            
+            <!-- Interactive Image Container with click-to-zoom -->
+            <div 
+              class="w-full max-h-[85vh] p-2 bg-neutral-950 rounded-2xl transition-all duration-300"
+              :class="isZoomed ? 'overflow-auto flex justify-start items-start' : 'overflow-y-auto flex justify-center items-center'"
+            >
               <img
-                :src="details.media.infographicDesktop.url"
+                :src="details.media.infographicDesktop.originalUrl || details.media.infographicDesktop.url"
                 :alt="selectedMission?.title"
-                class="w-full h-auto object-contain rounded-xl select-none"
+                class="rounded-xl select-none transition-all duration-300"
+                :class="isZoomed ? 'max-w-[200%] w-[180%] h-auto cursor-zoom-out' : 'max-w-full h-auto object-contain cursor-zoom-in'"
                 draggable="false"
+                @click="isZoomed = !isZoomed"
               />
             </div>
           </div>
@@ -905,11 +932,19 @@ const selectedMissionKey = computed(() => selectedMission.value?.key || null)
 const loadingDetails = ref(false)
 const details = ref<any>(null)
 const isInfographicOpen = ref(false)
+const isZoomed = ref(false)
+
+watch(isInfographicOpen, (val) => {
+  if (!val) {
+    isZoomed.value = false
+  }
+})
 
 const selectMission = async (mission: any, scrollPage = true) => {
   selectedMission.value = mission
   focusedDateIso.value = mission.launchAt?.slice(0, 10) || null
   isInfographicOpen.value = false // Reset modal on new selection
+  isZoomed.value = false // Reset zoom state
 
   // Scroll into selected mission detail view immediately for instant visual feedback
   if (import.meta.client && scrollPage) {
