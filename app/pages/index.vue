@@ -1,19 +1,18 @@
 <template>
   <div class="page-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-b border-neutral-800/80 pb-6 mb-8">
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-b border-neutral-200 dark:border-neutral-800/80 pb-6 mb-8">
       <div class="brand flex gap-3 items-baseline">
-        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-mono">SPACEX</span>
-        <span class="text-[10px] tracking-[0.3em] text-neutral-400 font-bold uppercase">CALENDAR</span>
+        <span class="text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white font-mono">SPACEX</span>
+        <span class="text-[10px] tracking-[0.3em] text-neutral-500 dark:text-neutral-400 font-bold uppercase">CALENDAR</span>
       </div>
       <div class="flex items-center gap-4 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
-        <p class="text-xs text-neutral-400 hidden lg:block mr-2">{{ t('header.copy') }}</p>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400 hidden lg:block mr-2">{{ t('header.copy') }}</p>
         
         <!-- Language Selector -->
         <USelect
-          :value="activeLocale"
-          @change="e => setLocale((e.target as HTMLSelectElement).value)"
-          :options="localeItems"
+          v-model="activeLocaleModel"
+          :items="localeItems"
           size="sm"
           color="neutral"
           variant="subtle"
@@ -49,12 +48,12 @@
     <main>
       <!-- Subscribe Panel -->
       <section class="mb-8">
-        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+        <UCard class="bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
           <div class="flex flex-col lg:flex-row justify-between gap-6 items-start lg:items-center">
             <div>
-              <p class="text-[10px] uppercase tracking-widest text-primary-400 font-bold mb-1">{{ t('subscribe.eyebrow') }}</p>
-              <h2 class="text-2xl font-bold text-white uppercase tracking-tight mb-2">{{ t('subscribe.title') }}</h2>
-              <p class="text-sm text-neutral-400 max-w-3xl leading-relaxed">{{ t('subscribe.copy') }}</p>
+              <p class="text-[10px] uppercase tracking-widest text-primary-600 dark:text-primary-400 font-bold mb-1">{{ t('subscribe.eyebrow') }}</p>
+              <h2 class="text-2xl font-bold text-neutral-900 dark:text-white uppercase tracking-tight mb-2">{{ t('subscribe.title') }}</h2>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 max-w-3xl leading-relaxed">{{ t('subscribe.copy') }}</p>
             </div>
             <div class="flex flex-col gap-3 w-full lg:max-w-md shrink-0">
               <UButton
@@ -68,7 +67,7 @@
                 {{ t('subscribe.subscribeLink') }}
               </UButton>
               <div class="flex flex-col gap-2">
-                <code class="text-[11px] bg-neutral-950 border border-neutral-800/80 rounded-2xl p-3 text-neutral-300 overflow-x-auto block font-mono">
+                <code class="text-[11px] bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-3 text-neutral-800 dark:text-neutral-300 overflow-x-auto block font-mono">
                   {{ icsSubscriptionLink }}
                 </code>
               </div>
@@ -137,52 +136,52 @@
       <!-- Overview Grid (Month Strip & Tracker) -->
       <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Near Cadence Count Summary -->
-        <UCard class="lg:col-span-2 bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+        <UCard class="lg:col-span-2 bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
           <template #header>
             <div class="pb-1">
-              <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">{{ t('overview.cadenceEyebrow') }}</p>
-              <h3 class="text-base font-bold text-white uppercase">{{ t('overview.cadenceTitle') }}</h3>
+              <p class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-0.5">{{ t('overview.cadenceEyebrow') }}</p>
+              <h3 class="text-base font-bold text-neutral-900 dark:text-white uppercase">{{ t('overview.cadenceTitle') }}</h3>
             </div>
           </template>
           
           <div class="flex flex-wrap gap-3">
-            <p v-if="!monthSummary.length" class="text-neutral-400 text-sm">{{ t('overview.noLaunchWindows') }}</p>
+            <p v-if="!monthSummary.length" class="text-neutral-500 dark:text-neutral-400 text-sm">{{ t('overview.noLaunchWindows') }}</p>
             <div 
               v-for="item in monthSummary" 
               :key="item.isoMonth || item.label" 
-              class="bg-neutral-950/80 border border-neutral-800/80 px-4 py-3 rounded-2xl flex flex-col items-center min-w-[90px] text-center"
+              class="bg-neutral-50 dark:bg-neutral-950/80 border border-neutral-200 dark:border-neutral-800/80 px-4 py-3 rounded-2xl flex flex-col items-center min-w-[90px] text-center"
             >
-              <strong class="text-xl font-bold text-white font-mono">{{ item.count }}</strong>
-              <span class="text-[9px] text-neutral-400 uppercase font-bold mt-1.5">{{ formatMonthPillLabel(item) }}</span>
+              <strong class="text-xl font-bold text-neutral-900 dark:text-white font-mono">{{ item.count }}</strong>
+              <span class="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold mt-1.5">{{ formatMonthPillLabel(item) }}</span>
             </div>
           </div>
         </UCard>
 
         <!-- Stats Tracker -->
-        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+        <UCard class="bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
           <template #header>
             <div class="pb-1">
-              <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">{{ t('overview.statusEyebrow') }}</p>
-              <h3 class="text-base font-bold text-white uppercase">{{ t('overview.statusTitle') }}</h3>
+              <p class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-0.5">{{ t('overview.statusEyebrow') }}</p>
+              <h3 class="text-base font-bold text-neutral-900 dark:text-white uppercase">{{ t('overview.statusTitle') }}</h3>
             </div>
           </template>
           
           <div class="flex flex-col gap-2.5">
-            <div class="flex justify-between items-center border-b border-neutral-800/30 pb-2 text-xs">
-              <span class="text-neutral-400">{{ t('overview.tracker.missionsLoaded') }}</span>
-              <strong class="text-white font-mono text-sm">{{ upcomingPayload?.missions?.length || 0 }}</strong>
+            <div class="flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800/30 pb-2 text-xs">
+              <span class="text-neutral-500 dark:text-neutral-400">{{ t('overview.tracker.missionsLoaded') }}</span>
+              <strong class="text-neutral-900 dark:text-white font-mono text-sm">{{ upcomingPayload?.missions?.length || 0 }}</strong>
             </div>
-            <div class="flex justify-between items-center border-b border-neutral-800/30 pb-2 text-xs">
-              <span class="text-neutral-400">{{ t('overview.tracker.timedWindows') }}</span>
-              <strong class="text-white font-mono text-sm">{{ timedWindowsCount }}</strong>
+            <div class="flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800/30 pb-2 text-xs">
+              <span class="text-neutral-500 dark:text-neutral-400">{{ t('overview.tracker.timedWindows') }}</span>
+              <strong class="text-neutral-900 dark:text-white font-mono text-sm">{{ timedWindowsCount }}</strong>
             </div>
-            <div class="flex justify-between items-center border-b border-neutral-800/30 pb-2 text-xs">
-              <span class="text-neutral-400">{{ t('overview.tracker.liveNow') }}</span>
-              <strong class="text-white font-mono text-sm">{{ liveCount }}</strong>
+            <div class="flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800/30 pb-2 text-xs">
+              <span class="text-neutral-500 dark:text-neutral-400">{{ t('overview.tracker.liveNow') }}</span>
+              <strong class="text-neutral-900 dark:text-white font-mono text-sm">{{ liveCount }}</strong>
             </div>
             <div class="flex justify-between items-center pb-1 text-xs">
-              <span class="text-neutral-400">{{ t('overview.tracker.viewerTimezone') }}</span>
-              <strong class="text-white text-[11px] font-mono">{{ activeTimezoneDisplay }}</strong>
+              <span class="text-neutral-500 dark:text-neutral-400">{{ t('overview.tracker.viewerTimezone') }}</span>
+              <strong class="text-neutral-900 dark:text-white text-[11px] font-mono">{{ activeTimezoneDisplay }}</strong>
             </div>
           </div>
           
@@ -205,14 +204,14 @@
 
       <!-- Calendar Sidebar Layout Section -->
       <section class="mb-8" aria-live="polite">
-        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+        <UCard class="bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
           <div class="flex flex-col lg:flex-row gap-8">
             <!-- Calendar Navigation & Mini Grid -->
             <div class="w-full lg:w-[320px] flex flex-col gap-5 shrink-0">
-              <div class="flex justify-between items-center border-b border-neutral-800/50 pb-3">
+              <div class="flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800/50 pb-3">
                 <div>
-                  <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">{{ t('calendar.eyebrow') }}</p>
-                  <h3 class="text-base font-bold text-white uppercase">{{ t('calendar.title') }}</h3>
+                  <p class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-0.5">{{ t('calendar.eyebrow') }}</p>
+                  <h3 class="text-base font-bold text-neutral-900 dark:text-white uppercase">{{ t('calendar.title') }}</h3>
                 </div>
                 
                 <div class="flex items-center gap-1.5">
@@ -226,7 +225,7 @@
                     @click="activeMonthIndex = Math.max(0, activeMonthIndex - 1)"
                     aria-label="Previous month"
                   />
-                  <strong class="text-[10px] uppercase tracking-wider text-white min-w-[70px] text-center font-bold font-mono">
+                  <strong class="text-[10px] uppercase tracking-wider text-neutral-900 dark:text-white min-w-[70px] text-center font-bold font-mono">
                     {{ activeMonthLabel }}
                   </strong>
                   <UButton
@@ -244,7 +243,7 @@
 
               <!-- Mini Grid -->
               <div class="grid grid-cols-7 gap-1 text-center text-xs">
-                <div v-for="dayLabel in t('calendar.weekdayShort')" :key="dayLabel" class="text-[10px] text-neutral-400 font-bold uppercase py-1">
+                <div v-for="dayLabel in t('calendar.weekdayShort')" :key="dayLabel" class="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase py-1">
                   {{ dayLabel }}
                 </div>
                 
@@ -256,9 +255,9 @@
                   class="h-9 w-9 rounded-xl flex items-center justify-center relative transition-all duration-150 cursor-pointer"
                   :class="{
                     'text-neutral-600': !day.isCurrentMonth,
-                    'text-white hover:bg-neutral-800': day.isCurrentMonth,
+                    'text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800': day.isCurrentMonth,
                     'bg-primary-500 text-neutral-950 font-bold': day.isoDate === todayIso,
-                    'ring-2 ring-white font-bold': day.isoDate === selectedDateIso,
+                    'ring-2 ring-neutral-900 dark:ring-white font-bold': day.isoDate === selectedDateIso,
                     'ring-1 ring-neutral-500': day.isoDate === focusedDateIso && day.isoDate !== selectedDateIso
                   }"
                   :disabled="!day.hasEvents"
@@ -272,29 +271,30 @@
             </div>
 
             <!-- Calendar Events List -->
-            <div class="flex-1 border-t lg:border-t-0 lg:border-l border-neutral-800/80 pt-6 lg:pt-0 lg:pl-8 max-h-[380px] overflow-y-auto pr-2">
+            <div class="flex-1 border-t lg:border-t-0 lg:border-l border-neutral-200 dark:border-neutral-800/80 pt-6 lg:pt-0 lg:pl-8 max-h-[380px] overflow-y-auto pr-2">
               <div class="flex flex-col gap-2.5">
-                <p v-if="!monthMissions.length" class="text-neutral-400 text-sm py-4">{{ t('calendar.noLaunches') }}</p>
+                <p v-if="!monthMissions.length" class="text-neutral-500 dark:text-neutral-400 text-sm py-4">{{ t('calendar.noLaunches') }}</p>
                 
                 <UButton
                   v-for="mission in monthMissions"
                   :key="mission.key"
+                  :id="`mission-card-${mission.key}`"
                   color="neutral"
                   variant="ghost"
-                  class="flex items-center gap-4 text-left p-4 rounded-2xl w-full border border-neutral-800/20"
+                  class="flex items-center gap-4 text-left p-4 rounded-2xl w-full border border-neutral-200/60 dark:border-neutral-800/20"
                   :class="{
-                    'bg-neutral-800/40 border-neutral-700/60 shadow-md': mission.key === selectedMissionKey
+                    'bg-neutral-100 dark:bg-neutral-800/40 border-neutral-300 dark:border-neutral-700/60 shadow-md': mission.key === selectedMissionKey
                   }"
                   @click="selectMission(mission)"
                 >
-                  <div class="flex flex-col items-center justify-center bg-neutral-950/80 border border-neutral-800 rounded-xl px-3 py-2 text-center min-w-[50px] leading-none shrink-0">
-                    <span class="text-[9px] uppercase tracking-wider text-neutral-400 font-semibold">{{ formatEventMonth(mission.launchAt) }}</span>
-                    <strong class="text-lg font-bold text-white mt-1">{{ formatEventDay(mission.launchAt) }}</strong>
+                  <div class="flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-950/80 border border-neutral-200 dark:border-neutral-800 rounded-xl px-3 py-2 text-center min-w-[50px] leading-none shrink-0">
+                    <span class="text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-semibold">{{ formatEventMonth(mission.launchAt) }}</span>
+                    <strong class="text-lg font-bold text-neutral-900 dark:text-white mt-1">{{ formatEventDay(mission.launchAt) }}</strong>
                   </div>
                   
                   <div class="flex-1 min-w-0">
-                    <div class="font-bold text-sm truncate text-white uppercase">{{ mission.title }}</div>
-                    <div class="text-[10px] text-neutral-400 mt-1 flex items-center gap-2">
+                    <div class="font-bold text-sm truncate text-neutral-900 dark:text-white uppercase">{{ mission.title }}</div>
+                    <div class="text-[10px] text-neutral-500 dark:text-neutral-400 mt-1 flex items-center gap-2">
                       <span v-if="mission.calendarGroup === 'history'" class="text-emerald-400 font-bold uppercase">
                         {{ t(`history.status.${mission.success === true ? 'success' : mission.success === false ? 'failure' : 'unknown'}`) }}
                       </span>
@@ -320,19 +320,19 @@
       </section>
 
       <!-- Selected Mission Panel (Full Dynamic Details) -->
-      <section class="mb-8" aria-live="polite">
+      <section class="mb-8 selected-mission-panel" id="selected-mission-panel" aria-live="polite">
         <!-- Empty State -->
-        <UCard v-if="!selectedMission" class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl p-6 text-center">
-          <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{{ t('mission.selectionEyebrow') }}</p>
-          <h3 class="text-2xl font-bold text-white uppercase mb-2">{{ t('mission.selectionTitle') }}</h3>
-          <p class="text-neutral-400 text-sm max-w-xl mx-auto leading-relaxed">{{ t('mission.selectionCopy') }}</p>
+        <UCard v-if="!selectedMission" class="bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl p-6 text-center">
+          <p class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-1">{{ t('mission.selectionEyebrow') }}</p>
+          <h3 class="text-2xl font-bold text-neutral-900 dark:text-white uppercase mb-2">{{ t('mission.selectionTitle') }}</h3>
+          <p class="text-neutral-500 dark:text-neutral-400 text-sm max-w-xl mx-auto leading-relaxed">{{ t('mission.selectionCopy') }}</p>
         </UCard>
         
         <!-- Detailed Card -->
-        <div v-else class="bg-neutral-900/40 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-5 min-h-[420px] backdrop-blur-md">
+        <div v-else class="bg-white/80 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-5 min-h-[420px] backdrop-blur-md">
           <!-- Left Column: Mission High-Res Background Image -->
           <div 
-            class="md:col-span-2 min-h-[260px] md:min-h-full bg-center bg-cover bg-no-repeat bg-neutral-950 transition-all duration-300 border-b md:border-b-0 md:border-r border-neutral-800/80"
+            class="md:col-span-2 min-h-[260px] md:min-h-full bg-center bg-cover bg-no-repeat bg-neutral-50 dark:bg-neutral-950 transition-all duration-300 border-b md:border-b-0 md:border-r border-neutral-200 dark:border-neutral-800/80"
             :style="selectedMission.image ? { backgroundImage: `url(${selectedMission.image})` } : {}"
           ></div>
           
@@ -351,7 +351,7 @@
                 {{ t('calendar.title') }}
               </UButton>
 
-              <h2 class="text-2xl sm:text-4xl font-extrabold text-white uppercase tracking-tight mb-3">
+              <h2 class="text-2xl sm:text-4xl font-extrabold text-neutral-900 dark:text-white uppercase tracking-tight mb-3">
                 {{ selectedMission.title }}
               </h2>
               
@@ -372,42 +372,42 @@
                     {{ selectedMission.isLive ? t('mission.live') : t(`status.${selectedMission.status?.toLowerCase()}`) || titleCase(selectedMission.status) }}
                   </template>
                 </span>
-                <span class="text-xs text-neutral-400 font-bold uppercase tracking-wider">
+                <span class="text-xs text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider">
                   {{ t(`mission.types.${selectedMission.missionType?.toLowerCase()}`) || titleCase(selectedMission.missionType) }}
                 </span>
               </div>
               
-              <p class="text-sm font-semibold text-primary-400 mb-6 leading-relaxed">
+              <p class="text-sm font-semibold text-primary-600 dark:text-primary-400 mb-6 leading-relaxed">
                 {{ getMissionWindowCopy(selectedMission) }}
               </p>
 
               <!-- Mission Facts List -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-b border-neutral-800/40 py-6 mb-6">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-b border-neutral-200 dark:border-neutral-800/40 py-6 mb-6">
                 <div>
-                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mb-1">{{ t('mission.vehicle') }}</div>
-                  <div class="text-sm font-bold text-white font-mono">{{ selectedMission.vehicle || t('mission.tbd') }}</div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold mb-1">{{ t('mission.vehicle') }}</div>
+                  <div class="text-sm font-bold text-neutral-900 dark:text-white font-mono">{{ selectedMission.vehicle || t('mission.tbd') }}</div>
                 </div>
                 <div>
-                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mb-1">{{ t('mission.launchSite') }}</div>
-                  <div class="text-sm font-bold text-white">{{ selectedMission.launchSite || t('mission.tbd') }}</div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold mb-1">{{ t('mission.launchSite') }}</div>
+                  <div class="text-sm font-bold text-neutral-900 dark:text-white">{{ selectedMission.launchSite || t('mission.tbd') }}</div>
                 </div>
                 <div>
-                  <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mb-1">{{ t('mission.returnSite') }}</div>
-                  <div class="text-sm font-bold text-white">{{ selectedMission.returnSite || t('mission.tbd') }}</div>
+                  <div class="text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold mb-1">{{ t('mission.returnSite') }}</div>
+                  <div class="text-sm font-bold text-neutral-900 dark:text-white">{{ selectedMission.returnSite || t('mission.tbd') }}</div>
                 </div>
               </div>
 
               <!-- Dynamic Details Loading -->
               <div v-if="loadingDetails" class="py-4 text-center">
-                <span class="text-neutral-400 text-sm animate-pulse">{{ t('mission.detailsLoading') }}</span>
+                <span class="text-neutral-500 dark:text-neutral-400 text-sm animate-pulse">{{ t('mission.detailsLoading') }}</span>
               </div>
               
               <div v-else-if="details" class="flex flex-col gap-6">
                 <div v-if="details.summary">
-                  <div class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-2">
+                  <div class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-2">
                     {{ t('mission.detailsHeading') }}
                   </div>
-                  <p class="text-neutral-300 text-sm leading-relaxed font-light">
+                  <p class="text-neutral-800 dark:text-neutral-300 text-sm leading-relaxed font-light">
                     {{ details.summary }}
                   </p>
                 </div>
@@ -418,29 +418,29 @@
                   class="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                   <!-- Pre-Launch Timeline -->
-                  <div v-if="details.timelines?.preLaunch?.entries?.length" class="bg-neutral-950/60 border border-neutral-800/60 p-5 rounded-2xl">
-                    <h4 class="text-xs uppercase tracking-widest text-primary-400 font-bold mb-3">{{ t('mission.preLaunchTimeline') }}</h4>
-                    <p v-if="details.timelines.preLaunch.disclaimer" class="text-[10px] text-neutral-400 mb-2 italic">
+                  <div v-if="details.timelines?.preLaunch?.entries?.length" class="bg-neutral-50/80 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800/60 p-5 rounded-2xl">
+                    <h4 class="text-xs uppercase tracking-widest text-primary-600 dark:text-primary-400 font-bold mb-3">{{ t('mission.preLaunchTimeline') }}</h4>
+                    <p v-if="details.timelines.preLaunch.disclaimer" class="text-[10px] text-neutral-500 dark:text-neutral-400 mb-2 italic">
                       {{ details.timelines.preLaunch.disclaimer }}
                     </p>
                     <ol class="flex flex-col gap-2 text-xs">
                       <li v-for="(entry, index) in details.timelines.preLaunch.entries" :key="index" class="flex gap-3 justify-between">
                         <span class="font-mono text-neutral-500">{{ entry.time }}</span>
-                        <strong class="text-neutral-300 font-normal text-right">{{ entry.description }}</strong>
+                        <strong class="text-neutral-800 dark:text-neutral-300 font-normal text-right">{{ entry.description }}</strong>
                       </li>
                     </ol>
                   </div>
 
                   <!-- Post-Launch Timeline -->
-                  <div v-if="details.timelines?.postLaunch?.entries?.length" class="bg-neutral-950/60 border border-neutral-800/60 p-5 rounded-2xl">
-                    <h4 class="text-xs uppercase tracking-widest text-primary-400 font-bold mb-3">{{ t('mission.postLaunchTimeline') }}</h4>
-                    <p v-if="details.timelines.postLaunch.disclaimer" class="text-[10px] text-neutral-400 mb-2 italic">
+                  <div v-if="details.timelines?.postLaunch?.entries?.length" class="bg-neutral-50/80 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800/60 p-5 rounded-2xl">
+                    <h4 class="text-xs uppercase tracking-widest text-primary-600 dark:text-primary-400 font-bold mb-3">{{ t('mission.postLaunchTimeline') }}</h4>
+                    <p v-if="details.timelines.postLaunch.disclaimer" class="text-[10px] text-neutral-500 dark:text-neutral-400 mb-2 italic">
                       {{ details.timelines.postLaunch.disclaimer }}
                     </p>
                     <ol class="flex flex-col gap-2 text-xs">
                       <li v-for="(entry, index) in details.timelines.postLaunch.entries" :key="index" class="flex gap-3 justify-between">
                         <span class="font-mono text-neutral-500">{{ entry.time }}</span>
-                        <strong class="text-neutral-300 font-normal text-right">{{ entry.description }}</strong>
+                        <strong class="text-neutral-800 dark:text-neutral-300 font-normal text-right">{{ entry.description }}</strong>
                       </li>
                     </ol>
                   </div>
@@ -449,7 +449,7 @@
             </div>
 
             <!-- Media / Webcast links -->
-            <div v-if="details?.webcasts?.length || details?.media?.infographicDesktop?.url" class="flex flex-wrap gap-3 mt-8 border-t border-neutral-800/20 pt-6">
+            <div v-if="details?.webcasts?.length || details?.media?.infographicDesktop?.url" class="flex flex-wrap gap-3 mt-8 border-t border-neutral-200/60 dark:border-neutral-800/20 pt-6">
               <UButton
                 v-for="webcast in details.webcasts"
                 :key="webcast.id"
@@ -482,11 +482,11 @@
 
       <!-- Localized FAQ Accordion using UAccordion -->
       <section class="mt-8">
-        <UCard class="bg-neutral-900/40 border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md p-2">
+        <UCard class="bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md p-2">
           <template #header>
             <div class="pb-1">
-              <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">FAQ & Guides</p>
-              <h3 class="text-base font-bold text-white uppercase">{{ activeLocale === 'zh-CN' ? '常见问题与日历指南' : 'Frequently Asked Questions' }}</h3>
+              <p class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-0.5">FAQ & Guides</p>
+              <h3 class="text-base font-bold text-neutral-900 dark:text-white uppercase">{{ locale === 'zh-CN' ? '常见问题与日历指南' : 'Frequently Asked Questions' }}</h3>
             </div>
           </template>
           
@@ -498,7 +498,7 @@
             class="mt-2"
           >
             <template #body="{ item }">
-              <p class="text-sm text-neutral-400 leading-relaxed font-light p-4 pt-0" v-html="item.content"></p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed font-light p-4 pt-0" v-html="item.content"></p>
             </template>
           </UAccordion>
         </UCard>
@@ -510,9 +510,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useHead, useFetch } from '#app'
-import { useI18n } from '~/composables/useI18n'
 
-const { t, activeLocale, supportedLocales, setLocale } = useI18n()
+const { t, locale, locales, setLocale } = useI18n()
+
+const activeLocaleModel = computed({
+  get: () => locale.value,
+  set: (val) => setLocale(val)
+})
 
 // Color Mode & Theme Switcher
 const colorMode = useColorMode()
@@ -521,9 +525,9 @@ const toggleTheme = () => {
 }
 
 // Locale Items mapping for USelect options
-const localeItems = computed(() => supportedLocales.map(lang => ({
-  value: lang,
-  label: lang === 'zh-CN' ? '简体中文' : lang.toUpperCase()
+const localeItems = computed(() => locales.value.map(lang => ({
+  value: typeof lang === 'string' ? lang : lang.code,
+  label: typeof lang === 'string' ? lang : lang.name
 })))
 
 // Fetch landing page launch and history payload on Server Side
@@ -537,7 +541,7 @@ useHead({
   title: computed(() => {
     if (nextLaunch.value) {
       const formattedDate = nextLaunch.value.launchAt
-        ? new Date(nextLaunch.value.launchAt).toLocaleDateString(activeLocale.value, { month: 'short', day: 'numeric' })
+        ? new Date(nextLaunch.value.launchAt).toLocaleDateString(locale.value, { month: 'short', day: 'numeric' })
         : ''
       return `${t('meta.title')} | ${t('hero.meta.nextLaunch')}: ${nextLaunch.value.title} (${formattedDate})`
     }
@@ -654,7 +658,7 @@ const getDateTimeFormatter = (withZone = true, timeZoneOverride?: string | null)
     options.timeZone = tz
   }
 
-  return new Intl.DateTimeFormat(activeLocale.value, options)
+  return new Intl.DateTimeFormat(locale.value, options)
 }
 
 const formatDateTime = (iso: string, withZone = true) => {
@@ -730,7 +734,7 @@ const monthSummary = computed(() => upcomingPayload.value?.monthSummary || [])
 
 const formatMonthPillLabel = (item: any) => {
   if (item.isoMonth) {
-    return new Intl.DateTimeFormat(activeLocale.value, {
+    return new Intl.DateTimeFormat(locale.value, {
       month: "short",
       year: "numeric",
       timeZone: "UTC",
@@ -796,7 +800,7 @@ const activeMonthLabel = computed(() => {
   const monthKey = activeMonthKey.value
   if (!monthKey) return t('calendar.title')
   
-  return new Intl.DateTimeFormat(activeLocale.value, {
+  return new Intl.DateTimeFormat(locale.value, {
     month: "long",
     year: "numeric",
     timeZone: "UTC",
@@ -867,9 +871,17 @@ const selectedMissionKey = computed(() => selectedMission.value?.key || null)
 const loadingDetails = ref(false)
 const details = ref<any>(null)
 
-const selectMission = async (mission: any) => {
+const selectMission = async (mission: any, scrollPage = true) => {
   selectedMission.value = mission
   focusedDateIso.value = mission.launchAt?.slice(0, 10) || null
+
+  // Scroll into selected mission detail view immediately for instant visual feedback
+  if (import.meta.client && scrollPage) {
+    setTimeout(() => {
+      const panel = document.querySelector('.selected-mission-panel')
+      panel?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
   
   if (mission.slug) {
     loadingDetails.value = true
@@ -887,14 +899,6 @@ const selectMission = async (mission: any) => {
   } else {
     details.value = null
   }
-
-  // Scroll into selected mission detail view on mobile
-  if (import.meta.client) {
-    setTimeout(() => {
-      const panel = document.querySelector('.selected-mission-panel')
-      panel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    }, 100)
-  }
 }
 
 const focusDate = (isoDate: string) => {
@@ -903,7 +907,16 @@ const focusDate = (isoDate: string) => {
   // Find first event on this day and trigger select
   const firstOnDay = monthMissions.value.find((m: any) => m.launchAt.slice(0, 10) === isoDate)
   if (firstOnDay) {
-    selectMission(firstOnDay)
+    // Select it but DO NOT scroll the page down to details yet
+    selectMission(firstOnDay, false)
+    
+    // Smoothly scroll the right-side event list container to show this card
+    if (import.meta.client) {
+      setTimeout(() => {
+        const missionEl = document.getElementById(`mission-card-${firstOnDay.key}`)
+        missionEl?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }, 50)
+    }
   }
 }
 
@@ -928,7 +941,7 @@ const getMissionWindowCopy = (mission: any) => {
 
 const formatEventMonth = (iso: string) => {
   const dateObj = new Date(iso)
-  return new Intl.DateTimeFormat(activeLocale.value, { month: "short", timeZone: "UTC" }).format(dateObj)
+  return new Intl.DateTimeFormat(locale.value, { month: "short", timeZone: "UTC" }).format(dateObj)
 }
 
 const formatEventDay = (iso: string) => {
@@ -936,7 +949,7 @@ const formatEventDay = (iso: string) => {
 }
 
 const formatEventTime = (iso: string) => {
-  return new Intl.DateTimeFormat(activeLocale.value, {
+  return new Intl.DateTimeFormat(locale.value, {
     hour: "numeric",
     minute: "2-digit",
     timeZoneName: "short",
@@ -951,24 +964,24 @@ const titleCase = (value: string) => {
 
 // FAQ dynamic localized keys for SEO Accordion
 const getFaqQuestion = (num: number) => {
-  if (num === 1) return activeLocale.value === 'zh-CN' ? '如何将 SpaceX 发发射日程订阅导入到 Google 日历 / 苹果日历？' : 'How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?'
-  if (num === 2) return activeLocale.value === 'zh-CN' ? '这个日历的更新频率是怎样的？' : 'How often is this launch calendar updated?'
-  if (num === 3) return activeLocale.value === 'zh-CN' ? '它追踪了哪些运载火箭和发射基地？' : 'What launch vehicles and launch sites are tracked?'
-  if (num === 4) return activeLocale.value === 'zh-CN' ? '我可以在日历中直接观看发射直播吗？' : 'Can I watch launch live streams directly from the calendar?'
+  if (num === 1) return locale.value === 'zh-CN' ? '如何将 SpaceX 发发射日程订阅导入到 Google 日历 / 苹果日历？' : 'How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?'
+  if (num === 2) return locale.value === 'zh-CN' ? '这个日历的更新频率是怎样的？' : 'How often is this launch calendar updated?'
+  if (num === 3) return locale.value === 'zh-CN' ? '它追踪了哪些运载火箭 and 发射基地？' : 'What launch vehicles and launch sites are tracked?'
+  if (num === 4) return locale.value === 'zh-CN' ? '我可以在日历中直接观看发射直播吗？' : 'Can I watch launch live streams directly from the calendar?'
   return ''
 }
 
 const getFaqAnswer = (num: number) => {
-  if (num === 1) return activeLocale.value === 'zh-CN' 
+  if (num === 1) return locale.value === 'zh-CN' 
     ? '非常简单！你只需点击上方页面顶部的“<b>订阅在线日历</b>”按钮。在 iPhone 或 Mac 上它会直接触发日历添加请求；在谷歌日历（Google Calendar）中，复制 <code>' + webcalSubscriptionLink.value + '</code> 链接，在电脑网页端点击左侧“其他日历 &rarr; 通过 URL 添加”，粘贴链接订阅即可同步。'
     : 'Extremely easy! Simply click the "<b>Subscribe to Calendar</b>" button. On iOS or macOS devices, it automatically prompts you to subscribe. On Google Calendar, copy the <code>' + webcalSubscriptionLink.value + '</code> link, navigate to Calendar Web &rarr; Other Calendars &rarr; Add by URL, and paste the address.'
-  if (num === 2) return activeLocale.value === 'zh-CN'
+  if (num === 2) return locale.value === 'zh-CN'
     ? '数据是<b>实时维护更新</b>的。我们的服务器边缘节点通过 Cloudflare KV 每 5 分钟与 SpaceX 官网数据同步一次，自动解析调整窗口，并实时刷新你日历应用里的时间安排。'
     : 'The schedules are <b>automatically kept updated</b>. The server-side edge engine queries official SpaceX APIs every 5 minutes and caches the latest queues inside Cloudflare KV, updating countdowns and calendar feeds in real-time.'
-  if (num === 3) return activeLocale.value === 'zh-CN'
+  if (num === 3) return locale.value === 'zh-CN'
     ? '该日历全方位覆盖 SpaceX 当前运行的所有运载火箭。包括<b>猎鹰九号 (Falcon 9)</b>、<b>重型猎鹰 (Falcon Heavy)</b> 以及目前正在进行试飞与重大任务的<b>星舰 (Starship)</b>。发射地点则全面追踪卡纳维拉尔角 (Cape Canaveral)、范登堡太空军基地 (Vandenberg SFB) 和博卡奇卡星基地 (Starbase Boca Chica)。'
     : 'The calendar tracks all active SpaceX launch systems, including <b>Falcon 9</b>, <b>Falcon Heavy</b>, and the deep-space <b>Starship</b> vehicle. Pad locations cover all commercial pads at Cape Canaveral Space Force Station (Florida), Vandenberg Space Force Base (California), and Boca Chica Starbase (Texas).'
-  if (num === 4) return activeLocale.value === 'zh-CN'
+  if (num === 4) return locale.value === 'zh-CN'
     ? '是的。当发射事件临近且 SpaceX 公布了直播视频流后，你在日历事件中或者该落地页详情面板中，都可以直接获取到官方的直播通道（例如 YouTube 或 X.com 现场直播），一键触达直播现场。'
     : 'Yes. Once SpaceX publishes the official webcast media links, our SWR cache automatically matches details and appends the streaming webcast URLs (such as YouTube or X.com live broads) inside the calendar description and page details panel.'
   return ''

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@nuxt/ui";
 
 @font-face {
   font-family: "D-DIN";
@@ -42,7 +43,7 @@
   color-scheme: dark;
 }
 
-[data-theme="light"] {
+:root:not(.dark) {
   --bg: #f0f2f5;
   --surface: rgba(0, 0, 0, 0.04);
   --surface-strong: rgba(0, 0, 0, 0.07);
@@ -84,7 +85,7 @@ html {
   transition: background 400ms ease, color 200ms ease;
 }
 
-[data-theme="light"] {
+html:not(.dark) {
   background:
     radial-gradient(circle at top, var(--bg-glow), transparent 40%),
     linear-gradient(180deg, #e8ecf2 0%, #f0f2f5 40%, #e8ecf2 100%);
@@ -110,7 +111,7 @@ body::before {
   transition: opacity 400ms ease;
 }
 
-[data-theme="light"] body::before {
+html:not(.dark) body::before {
   opacity: 0;
 }
 
@@ -220,11 +221,11 @@ dd,
   display: block;
 }
 
-[data-theme="light"] .theme-icon-sun {
+html:not(.dark) .theme-icon-sun {
   display: block;
 }
 
-[data-theme="light"] .theme-icon-moon {
+html:not(.dark) .theme-icon-moon {
   display: none;
 }
 
@@ -549,7 +550,7 @@ h2 {
   color: rgba(255, 107, 107, 0.6);
 }
 
-[data-theme="light"] .countdown-block {
+html:not(.dark) .countdown-block {
   background: transparent;
   border: none;
 }
@@ -1395,7 +1396,7 @@ dd {
   animation: skeleton-shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-[data-theme="light"] .is-skeleton::after {
+html:not(.dark) .is-skeleton::after {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,

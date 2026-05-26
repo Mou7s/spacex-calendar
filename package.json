@@ -10,10 +10,11 @@
     "translate:locales": "node scripts/translate-locales.js"
   },
   "dependencies": {
-    "nuxt": "^4.4.6",
-    "@nuxthub/core": "^0.10.7",
     "@nuxt/ui": "^4.8.0",
-    "h3": "^1.15.11"
+    "@nuxthub/core": "^0.10.7",
+    "@nuxtjs/i18n": "^10.4.0",
+    "h3": "^1.15.11",
+    "nuxt": "^4.4.6"
   },
   "devDependencies": {
     "jsdom": "^29.1.1",
