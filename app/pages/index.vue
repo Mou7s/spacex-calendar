@@ -651,12 +651,12 @@ useSeoMeta({
   twitterImage: '/icon-512.png'
 })
 
-// useHead is now kept exclusively for complex non-metadata tags (like JSON-LD structure)
-useHead({
+// useHead 现在专用于处理复杂的非普通元数据标签（例如注入 JSON-LD 谷歌结构化数据）
+useHead(() => ({
   script: [
     {
       type: 'application/ld+json',
-      children: computed(() => JSON.stringify({
+      children: JSON.stringify({
         "@context": "https://schema.org",
         "@graph": [
           {
@@ -690,10 +690,10 @@ useHead({
             "description": `${nextLaunch.value.vehicle} launch tracking: ${nextLaunch.value.title} scheduled flight.`
           } : null
         ].filter(Boolean)
-      }))
+      })
     }
   ]
-})
+}))
 
 // Domain Subscription Links
 const webcalSubscriptionLink = computed(() => {

@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n'   // Nuxt i18n 模块：提供全站多语言国际化支持及自动化的翻译资源加载
   ],
 
-  // 全局加载的 CSS 样式文件列表
+  // 全局加载 of CSS 样式文件列表
   css: [
     '~/assets/css/styles.css' // 引入项目自定义的全局主题风格、渐变与动画样式表
   ],
