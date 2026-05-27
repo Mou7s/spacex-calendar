@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
-const localesDir = resolve(root, "public/locales");
+const localesDir = resolve(root, "i18n/locales");
 
 const args = new Map(
   process.argv.slice(2).flatMap((arg) => {

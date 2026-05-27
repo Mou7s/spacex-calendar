@@ -57,11 +57,12 @@
             </div>
             <div class="flex flex-col gap-3 w-full lg:max-w-md shrink-0">
               <UButton
+                id="subscribe-btn"
                 :to="webcalSubscriptionLink"
                 color="primary"
                 size="md"
                 block
-                class="rounded-2xl font-bold uppercase tracking-wider text-xs py-3"
+                class="rounded-2xl font-bold uppercase tracking-wider text-xs py-3 transition-all duration-300 hover:scale-[1.02] hover:brightness-110 hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.98] cursor-pointer"
                 icon="i-heroicons-calendar-days"
               >
                 {{ t('subscribe.subscribeLink') }}
@@ -134,9 +135,9 @@
       </section>
 
       <!-- Overview Grid (Month Strip & Tracker) -->
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <!-- Near Cadence Count Summary -->
-        <UCard class="lg:col-span-2 bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
+        <UCard class="bg-white/80 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 ring-0 rounded-3xl backdrop-blur-md">
           <template #header>
             <div class="pb-1">
               <p class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-0.5">{{ t('overview.cadenceEyebrow') }}</p>
@@ -144,15 +145,16 @@
             </div>
           </template>
           
-          <div class="flex flex-wrap gap-3">
+          <div class="flex flex-wrap gap-4">
             <p v-if="!monthSummary.length" class="text-neutral-500 dark:text-neutral-400 text-sm">{{ t('overview.noLaunchWindows') }}</p>
             <div 
               v-for="item in monthSummary" 
               :key="item.isoMonth || item.label" 
-              class="bg-neutral-50 dark:bg-neutral-950/80 border border-neutral-200 dark:border-neutral-800/80 px-4 py-3 rounded-2xl flex flex-col items-center min-w-[90px] text-center"
+              class="flex-1 min-w-[120px] max-w-[200px] bg-neutral-50/50 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800/80 px-6 py-5 rounded-2xl flex flex-col items-center justify-center text-center transition-all duration-300 hover:scale-[1.02] hover:border-primary-500/50 shadow-sm"
             >
-              <strong class="text-xl font-bold text-neutral-900 dark:text-white font-mono">{{ item.count }}</strong>
-              <span class="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase font-bold mt-1.5">{{ formatMonthPillLabel(item) }}</span>
+              <span class="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider mb-2">{{ formatMonthPillLabel(item) }}</span>
+              <strong class="text-3xl font-extrabold text-neutral-900 dark:text-white font-mono leading-none">{{ item.count }}</strong>
+              <span class="text-[9px] text-primary-600 dark:text-primary-400 uppercase font-bold mt-2.5 tracking-widest">{{ locale === 'zh-CN' ? '次发射' : 'Launches' }}</span>
             </div>
           </div>
         </UCard>
@@ -597,7 +599,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useHead, useFetch } from '#app'
+import { useHead, useFetch, useSeoMeta } from '#app'
 
 const { t, locale, locales, setLocale } = useI18n()
 
@@ -625,27 +627,32 @@ const { data: historyPayload } = await useFetch<any>('/api/history-launches')
 // Dynamic JSON-LD injection for Google SEO
 const nextLaunch = computed(() => upcomingPayload.value?.nextLaunch)
 
+// Type-safe & reactive SEO Meta Tags according to Nuxt 4 standards
+const computedTitle = computed(() => {
+  if (nextLaunch.value) {
+    const formattedDate = nextLaunch.value.launchAt
+      ? new Date(nextLaunch.value.launchAt).toLocaleDateString(locale.value, { month: 'short', day: 'numeric' })
+      : ''
+    return `${t('meta.title')} | ${t('hero.meta.nextLaunch')}: ${nextLaunch.value.title} (${formattedDate})`
+  }
+  return t('meta.title')
+})
+
+useSeoMeta({
+  title: computedTitle,
+  ogTitle: computedTitle,
+  description: () => t('meta.description'),
+  ogDescription: () => t('meta.description'),
+  ogType: 'website',
+  ogImage: '/icon-512.png',
+  twitterCard: 'summary',
+  twitterTitle: computedTitle,
+  twitterDescription: () => t('meta.description'),
+  twitterImage: '/icon-512.png'
+})
+
+// useHead is now kept exclusively for complex non-metadata tags (like JSON-LD structure)
 useHead({
-  title: computed(() => {
-    if (nextLaunch.value) {
-      const formattedDate = nextLaunch.value.launchAt
-        ? new Date(nextLaunch.value.launchAt).toLocaleDateString(locale.value, { month: 'short', day: 'numeric' })
-        : ''
-      return `${t('meta.title')} | ${t('hero.meta.nextLaunch')}: ${nextLaunch.value.title} (${formattedDate})`
-    }
-    return t('meta.title')
-  }),
-  meta: [
-    { name: 'description', content: t('meta.description') },
-    { property: 'og:title', content: t('meta.title') },
-    { property: 'og:description', content: t('meta.description') },
-    { property: 'og:type', content: 'website' },
-    { property: 'og:image', content: '/icon-512.png' },
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: t('meta.title') },
-    { name: 'twitter:description', content: t('meta.description') },
-    { name: 'twitter:image', content: '/icon-512.png' }
-  ],
   script: [
     {
       type: 'application/ld+json',
@@ -1118,5 +1125,10 @@ onUnmounted(() => {
 body {
   margin: 0;
   padding: 0;
+}
+
+#subscribe-btn,
+#subscribe-btn * {
+  cursor: pointer !important;
 }
 </style>

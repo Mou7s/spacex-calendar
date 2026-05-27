@@ -1616,3 +1616,25 @@ html:not(.dark) .is-skeleton::after {
     font-size: 0.75rem;
   }
 }
+
+/* Force standard hand cursor (pointer) globally on all clickable and interactive elements */
+button,
+a,
+select,
+[role="button"],
+.u-button,
+.cursor-pointer,
+.cursor-pointer * {
+  cursor: pointer !important;
+}
+
+/* Force disabled/inactive cursor states for accessibility & clarity */
+button:disabled,
+a:disabled,
+select:disabled,
+[role="button"]:disabled,
+.u-button:disabled,
+[disabled],
+[disabled] * {
+  cursor: not-allowed !important;
+}
