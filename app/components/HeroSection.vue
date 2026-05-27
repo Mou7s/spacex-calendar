@@ -57,12 +57,14 @@
 </template>
 
 <script setup lang="ts">
+import type { CSSProperties } from 'vue'
+
 const { t } = useI18n()
 
 defineProps<{
   nextLaunch: any
   countdown: { days: string; hours: string; minutes: string; seconds: string }
-  heroStyle: Record<string, string>
+  heroStyle: CSSProperties
   nextLaunchTitle: string
   nextLaunchDescription: string
   nextLaunchTimeFormatted: string
