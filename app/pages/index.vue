@@ -4,11 +4,13 @@
 
     <main>
       <SubscribePanel
+        id="subscribe"
         :webcal-link="webcalSubscriptionLink"
         :ics-link="icsSubscriptionLink"
       />
 
       <HeroSection
+        id="hero"
         :next-launch="upcomingPayload?.nextLaunch"
         :countdown="countdown"
         :hero-style="heroStyle"
@@ -19,6 +21,7 @@
       />
 
       <OverviewGrid
+        id="overview"
         :month-summary="monthSummary"
         :timed-windows-count="timedWindowsCount"
         :live-count="liveCount"
@@ -31,6 +34,7 @@
       />
 
       <LaunchCalendar
+        id="calendar"
         :grid-days="gridDays"
         :month-missions="monthMissions"
         :month-keys="monthKeys"
@@ -62,7 +66,7 @@
         @update:is-zoomed="isZoomed = $event"
       />
 
-      <FaqSection :items="faqItems" />
+      <FaqSection id="faq" :items="faqItems" />
     </main>
   </div>
 </template>
@@ -96,13 +100,7 @@ const { data: historyPayload } = await useFetch<any>('/api/history-launches')
 const nextLaunch = computed(() => upcomingPayload.value?.nextLaunch)
 
 const computedTitle = computed(() => {
-  if (nextLaunch.value) {
-    const formattedDate = nextLaunch.value.launchAt
-      ? new Date(nextLaunch.value.launchAt).toLocaleDateString(locale.value, { month: 'short', day: 'numeric' })
-      : ''
-    return `${t('meta.title')} | ${t('hero.meta.nextLaunch')}: ${nextLaunch.value.title} (${formattedDate})`
-  }
-  return t('meta.title')
+  return `${t('meta.title')} | ${t('subscribe.title')}`
 })
 
 useSeoMeta({
@@ -131,7 +129,31 @@ useHead(() => ({
             "@id": "https://spacexcalendar.mou7s.com/#website",
             "url": "https://spacexcalendar.mou7s.com/",
             "name": t('meta.title'),
-            "description": t('meta.description')
+            "description": t('meta.description'),
+            "publisher": {
+              "@type": "Organization",
+              "name": "SpaceX Calendar Team"
+            },
+            "hasPart": [
+              {
+                "@type": "WebPage",
+                "@id": "https://spacexcalendar.mou7s.com/#subscribe",
+                "name": t('subscribe.title'),
+                "url": "https://spacexcalendar.mou7s.com/#subscribe"
+              },
+              {
+                "@type": "WebPage",
+                "@id": "https://spacexcalendar.mou7s.com/#calendar",
+                "name": t('calendar.title'),
+                "url": "https://spacexcalendar.mou7s.com/#calendar"
+              },
+              {
+                "@type": "WebPage",
+                "@id": "https://spacexcalendar.mou7s.com/#faq",
+                "name": locale.value === 'zh-CN' ? '常见问题' : 'FAQ',
+                "url": "https://spacexcalendar.mou7s.com/#faq"
+              }
+            ]
           },
           {
             "@type": "SoftwareApplication",
@@ -144,6 +166,18 @@ useHead(() => ({
               "price": "0.00",
               "priceCurrency": "USD"
             }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://spacexcalendar.mou7s.com/#faq-page",
+            "mainEntity": [1, 2, 3, 4].map(num => ({
+              "@type": "Question",
+              "name": getFaqQuestion(num),
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": getFaqAnswer(num).replace(/<[^>]+>/g, '')
+              }
+            }))
           },
           nextLaunch.value?.launchAt ? {
             "@type": "Event",
