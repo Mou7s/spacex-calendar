@@ -136,12 +136,12 @@
                 @click="$emit('update:isInfographicOpen', true)"
               >
                 <!-- Preview Image -->
-                <NuxtImg
+                <img
                   :src="details.media.infographicDesktop.originalUrl || details.media.infographicDesktop.url"
                   :alt="selectedMission?.title"
-                  format="webp"
                   loading="lazy"
                   class="max-w-full max-h-[300px] object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out select-none opacity-85 group-hover:opacity-100"
+                  draggable="false"
                 />
                 
                 <!-- Premium Glass Hover Scrim -->
@@ -234,13 +234,13 @@
           <!-- Interactive Image Container with click-to-zoom -->
           <div 
             class="w-full flex-1 min-h-0 p-2 bg-neutral-950 rounded-2xl transition-all duration-300"
-            :class="isZoomed ? 'overflow-auto flex justify-start items-start' : 'overflow-hidden flex justify-center items-center'"
+            :class="isZoomed ? 'overflow-auto block' : 'overflow-hidden flex justify-center items-center'"
           >
             <img
               :src="details.media.infographicDesktop.originalUrl || details.media.infographicDesktop.url"
               :alt="selectedMission?.title"
               class="rounded-xl select-none transition-all duration-300"
-              :class="isZoomed ? 'max-w-[200%] w-[180%] h-auto cursor-zoom-out' : 'max-w-full max-h-[70vh] object-contain cursor-zoom-in'"
+              :class="isZoomed ? 'w-[150%] sm:w-[130%] md:w-[115%] lg:w-full max-w-none h-auto cursor-zoom-out mx-auto block' : 'max-w-full max-h-[70vh] object-contain cursor-zoom-in'"
               draggable="false"
               @click="$emit('update:isZoomed', !isZoomed)"
             />

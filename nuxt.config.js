@@ -3,26 +3,10 @@ import { defineNuxtConfig } from 'nuxt/config'
 export default defineNuxtConfig({
   // 启用的 Nuxt 核心与第三方扩展模块列表
   modules: [
-    '@nuxt/image',   // Nuxt Image 模块：提供图像大小自适应、格式转换与延迟加载优化
     '@nuxthub/core', // NuxtHub 模块：集成 Cloudflare KV、D1、Blob 等边缘计算与数据库服务
     '@nuxt/ui',      // Nuxt UI 模块：基于 Tailwind CSS 构建 of 现代化组件库，提供开箱即用的优质 UI
     '@nuxtjs/i18n'   // Nuxt i18n 模块：提供全站多语言国际化支持及自动化的翻译资源加载
   ],
-
-  // Nuxt Image 模块详细配置（开发环境用 ipx 进行本地优化，生产环境自动接入 Cloudflare 边缘免费图像优化服务）
-  image: {
-    provider: process.env.NODE_ENV === 'production' ? 'cloudflare' : 'ipx',
-    cloudflare: {
-      baseURL: 'https://spacex-calendar.mou7s.com' // 生产环境的 Cloudflare 部署主域名
-    },
-    // 允许进行优化与缩放的外部图片域名白名单
-    domains: [
-      'sxcontent9668.azureedge.us',
-      'content.spacex.com',
-      'spacex.com',
-      'www.spacex.com'
-    ]
-  },
 
   // 全局加载 of CSS 样式文件列表
   css: [
