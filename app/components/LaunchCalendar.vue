@@ -117,6 +117,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const { t, tm, rt } = useI18n()
 
 const weekdays = computed(() => {

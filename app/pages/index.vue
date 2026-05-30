@@ -103,99 +103,6 @@ const computedTitle = computed(() => {
   return `${t('meta.title')} | ${t('subscribe.title')}`
 })
 
-useSeoMeta({
-  title: computedTitle,
-  ogTitle: computedTitle,
-  description: () => t('meta.description'),
-  ogDescription: () => t('meta.description'),
-  ogType: 'website',
-  ogImage: '/icon-512.png',
-  twitterCard: 'summary',
-  twitterTitle: computedTitle,
-  twitterDescription: () => t('meta.description'),
-  twitterImage: '/icon-512.png'
-})
-
-// useHead 现在专用于处理复杂的非普通元数据标签（例如注入 JSON-LD 谷歌结构化数据）
-useHead(() => ({
-  script: [
-    {
-      type: 'application/ld+json',
-      children: JSON.stringify({
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "WebSite",
-            "@id": "https://spacexcalendar.mou7s.com/#website",
-            "url": "https://spacexcalendar.mou7s.com/",
-            "name": t('meta.title'),
-            "description": t('meta.description'),
-            "publisher": {
-              "@type": "Organization",
-              "name": "SpaceX Calendar Team"
-            },
-            "hasPart": [
-              {
-                "@type": "WebPage",
-                "@id": "https://spacexcalendar.mou7s.com/#subscribe",
-                "name": t('subscribe.title'),
-                "url": "https://spacexcalendar.mou7s.com/#subscribe"
-              },
-              {
-                "@type": "WebPage",
-                "@id": "https://spacexcalendar.mou7s.com/#calendar",
-                "name": t('calendar.title'),
-                "url": "https://spacexcalendar.mou7s.com/#calendar"
-              },
-              {
-                "@type": "WebPage",
-                "@id": "https://spacexcalendar.mou7s.com/#faq",
-                "name": locale.value === 'zh-CN' ? '常见问题' : 'FAQ',
-                "url": "https://spacexcalendar.mou7s.com/#faq"
-              }
-            ]
-          },
-          {
-            "@type": "SoftwareApplication",
-            "@id": "https://spacexcalendar.mou7s.com/#software",
-            "name": "SpaceX Calendar PWA",
-            "operatingSystem": "All",
-            "applicationCategory": "UtilitiesApplication",
-            "offers": {
-              "@type": "Offer",
-              "price": "0.00",
-              "priceCurrency": "USD"
-            }
-          },
-          {
-            "@type": "FAQPage",
-            "@id": "https://spacexcalendar.mou7s.com/#faq-page",
-            "mainEntity": [1, 2, 3, 4].map(num => ({
-              "@type": "Question",
-              "name": getFaqQuestion(num),
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": getFaqAnswer(num).replace(/<[^>]+>/g, '')
-              }
-            }))
-          },
-          nextLaunch.value?.launchAt ? {
-            "@type": "Event",
-            "name": nextLaunch.value.title,
-            "startDate": nextLaunch.value.launchAt,
-            "location": {
-              "@type": "Place",
-              "name": nextLaunch.value.launchSite || "TBD",
-              "address": nextLaunch.value.launchSite || "TBD"
-            },
-            "description": `${nextLaunch.value.vehicle} launch tracking: ${nextLaunch.value.title} scheduled flight.`
-          } : null
-        ].filter(Boolean)
-      })
-    }
-  ]
-}))
-
 // ─── Subscription Links ───
 const webcalSubscriptionLink = computed(() => {
   if (import.meta.client) {
@@ -482,6 +389,99 @@ const faqItems = computed(() => [
   { label: getFaqQuestion(3), content: getFaqAnswer(3) },
   { label: getFaqQuestion(4), content: getFaqAnswer(4) }
 ])
+
+useSeoMeta({
+  title: computedTitle,
+  ogTitle: computedTitle,
+  description: () => t('meta.description'),
+  ogDescription: () => t('meta.description'),
+  ogType: 'website',
+  ogImage: '/icon-512.png',
+  twitterCard: 'summary',
+  twitterTitle: computedTitle,
+  twitterDescription: () => t('meta.description'),
+  twitterImage: '/icon-512.png'
+})
+
+// useHead 现在专用于处理复杂的非普通元数据标签（例如注入 JSON-LD 谷歌结构化数据）
+useHead(() => ({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://spacexcalendar.mou7s.com/#website",
+            "url": "https://spacexcalendar.mou7s.com/",
+            "name": t('meta.title'),
+            "description": t('meta.description'),
+            "publisher": {
+              "@type": "Organization",
+              "name": "SpaceX Calendar Team"
+            },
+            "hasPart": [
+              {
+                "@type": "WebPage",
+                "@id": "https://spacexcalendar.mou7s.com/#subscribe",
+                "name": t('subscribe.title'),
+                "url": "https://spacexcalendar.mou7s.com/#subscribe"
+              },
+              {
+                "@type": "WebPage",
+                "@id": "https://spacexcalendar.mou7s.com/#calendar",
+                "name": t('calendar.title'),
+                "url": "https://spacexcalendar.mou7s.com/#calendar"
+              },
+              {
+                "@type": "WebPage",
+                "@id": "https://spacexcalendar.mou7s.com/#faq",
+                "name": locale.value === 'zh-CN' ? '常见问题' : 'FAQ',
+                "url": "https://spacexcalendar.mou7s.com/#faq"
+              }
+            ]
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://spacexcalendar.mou7s.com/#software",
+            "name": "SpaceX Calendar PWA",
+            "operatingSystem": "All",
+            "applicationCategory": "UtilitiesApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "0.00",
+              "priceCurrency": "USD"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://spacexcalendar.mou7s.com/#faq-page",
+            "mainEntity": [1, 2, 3, 4].map(num => ({
+              "@type": "Question",
+              "name": getFaqQuestion(num),
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": getFaqAnswer(num).replace(/<[^>]+>/g, '')
+              }
+            }))
+          },
+          nextLaunch.value?.launchAt ? {
+            "@type": "Event",
+            "name": nextLaunch.value.title,
+            "startDate": nextLaunch.value.launchAt,
+            "location": {
+              "@type": "Place",
+              "name": nextLaunch.value.launchSite || "TBD",
+              "address": nextLaunch.value.launchSite || "TBD"
+            },
+            "description": `${nextLaunch.value.vehicle} launch tracking: ${nextLaunch.value.title} scheduled flight.`
+          } : null
+        ].filter(Boolean)
+      })
+    }
+  ]
+}))
 </script>
 
 <style>
