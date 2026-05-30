@@ -39,7 +39,7 @@
 
           <!-- Mini Grid -->
           <div class="grid grid-cols-7 gap-1 text-center text-xs">
-            <div v-for="dayLabel in t('calendar.weekdayShort')" :key="dayLabel" class="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase py-1">
+            <div v-for="dayLabel in weekdays" :key="dayLabel" class="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase py-1">
               {{ dayLabel }}
             </div>
             
@@ -117,7 +117,12 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
+const { t, tm, rt } = useI18n()
+
+const weekdays = computed(() => {
+  const days = tm('calendar.weekdayShort')
+  return Array.isArray(days) ? days.map(day => rt(day)) : []
+})
 
 defineProps<{
   gridDays: { isoDate: string; dayNumber: number; isCurrentMonth: boolean; hasEvents: boolean }[]

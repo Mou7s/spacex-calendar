@@ -285,6 +285,10 @@ export function sortMissions(missions) {
 }
 
 export function isFutureMission(mission, now = new Date()) {
+  if (mission.isLive) {
+    return true;
+  }
+
   if (!mission.launchAt) {
     return true;
   }

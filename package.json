@@ -10,6 +10,7 @@
     "translate:locales": "node scripts/translate-locales.js"
   },
   "dependencies": {
+    "@nuxt/image": "^2.0.0",
     "@nuxt/ui": "^4.8.0",
     "@nuxthub/core": "^0.10.7",
     "@nuxtjs/i18n": "^10.4.0",

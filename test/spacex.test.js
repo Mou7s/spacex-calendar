@@ -713,3 +713,57 @@ test("getCachedData falls back to stale data on sync fetch failure when ctx is a
     globalThis.fetch = originalFetch;
   }
 });
+
+test("loadLaunchData preserves currently live-streaming missions even if launchAt is in the past", async () => {
+  const livePastTile = {
+    id: "live-past",
+    correlationId: "LIVEPAST123",
+    link: "live-mission",
+    title: "Live Past Mission",
+    missionType: "starlink",
+    vehicle: "Falcon 9",
+    launchSite: "SLC-40, Florida",
+    returnSite: "Droneship",
+    callToAction: "WATCH",
+    missionStatus: "upcoming",
+    isLive: true,
+    directToCell: false,
+    returnDateTime: null,
+    imageDesktop: { url: "https://example.com/live.jpg" },
+  };
+
+  const fetchStub = async (url) => {
+    if (String(url).includes("launches-page-tiles/upcoming")) {
+      return new Response(JSON.stringify([livePastTile]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    if (String(url).includes("future_missions.json")) {
+      return new Response(
+        JSON.stringify({
+          LIVEPAST123: {
+            CorrelationId: "LIVEPAST123",
+            PrimaryLaunchDate: { Seconds: 1779357600, Nanos: 0 }, // Past relative to mock date
+            PrimaryLaunchWindow: null,
+            TZeroLaunchDate: null,
+            IsPrimaryLaunchTimeGiven: true,
+          },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      );
+    }
+
+    throw new Error(`Unexpected fetch: ${url}`);
+  };
+
+  const data = await loadLaunchData(fetchStub, new Date("2026-05-24T12:00:00.000Z"));
+
+  assert.equal(data.missions.length, 1);
+  assert.equal(data.missions[0].title, "Live Past Mission");
+  assert.equal(data.missions[0].isLive, true);
+});
