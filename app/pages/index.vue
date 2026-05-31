@@ -109,14 +109,14 @@ const webcalSubscriptionLink = computed(() => {
     const httpUrl = new URL("/spacex.ics", window.location.href)
     return `webcal://${httpUrl.host}${httpUrl.pathname}`
   }
-  return 'webcal://spacexcalendar.mou7s.com/spacex.ics'
+  return 'webcal://spacex-calendar.mou7s.com/spacex.ics'
 })
 
 const icsSubscriptionLink = computed(() => {
   if (import.meta.client) {
     return new URL("/spacex.ics", window.location.href).toString()
   }
-  return 'https://spacexcalendar.mou7s.com/spacex.ics'
+  return 'https://spacex-calendar.mou7s.com/spacex.ics'
 })
 
 // ─── Countdown ───
@@ -413,8 +413,8 @@ useHead(() => ({
         "@graph": [
           {
             "@type": "WebSite",
-            "@id": "https://spacexcalendar.mou7s.com/#website",
-            "url": "https://spacexcalendar.mou7s.com/",
+            "@id": "https://spacex-calendar.mou7s.com/#website",
+            "url": "https://spacex-calendar.mou7s.com/",
             "name": t('meta.title'),
             "description": t('meta.description'),
             "publisher": {
@@ -424,27 +424,27 @@ useHead(() => ({
             "hasPart": [
               {
                 "@type": "WebPage",
-                "@id": "https://spacexcalendar.mou7s.com/#subscribe",
+                "@id": "https://spacex-calendar.mou7s.com/#subscribe",
                 "name": t('subscribe.title'),
-                "url": "https://spacexcalendar.mou7s.com/#subscribe"
+                "url": "https://spacex-calendar.mou7s.com/#subscribe"
               },
               {
                 "@type": "WebPage",
-                "@id": "https://spacexcalendar.mou7s.com/#calendar",
+                "@id": "https://spacex-calendar.mou7s.com/#calendar",
                 "name": t('calendar.title'),
-                "url": "https://spacexcalendar.mou7s.com/#calendar"
+                "url": "https://spacex-calendar.mou7s.com/#calendar"
               },
               {
                 "@type": "WebPage",
-                "@id": "https://spacexcalendar.mou7s.com/#faq",
+                "@id": "https://spacex-calendar.mou7s.com/#faq",
                 "name": locale.value === 'zh-CN' ? '常见问题' : 'FAQ',
-                "url": "https://spacexcalendar.mou7s.com/#faq"
+                "url": "https://spacex-calendar.mou7s.com/#faq"
               }
             ]
           },
           {
             "@type": "SoftwareApplication",
-            "@id": "https://spacexcalendar.mou7s.com/#software",
+            "@id": "https://spacex-calendar.mou7s.com/#software",
             "name": "SpaceX Calendar PWA",
             "operatingSystem": "All",
             "applicationCategory": "UtilitiesApplication",
@@ -456,7 +456,7 @@ useHead(() => ({
           },
           {
             "@type": "FAQPage",
-            "@id": "https://spacexcalendar.mou7s.com/#faq-page",
+            "@id": "https://spacex-calendar.mou7s.com/#faq-page",
             "mainEntity": [1, 2, 3, 4].map(num => ({
               "@type": "Question",
               "name": getFaqQuestion(num),
