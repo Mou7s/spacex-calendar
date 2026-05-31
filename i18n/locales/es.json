@@ -12,7 +12,7 @@
   "subscribe": {
     "eyebrow": "Suscripción ICS",
     "title": "Suscribirse al calendario",
-    "copy": "Usa los enlaces de suscripción para añadir este calendario. Cuando esté desplegado en un dominio HTTPS público, las apps compatibles con ICS podrán mantenerlo sincronizado.",
+    "copy": "Usa los siguientes enlaces para suscribirte a este calendario en tu dispositivo. Tu cliente de calendario se mantendrá sincronizado automáticamente con el programa de lanzamiento oficial de SpaceX en tiempo real.",
     "subscribeLink": "Suscribirse"
   },
   "hero": {

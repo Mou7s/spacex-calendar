@@ -13,7 +13,7 @@
   --muted: rgba(245, 247, 251, 0.72);
   --soft: rgba(245, 247, 251, 0.48);
   --accent: #ffffff;
-  --success: #8bf0a4;
+  --success: #60a5fa;
   --warning: #ffd479;
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
   --btn-surface: rgba(255, 255, 255, 0.05);
@@ -49,7 +49,7 @@
   --muted: rgba(26, 29, 36, 0.68);
   --soft: rgba(26, 29, 36, 0.45);
   --accent: #1a1d24;
-  --success: #2d9f4e;
+  --success: #2563eb;
   --warning: #c48a00;
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   --btn-surface: rgba(0, 0, 0, 0.04);

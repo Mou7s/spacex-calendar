@@ -61,7 +61,7 @@
             >
               <span class="text-xs">{{ day.dayNumber }}</span>
               <!-- Launch Dot -->
-              <span v-if="day.hasEvents" class="absolute bottom-1 w-1 h-1 rounded-full bg-emerald-400"></span>
+              <span v-if="day.hasEvents" class="absolute bottom-1 w-1 h-1 rounded-full bg-primary-500 dark:bg-primary-400"></span>
             </button>
           </div>
         </div>
@@ -91,7 +91,7 @@
               <div class="flex-1 min-w-0">
                 <div class="font-bold text-sm truncate text-neutral-900 dark:text-white uppercase">{{ mission.title }}</div>
                 <div class="text-[10px] text-neutral-500 dark:text-neutral-400 mt-1 flex items-center gap-2">
-                  <span v-if="mission.calendarGroup === 'history'" class="text-emerald-400 font-bold uppercase">
+                  <span v-if="mission.calendarGroup === 'history'" class="text-primary-600 dark:text-primary-400 font-bold uppercase">
                     {{ t(`history.status.${mission.success === true ? 'success' : mission.success === false ? 'failure' : 'unknown'}`) }}
                   </span>
                   <span v-else-if="mission.isLive" class="text-red-400 font-bold uppercase tracking-wider">

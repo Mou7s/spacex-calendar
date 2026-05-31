@@ -39,7 +39,7 @@
               class="px-2 py-0.5 rounded text-[9px] uppercase font-extrabold text-neutral-950" 
               :class="{ 
                 'bg-red-400 animate-pulse': selectedMission.isLive,
-                'bg-emerald-400': selectedMission.calendarGroup === 'history' && selectedMission.success === true,
+                'bg-primary-500': selectedMission.calendarGroup === 'history' && selectedMission.success === true,
                 'bg-rose-400': selectedMission.calendarGroup === 'history' && selectedMission.success === false,
                 'bg-neutral-400': selectedMission.calendarGroup !== 'history' && !selectedMission.isLive
               }"
@@ -132,7 +132,7 @@
               </div>
               
               <div 
-                class="relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-950/40 cursor-pointer group shadow-lg transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-700 max-h-[300px] flex justify-center items-center"
+                class="relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-transparent dark:bg-neutral-950/40 cursor-pointer group shadow-lg transition-all duration-300 hover:border-neutral-400 dark:hover:border-neutral-700 max-h-[300px] flex justify-center items-center"
                 @click="$emit('update:isInfographicOpen', true)"
               >
                 <!-- Preview Image -->

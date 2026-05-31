@@ -3,68 +3,31 @@
     <AppHeader />
 
     <main>
-      <SubscribePanel
-        id="subscribe"
-        :webcal-link="webcalSubscriptionLink"
-        :ics-link="icsSubscriptionLink"
-      />
+      <SubscribePanel id="subscribe" :webcal-link="webcalSubscriptionLink" :ics-link="icsSubscriptionLink" />
 
-      <HeroSection
-        id="hero"
-        :next-launch="upcomingPayload?.nextLaunch"
-        :countdown="countdown"
-        :hero-style="heroStyle"
-        :next-launch-title="nextLaunchTitle"
-        :next-launch-description="nextLaunchDescription"
-        :next-launch-time-formatted="nextLaunchTimeFormatted"
-        @select-mission="selectMission"
-      />
+      <HeroSection id="hero" :next-launch="upcomingPayload?.nextLaunch" :countdown="countdown" :hero-style="heroStyle"
+        :next-launch-title="nextLaunchTitle" :next-launch-description="nextLaunchDescription"
+        :next-launch-time-formatted="nextLaunchTimeFormatted" @select-mission="selectMission" />
 
-      <OverviewGrid
-        id="overview"
-        :month-summary="monthSummary"
-        :timed-windows-count="timedWindowsCount"
-        :live-count="liveCount"
-        :missions-count="upcomingPayload?.missions?.length || 0"
-        :active-timezone="activeTimezone"
-        :active-timezone-display="activeTimezoneDisplay"
-        :timezone-options="TIMEZONE_OPTIONS"
-        :format-month-pill-label="formatMonthPillLabel"
-        @set-timezone="setTimezone"
-      />
+      <OverviewGrid id="overview" :month-summary="monthSummary" :timed-windows-count="timedWindowsCount"
+        :live-count="liveCount" :missions-count="upcomingPayload?.missions?.length || 0"
+        :active-timezone="activeTimezone" :active-timezone-display="activeTimezoneDisplay"
+        :timezone-options="TIMEZONE_OPTIONS" :format-month-pill-label="formatMonthPillLabel"
+        @set-timezone="setTimezone" />
 
-      <LaunchCalendar
-        id="calendar"
-        :grid-days="gridDays"
-        :month-missions="monthMissions"
-        :month-keys="monthKeys"
-        :active-month-index="activeMonthIndex"
-        :active-month-label="activeMonthLabel"
-        :today-iso="todayIso"
-        :selected-date-iso="selectedDateIso"
-        :focused-date-iso="focusedDateIso"
-        :selected-mission-key="selectedMissionKey"
-        :format-event-month="formatEventMonth"
-        :format-event-day="formatEventDay"
-        :format-event-time="formatEventTime"
-        :title-case="titleCase"
-        @update:active-month-index="activeMonthIndex = $event"
-        @focus-date="focusDate"
-        @select-mission="selectMission"
-      />
+      <LaunchCalendar id="calendar" :grid-days="gridDays" :month-missions="monthMissions" :month-keys="monthKeys"
+        :active-month-index="activeMonthIndex" :active-month-label="activeMonthLabel" :today-iso="todayIso"
+        :selected-date-iso="selectedDateIso" :focused-date-iso="focusedDateIso"
+        :selected-mission-key="selectedMissionKey" :format-event-month="formatEventMonth"
+        :format-event-day="formatEventDay" :format-event-time="formatEventTime" :title-case="titleCase"
+        @update:active-month-index="activeMonthIndex = $event" @focus-date="focusDate"
+        @select-mission="selectMission" />
 
-      <MissionDetail
-        :selected-mission="selectedMission"
-        :loading-details="loadingDetails"
-        :details="details"
-        :is-infographic-open="isInfographicOpen"
-        :is-zoomed="isZoomed"
-        :mission-window-copy="selectedMission ? getMissionWindowCopy(selectedMission) : ''"
-        :title-case="titleCase"
-        @close="selectedMission = null"
-        @update:is-infographic-open="isInfographicOpen = $event"
-        @update:is-zoomed="isZoomed = $event"
-      />
+      <MissionDetail :selected-mission="selectedMission" :loading-details="loadingDetails" :details="details"
+        :is-infographic-open="isInfographicOpen" :is-zoomed="isZoomed"
+        :mission-window-copy="selectedMission ? getMissionWindowCopy(selectedMission) : ''" :title-case="titleCase"
+        @close="selectedMission = null" @update:is-infographic-open="isInfographicOpen = $event"
+        @update:is-zoomed="isZoomed = $event" />
 
       <FaqSection id="faq" :items="faqItems" />
     </main>
@@ -174,7 +137,7 @@ const liveCount = computed(() => {
 const sortedCalendarMissions = computed(() => {
   const upcoming = (upcomingPayload.value?.missions || []).map((m: any) => ({ ...m, calendarGroup: 'upcoming', key: `upcoming:${m.slug || m.id}` }))
   const history = (historyPayload.value?.missions || []).map((m: any) => ({ ...m, calendarGroup: 'history', key: `history:${m.slug || m.id}` }))
-  
+
   return [...upcoming, ...history].filter((m: any) => m.launchAt).sort((a: any, b: any) => {
     return Date.parse(b.launchAt) - Date.parse(a.launchAt) // Newest first
   })
@@ -215,7 +178,7 @@ watch([monthKeys, nextLaunch], () => {
 const activeMonthLabel = computed(() => {
   const monthKey = activeMonthKey.value
   if (!monthKey) return t('calendar.title')
-  
+
   return new Intl.DateTimeFormat(locale.value, {
     month: "long",
     year: "numeric",
@@ -262,7 +225,7 @@ const gridDays = computed<GridDay[]>(() => {
     const dayOffset = cellIndex - firstDayIndex
     const date = new Date(Date.UTC(year, month, dayOffset + 1))
     const isoDate = date.toISOString().slice(0, 10)
-    
+
     days.push({
       isoDate,
       dayNumber: date.getUTCDate(),
@@ -305,7 +268,7 @@ const selectMission = async (mission: any, scrollPage = true) => {
       panel?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
   }
-  
+
   if (mission.slug) {
     loadingDetails.value = true
     details.value = null
@@ -326,11 +289,11 @@ const selectMission = async (mission: any, scrollPage = true) => {
 
 const focusDate = (isoDate: string) => {
   selectedDateIso.value = isoDate
-  
+
   const firstOnDay = monthMissions.value.find((m: any) => m.launchAt.slice(0, 10) === isoDate)
   if (firstOnDay) {
     selectMission(firstOnDay, false)
-    
+
     if (import.meta.client) {
       setTimeout(() => {
         const missionEl = document.getElementById(`mission-card-${firstOnDay.key}`)
@@ -368,7 +331,7 @@ const getFaqQuestion = (num: number) => {
 }
 
 const getFaqAnswer = (num: number) => {
-  if (num === 1) return locale.value === 'zh-CN' 
+  if (num === 1) return locale.value === 'zh-CN'
     ? '非常简单！你只需点击上方页面顶部的"<b>订阅在线日历</b>"按钮。在 iPhone 或 Mac 上它会直接触发日历添加请求；在谷歌日历（Google Calendar）中，复制 <code>' + webcalSubscriptionLink.value + '</code> 链接，在电脑网页端点击左侧"其他日历 &rarr; 通过 URL 添加"，粘贴链接订阅即可同步。'
     : 'Extremely easy! Simply click the "<b>Subscribe to Calendar</b>" button. On iOS or macOS devices, it automatically prompts you to subscribe. On Google Calendar, copy the <code>' + webcalSubscriptionLink.value + '</code> link, navigate to Calendar Web &rarr; Other Calendars &rarr; Add by URL, and paste the address.'
   if (num === 2) return locale.value === 'zh-CN'

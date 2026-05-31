@@ -12,7 +12,7 @@
   "subscribe": {
     "eyebrow": "ICS-Abonnement",
     "title": "Online-Kalender abonnieren",
-    "copy": "Nutze die Links unten, um diesen Kalender hinzuzufügen. Nach der Bereitstellung auf einer öffentlichen HTTPS-Domain können ICS-fähige Kalender-Apps ihn automatisch synchronisieren.",
+    "copy": "Verwende die folgenden Links, um diesen Kalender auf deinem Gerät zu abonnieren. Dein Kalender-Client wird automatisch und in Echtzeit mit dem offiziellen SpaceX-Startplan synchronisiert.",
     "subscribeLink": "Kalender abonnieren"
   },
   "hero": {

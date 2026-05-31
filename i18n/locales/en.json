@@ -12,7 +12,7 @@
   "subscribe": {
     "eyebrow": "ICS Subscription",
     "title": "Subscribe to Online Calendar",
-    "copy": "Use the subscription links below to add this calendar. Once deployed on a public HTTPS domain, calendar apps with ICS subscription support can keep it synced automatically.",
+    "copy": "Use the links below to subscribe to this calendar on your device. Your calendar client will keep automatically syncing with SpaceX's official launch schedule in real-time.",
     "subscribeLink": "Subscribe to Calendar"
   },
   "hero": {
