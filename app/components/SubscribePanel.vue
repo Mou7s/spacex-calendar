@@ -37,10 +37,3 @@ defineProps<{
   icsLink: string
 }>()
 </script>
-
-<style scoped>
-#subscribe-btn,
-#subscribe-btn * {
-  cursor: pointer !important;
-}
-</style>

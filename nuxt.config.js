@@ -1,6 +1,14 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
+  // 全局 Head 配置：包含网站 favicon 图标关联
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/icon-512.png?v=2' }
+      ]
+    }
+  },
   // 启用的 Nuxt 核心与第三方扩展模块列表
   modules: [
     '@nuxthub/core', // NuxtHub 模块：集成 Cloudflare KV、D1、Blob 等边缘计算与数据库服务
