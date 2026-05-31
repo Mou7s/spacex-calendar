@@ -411,8 +411,7 @@ export function buildCalendarEvent(mission, dtStamp, sequence) {
     `STATUS:${mission.isLive ? "CONFIRMED" : "TENTATIVE"}`,
     "TRANSP:OPAQUE",
     `CATEGORIES:${escapeIcsText(titleCase(mission.missionType || "launch"))}`,
-    `URL:${
-      mission.missionUrl || buildMissionUrl(mission.slug)
+    `URL:${mission.missionUrl || buildMissionUrl(mission.slug)
     }`,
     "END:VEVENT",
   ];

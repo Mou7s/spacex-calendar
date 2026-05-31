@@ -105,7 +105,7 @@
                   </span>
 
                   <span>•</span>
-                  <span>{{ t(`mission.types.${mission.missionType?.toLowerCase()}`) || titleCase(mission.missionType) }}</span>
+                  <span>{{ te(`mission.types.${mission.missionType?.toLowerCase()}`) ? t(`mission.types.${mission.missionType?.toLowerCase()}`) : titleCase(mission.missionType) }}</span>
                 </div>
               </div>
             </UButton>
@@ -119,7 +119,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const { t, tm, rt } = useI18n()
+const { t, tm, rt, te } = useI18n()
 
 const weekdays = computed(() => {
   const days = tm('calendar.weekdayShort')

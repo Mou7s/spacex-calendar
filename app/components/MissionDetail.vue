@@ -52,7 +52,7 @@
               </template>
             </span>
             <span class="text-xs text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider">
-              {{ t(`mission.types.${selectedMission.missionType?.toLowerCase()}`) || titleCase(selectedMission.missionType) }}
+              {{ te(`mission.types.${selectedMission.missionType?.toLowerCase()}`) ? t(`mission.types.${selectedMission.missionType?.toLowerCase()}`) : titleCase(selectedMission.missionType) }}
             </span>
           </div>
           
@@ -252,7 +252,7 @@
 </template>
 
 <script setup lang="ts">
-const { t, locale } = useI18n()
+const { t, locale, te } = useI18n()
 
 defineProps<{
   selectedMission: any

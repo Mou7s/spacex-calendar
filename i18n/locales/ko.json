@@ -105,7 +105,8 @@
     "launchTarget": "목표 발사 시간: {local} · {utc}",
     "types": {
       "starlink": "Starlink",
-      "nssl": "국가 안보 발사"
+      "nssl": "국가 안보 발사",
+      "starship": "스타쉽"
     }
   },
   "countdown": {

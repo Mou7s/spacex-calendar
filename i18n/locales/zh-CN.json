@@ -105,7 +105,8 @@
     "launchTarget": "目标发射时间：{local} · {utc}",
     "types": {
       "starlink": "星链",
-      "nssl": "国家安全发射"
+      "nssl": "国家安全发射",
+      "starship": "星舰"
     },
     "detailsHeading": "任务简报",
     "preLaunchTimeline": "发射前流程",

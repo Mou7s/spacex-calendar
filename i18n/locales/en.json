@@ -105,7 +105,8 @@
     "launchTarget": "Launch target: {local} · {utc}",
     "types": {
       "starlink": "Starlink",
-      "nssl": "National Security Launch"
+      "nssl": "National Security Launch",
+      "starship": "Starship"
     },
     "detailsHeading": "Mission brief",
     "preLaunchTimeline": "Countdown",

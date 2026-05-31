@@ -105,7 +105,8 @@
     "launchTarget": "Zielstartzeit: {local} · {utc}",
     "types": {
       "starlink": "Starlink",
-      "nssl": "Nationaler Sicherheitsstart"
+      "nssl": "Nationaler Sicherheitsstart",
+      "starship": "Starship"
     }
   },
   "countdown": {

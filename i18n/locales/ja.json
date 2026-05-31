@@ -105,7 +105,8 @@
     "launchTarget": "目標打ち上げ時刻: {local} · {utc}",
     "types": {
       "starlink": "Starlink",
-      "nssl": "国家安全保障打ち上げ"
+      "nssl": "国家安全保障打ち上げ",
+      "starship": "Starship"
     }
   },
   "countdown": {
