@@ -273,7 +273,9 @@ const selectMission = async (mission: any, scrollPage = true) => {
     loadingDetails.value = true
     details.value = null
     try {
-      const res: any = await $fetch(`/api/launches/${mission.slug}`)
+      const res: any = await $fetch(`/api/launches/${mission.slug}`, {
+        query: { lang: locale.value }
+      })
       if (res?.details) {
         details.value = res.details
       }
