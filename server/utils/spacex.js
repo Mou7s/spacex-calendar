@@ -777,7 +777,7 @@ Follow these guidelines strictly:
 
 /**
  * 核心并发/合流翻译器：并行对任务简报 (summary)、时间线等关键字段进行 AI 多语言翻译
- * 采用 A 方案：大合流打包翻译（仅调用 1 次 AI），失败时自动回退为并发独立翻译，极速且健壮。
+ * 采用 A 方案：大合流打包为 JSON 数组进行翻译（仅调用 1 次 AI），失败时自动回退为并发独立翻译，极速且健壮。
  */
 export async function translateMissionDetails(ai, details, targetLang) {
   if (!ai || !details) return
@@ -827,17 +827,51 @@ export async function translateMissionDetails(ai, details, targetLang) {
 
   if (segments.length === 0) return
 
-  // 合流：使用定界符拼接为单个超长文本，只调用一次 AI，大幅削减并发排队延迟
-  const combinedText = segments.join(" \n\n[SPLIT]\n\n ")
+  // 4. 构造用于 LLM 翻译的 JSON 数组 Prompt，彻底解决定界符被破坏或解析错位的问题
+  const systemPrompt = `You are a professional aerospace translator. Translate the given JSON array of English strings into a JSON array of ${targetLang} strings.
+Guidelines:
+1. Translate technical and aerospace terms accurately:
+   - "Falcon", "Falcon 9" or "Falcon Heavy" -> "猎鹰", "猎鹰 9 号" or "重型猎鹰"
+   - "liftoff" or "lift-off" -> "发射升空"
+   - "Starlink" -> "星链"
+   - "MECO" (Main Engine Cut-off) -> "主发动机关闭 (MECO)"
+   - "SECO" (Second Engine Cut-off) -> "二级发动机关闭 (SECO)"
+   - "static fire" -> "静态点火测试"
+   - "launch pad" or "pad" -> "发射台"
+   - "booster" -> "助推器"
+   - "fairing" -> "整流罩"
+   - "autonomous spaceport drone ship" or "drone ship" -> "海上无人回收船"
+   - "droneship" -> "海上无人回收船"
+   - "landing zone" or "LZ" -> "陆地回收区"
+   - "stage separation" -> "一二级分离"
+   - "payload" -> "载荷"
+2. Keep the JSON structure exactly the same. Return a JSON array of translated strings with the exact same length as the input array.
+3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
+4. Respond ONLY with the final translated JSON array. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`).`
 
   try {
-    const translatedCombined = await translateText(ai, combinedText, targetLang)
-    const translatedSegments = translatedCombined.split(/\s*\[SPLIT\]\s*/)
+    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: JSON.stringify(segments) }
+      ],
+      temperature: 0.1
+    })
 
-    if (translatedSegments.length === segments.length) {
+    let responseText = response?.result?.response || response?.response || ""
+    responseText = responseText.trim()
+
+    // 剔除可能存在的 markdown 代码块标记 (如 ```json ... ```)
+    if (responseText.startsWith("```")) {
+      responseText = responseText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "")
+    }
+
+    const translatedSegments = JSON.parse(responseText.trim())
+
+    if (Array.isArray(translatedSegments) && translatedSegments.length === segments.length) {
       // 完美对齐：映射回各对象字段
       mapping.forEach((mapItem, idx) => {
-        const translatedVal = translatedSegments[idx].trim()
+        const translatedVal = String(translatedSegments[idx] || "").trim()
         if (mapItem.type === 'summary') {
           details.summary = translatedVal
         } else if (mapItem.type === 'preDisclaimer') {
@@ -852,13 +886,13 @@ export async function translateMissionDetails(ai, details, targetLang) {
       })
       return
     } else {
-      console.warn(`Translation segment count mismatch (expected ${segments.length}, got ${translatedSegments.length}). Falling back to parallel individual translations.`)
+      console.warn(`JSON Translation array length mismatch (expected ${segments.length}, got ${translatedSegments?.length}). Falling back to parallel individual translations.`)
     }
   } catch (error) {
-    console.error("Combined translation failed, falling back to parallel translations:", error)
+    console.error("JSON array translation failed, falling back to parallel translations:", error)
   }
 
-  // 回退降级方案：若合流拆分数量不对或报错，执行并行的独立翻译，防范数据错位
+  // 回退降级方案：若 JSON 翻译解析失败或数量不对，执行并行的独立翻译，防范数据错位
   const fallbackPromises = mapping.map(async (mapItem, idx) => {
     const originalText = segments[idx]
     const translatedVal = await translateText(ai, originalText, targetLang)
