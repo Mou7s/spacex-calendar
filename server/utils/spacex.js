@@ -731,16 +731,9 @@ export const M2M100_LANG_MAP = {
   'de': 'german'
 }
 
-/**
- * 针对单个文本字段，调用 Cloudflare Workers AI 的 Llama 3.1 8B 大语言模型进行专业级航天翻译
- */
-export async function translateText(ai, text, targetLang) {
-  if (!text || !ai) return text
-
-  // 注入航天专业翻译词汇字典的 System Prompt，彻底纠正“升降机”等机翻错误
-  const systemPrompt = `You are a professional aerospace translator. Translate the given text from English to ${targetLang}. 
-Follow these guidelines strictly:
-1. Translate technical and aerospace terms accurately:
+// 针对不同语言定制的专业航天术语对照字典，避免跨语言翻译混淆与中英混杂
+const GLOSSARIES = {
+  chinese: `
    - "Falcon", "Falcon 9" or "Falcon Heavy" -> "猎鹰", "猎鹰 9 号" or "重型猎鹰"
    - "liftoff" or "lift-off" -> "发射升空"
    - "Starlink" -> "星链"
@@ -754,7 +747,48 @@ Follow these guidelines strictly:
    - "droneship" -> "海上无人回收船"
    - "landing zone" or "LZ" -> "陆地回收区"
    - "stage separation" -> "一二级分离"
-   - "payload" -> "载荷"
+   - "payload" -> "载荷"`,
+  japanese: `
+   - "Falcon", "Falcon 9" or "Falcon Heavy" -> "ファルコン", "ファルコン9" or "ファルコン・ヘビー"
+   - "liftoff" or "lift-off" -> "打ち上げ" or "リフトオフ"
+   - "Starlink" -> "スターリンク"
+   - "MECO" (Main Engine Cut-off) -> "主力エンジン停止 (MECO)"
+   - "SECO" (Second Engine Cut-off) -> "第2段エンジン停止 (SECO)"
+   - "static fire" -> "スタティック・ファイア試験"
+   - "launch pad" or "pad" -> "発射台"
+   - "booster" -> "ブースター"
+   - "fairing" -> "フェアリング"
+   - "drone ship" or "droneship" -> "ドローン船"
+   - "landing zone" or "LZ" -> "着陸帯"`,
+  korean: `
+   - "Falcon", "Falcon 9" or "Falcon Heavy" -> "팰컨", "팰컨 9" or "팰컨 헤비"
+   - "liftoff" or "lift-off" -> "발사" or "이륙"
+   - "Starlink" -> "스타링크"
+   - "MECO" (Main Engine Cut-off) -> "주엔진 차단 (MECO)"
+   - "SECO" (Second Engine Cut-off) -> "2단 엔진 차단 (SECO)"
+   - "static fire" -> "정적 점화 시험"
+   - "launch pad" or "pad" -> "발사대"
+   - "booster" -> "부스터"
+   - "fairing" -> "페어링"
+   - "drone ship" or "droneship" -> "드론쉽"
+   - "landing zone" or "LZ" -> "착륙 구역"`
+}
+
+/**
+ * 针对单个文本字段，调用 Cloudflare Workers AI 的 Llama 3.1 8B 大语言模型进行专业级航天翻译
+ */
+export async function translateText(ai, text, targetLang) {
+  if (!text || !ai) return text
+
+  const glossary = GLOSSARIES[targetLang] || ""
+  const glossaryInstruction = glossary
+    ? `Translate technical and aerospace terms accurately using this glossary: ${glossary}`
+    : `Translate technical and aerospace terms accurately using standard industry terminology in ${targetLang}.`
+
+  // 注入针对当前目标语言的环境提示词，彻底杜绝语言乱序与跨语种污染
+  const systemPrompt = `You are a professional aerospace translator. Translate the given text from English to ${targetLang}. 
+Follow these guidelines strictly:
+1. ${glossaryInstruction}
 2. Preserve all structural elements, delimiter tags like "[SPLIT]", newlines, lists, and spacing perfectly.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
 4. ONLY return the final translated text. DO NOT include any introductory remarks, markdown wraps (like \`\`\`), or explanations.`
@@ -827,24 +861,15 @@ export async function translateMissionDetails(ai, details, targetLang) {
 
   if (segments.length === 0) return
 
+  const glossary = GLOSSARIES[targetLang] || ""
+  const glossaryInstruction = glossary
+    ? `Translate technical and aerospace terms accurately using this glossary: ${glossary}`
+    : `Translate technical and aerospace terms accurately using standard industry terminology in ${targetLang}.`
+
   // 4. 构造用于 LLM 翻译的 JSON 数组 Prompt，彻底解决定界符被破坏或解析错位的问题
   const systemPrompt = `You are a professional aerospace translator. Translate the given JSON array of English strings into a JSON array of ${targetLang} strings.
 Guidelines:
-1. Translate technical and aerospace terms accurately:
-   - "Falcon", "Falcon 9" or "Falcon Heavy" -> "猎鹰", "猎鹰 9 号" or "重型猎鹰"
-   - "liftoff" or "lift-off" -> "发射升空"
-   - "Starlink" -> "星链"
-   - "MECO" (Main Engine Cut-off) -> "主发动机关闭 (MECO)"
-   - "SECO" (Second Engine Cut-off) -> "二级发动机关闭 (SECO)"
-   - "static fire" -> "静态点火测试"
-   - "launch pad" or "pad" -> "发射台"
-   - "booster" -> "助推器"
-   - "fairing" -> "整流罩"
-   - "autonomous spaceport drone ship" or "drone ship" -> "海上无人回收船"
-   - "droneship" -> "海上无人回收船"
-   - "landing zone" or "LZ" -> "陆地回收区"
-   - "stage separation" -> "一二级分离"
-   - "payload" -> "载荷"
+1. ${glossaryInstruction}
 2. Keep the JSON structure exactly the same. Return a JSON array of translated strings with the exact same length as the input array.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
 4. Respond ONLY with the final translated JSON array. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`).`
