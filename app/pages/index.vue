@@ -256,6 +256,25 @@ watch(isInfographicOpen, (val) => {
   }
 })
 
+// 监听语言切换，若已选择任务则自动重新抓取并更新多语言动态详情
+watch(locale, async (newLocale) => {
+  if (selectedMission.value && selectedMission.value.slug) {
+    loadingDetails.value = true
+    try {
+      const res: any = await $fetch(`/api/launches/${selectedMission.value.slug}`, {
+        query: { lang: newLocale }
+      })
+      if (res?.details) {
+        details.value = res.details
+      }
+    } catch (e) {
+      console.error("Failed to update mission details on language switch:", e)
+    } finally {
+      loadingDetails.value = false
+    }
+  }
+})
+
 const selectMission = async (mission: any, scrollPage = true) => {
   selectedMission.value = mission
   focusedDateIso.value = mission.launchAt?.slice(0, 10) || null
