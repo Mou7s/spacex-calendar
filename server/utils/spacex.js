@@ -810,36 +810,31 @@ Follow these guidelines strictly:
   }
 }
 
-/**
- * 核心并发/合流翻译器：并行对任务简报 (summary)、时间线等关键字段进行 AI 多语言翻译
- * 采用 A 方案：大合流打包为 JSON 数组进行翻译（仅调用 1 次 AI），失败时自动回退为并发独立翻译，极速且健壮。
- */
 export async function translateMissionDetails(ai, details, targetLang) {
   if (!ai || !details) return
 
-  const inputObj = {}
-
-  // 1. 收集任务摘要/简报
+  // 1. 第一阶段：独立翻译 summary（任务简报）
+  // 彻底隔离简报的高级上下文，严防其污染和诱导时间线条目的翻译！
   if (details.summary) {
-    inputObj.summary = details.summary
+    details.summary = await translateText(ai, details.summary, targetLang)
   }
 
-  // 2. 收集发射前时间线及其免责声明
+  // 2. 第二阶段：收集并发合流翻译所有时间线条目与免责声明
+  const timelineObj = {}
   const preLaunch = details.timelines?.preLaunch
   if (preLaunch) {
     if (preLaunch.disclaimer) {
-      inputObj.preDisclaimer = preLaunch.disclaimer
+      timelineObj.preDisclaimer = preLaunch.disclaimer
     }
     if (preLaunch.entries) {
       preLaunch.entries.forEach((entry, idx) => {
         if (entry.description) {
-          inputObj[`preEntry_${idx}`] = entry.description
+          timelineObj[`preEntry_${idx}`] = entry.description
         }
       })
     }
   }
 
-  // 3. 收集发射后时间线及其免责声明
   const postLaunch = details.timelines?.postLaunch
   if (postLaunch) {
     if (postLaunch.disclaimer) {
