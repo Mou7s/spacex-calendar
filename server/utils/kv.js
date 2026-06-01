@@ -198,10 +198,14 @@ export async function preTranslateUpcomingMissions(event, env, missions) {
       const cacheKey = `spacex_mission_details_${slug}_${lang}_v4`
 
       try {
-        // 4. 核心优化：先检查 KV 里是否已经存在该语言的缓存，避免重复翻译消耗额度与性能
+        // 4. 核心优化：先检查 KV 里是否已经存在该语言的缓存，并校验时效性，避免盲目重复翻译
         const existing = await env.SPACEX_KV.get(cacheKey, "json")
-        if (existing) {
-          continue // 已有缓存，直接跳过！
+        if (existing && existing.refreshedAt) {
+          const cacheAge = Date.now() - Date.parse(existing.refreshedAt)
+          // 仅在缓存新鲜（小于 12 小时）时跳过；若超过 12 小时，则在后台静默更新以同步可能发生变更的发射时间与描述
+          if (cacheAge < 12 * 3600 * 1000) {
+            continue
+          }
         }
 
         // 5. 若无缓存，在后台进行同步抓取与合流翻译

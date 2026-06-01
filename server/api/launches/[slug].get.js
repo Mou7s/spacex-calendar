@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
   const query = getQuery(event) || {}
   const lang = query.lang || 'en'
+  const force = query.force === 'true'
 
   // 2. 安全校验：强制防范目录穿越、路径注入与非法参数，只允许英文字母、数字和连字符 "-"
   if (!slug || !/^[a-z0-9-]+$/i.test(slug)) {
@@ -27,11 +28,8 @@ export default defineEventHandler(async (event) => {
     const targetLang = M2M100_LANG_MAP[lang]
     const cacheKey = targetLang ? `spacex_mission_details_${slug}_${lang}_v4` : `spacex_mission_details_${slug}_v4`
     
-    // 4. 调用 KV 控制器的 getCachedData 方法（SWR 控制流）：
-    //    - 如果 KV 存在且新鲜：直接秒回数据。
-    //    - 如果 KV 存在但已过期：先秒回旧数据，并在后台异步请求刷新 KV。
-    //    - 如果 KV 不存在：同步发起网络请求并写入 KV。
-    const data = await getCachedData(event, cacheKey, async () => {
+    // 4. 定义数据加载/翻译核心方法
+    const loader = async () => {
       const freshData = await loadMissionDetails(slug)
       
       // 如果不是英文，且成功匹配到了支持的翻译语言，则在获取到最新详情后执行合流 AI 汉化翻译
@@ -42,7 +40,20 @@ export default defineEventHandler(async (event) => {
       }
       
       return freshData
-    })
+    }
+
+    // 5. 校验是否强制刷新：若带 ?force=true，则直接穿透缓存，重新翻译并强制覆写 KV
+    let data
+    if (force) {
+      data = await loader()
+      const cloudflare = event.context.cloudflare || {}
+      const env = cloudflare.env || {}
+      if (env.SPACEX_KV) {
+        await env.SPACEX_KV.put(cacheKey, JSON.stringify(data), { expirationTtl: 604800 })
+      }
+    } else {
+      data = await getCachedData(event, cacheKey, loader)
+    }
     
     // 5. 设置 HTTP 响应头：
     //    - Cache-Control：指示浏览器或 CDN 缓存此接口 5 分钟，降低服务器二次请求负载
