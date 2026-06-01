@@ -817,27 +817,23 @@ Follow these guidelines strictly:
 export async function translateMissionDetails(ai, details, targetLang) {
   if (!ai || !details) return
 
-  const segments = []
-  const mapping = []
+  const inputObj = {}
 
   // 1. 收集任务摘要/简报
   if (details.summary) {
-    segments.push(details.summary)
-    mapping.push({ type: 'summary' })
+    inputObj.summary = details.summary
   }
 
   // 2. 收集发射前时间线及其免责声明
   const preLaunch = details.timelines?.preLaunch
   if (preLaunch) {
     if (preLaunch.disclaimer) {
-      segments.push(preLaunch.disclaimer)
-      mapping.push({ type: 'preDisclaimer' })
+      inputObj.preDisclaimer = preLaunch.disclaimer
     }
     if (preLaunch.entries) {
       preLaunch.entries.forEach((entry, idx) => {
         if (entry.description) {
-          segments.push(entry.description)
-          mapping.push({ type: 'preEntry', index: idx })
+          inputObj[`preEntry_${idx}`] = entry.description
         }
       })
     }
@@ -847,40 +843,38 @@ export async function translateMissionDetails(ai, details, targetLang) {
   const postLaunch = details.timelines?.postLaunch
   if (postLaunch) {
     if (postLaunch.disclaimer) {
-      segments.push(postLaunch.disclaimer)
-      mapping.push({ type: 'postDisclaimer' })
+      inputObj.postDisclaimer = postLaunch.disclaimer
     }
     if (postLaunch.entries) {
       postLaunch.entries.forEach((entry, idx) => {
         if (entry.description) {
-          segments.push(entry.description)
-          mapping.push({ type: 'postEntry', index: idx })
+          inputObj[`postEntry_${idx}`] = entry.description
         }
       })
     }
   }
 
-  if (segments.length === 0) return
+  if (Object.keys(inputObj).length === 0) return
 
   const glossary = GLOSSARIES[targetLang] || ""
   const glossaryInstruction = glossary
     ? `Translate technical and aerospace terms accurately using this glossary: ${glossary}`
     : `Translate technical and aerospace terms accurately using standard industry terminology in ${targetLang}.`
 
-  // 4. 构造用于 LLM 翻译的 JSON 数组 Prompt，确保数组长度与元素顺序严格 1-to-1 对齐
-  const systemPrompt = `You are a professional aerospace translator. Translate the given JSON array of English strings into a JSON array of ${targetLang} strings.
+  // 4. 构造用于 LLM 翻译的 JSON 对象 Prompt，确保 Key 严格 1-to-1 对齐，绝无顺序错位可能
+  const systemPrompt = `You are a professional aerospace translator. Translate the given JSON object of English strings into a JSON object of ${targetLang} strings.
 Guidelines:
 1. ${glossaryInstruction}
-2. You MUST preserve the exact same array length and the exact same order. Do NOT skip, merge, or combine any items in the array, even if they are empty, duplicate, or identical.
+2. You MUST preserve the exact same keys in the output JSON object. Do NOT skip, delete, or rename any keys.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
-4. DO NOT add, invent, or hallucinate any content, lists, timelines, or examples not present in the input text. For example, do not include lists of aerospace glossary terms, Falcon timelines, or Starlink milestones in your translations unless the input string explicitly contains them. Translate ONLY the text given.
-5. Respond ONLY with the final translated JSON array. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`json or \`\`\`).`
+4. Translate ONLY the string values. DO NOT add, invent, or hallucinate any content, lists, timelines, or examples not present in the original values.
+5. Respond ONLY with the final translated JSON object. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`json or \`\`\`).`
 
   try {
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: JSON.stringify(segments) }
+        { role: 'user', content: JSON.stringify(inputObj) }
       ],
       temperature: 0.1
     })
@@ -893,49 +887,91 @@ Guidelines:
       responseText = responseText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "")
     }
 
-    const translatedSegments = JSON.parse(responseText.trim())
+    const translatedObj = JSON.parse(responseText.trim())
 
-    if (Array.isArray(translatedSegments) && translatedSegments.length === segments.length) {
-      // 完美对齐：映射回各对象字段
-      mapping.forEach((mapItem, idx) => {
-        const translatedVal = String(translatedSegments[idx] || "").trim()
-        if (mapItem.type === 'summary') {
-          details.summary = translatedVal
-        } else if (mapItem.type === 'preDisclaimer') {
-          preLaunch.disclaimer = translatedVal
-        } else if (mapItem.type === 'preEntry') {
-          preLaunch.entries[mapItem.index].description = translatedVal
-        } else if (mapItem.type === 'postDisclaimer') {
-          postLaunch.disclaimer = translatedVal
-        } else if (mapItem.type === 'postEntry') {
-          postLaunch.entries[mapItem.index].description = translatedVal
+    if (translatedObj && typeof translatedObj === 'object') {
+      // 键值查表匹配映射，实现 100% 绝对安全的翻译对齐
+      if (translatedObj.summary && details.summary) {
+        details.summary = String(translatedObj.summary).trim()
+      }
+      
+      if (preLaunch) {
+        if (translatedObj.preDisclaimer && preLaunch.disclaimer) {
+          preLaunch.disclaimer = String(translatedObj.preDisclaimer).trim()
         }
-      })
+        if (preLaunch.entries) {
+          preLaunch.entries.forEach((entry, idx) => {
+            const key = `preEntry_${idx}`
+            if (translatedObj[key] && entry.description) {
+              entry.description = String(translatedObj[key]).trim()
+            }
+          })
+        }
+      }
+
+      if (postLaunch) {
+        if (translatedObj.postDisclaimer && postLaunch.disclaimer) {
+          postLaunch.disclaimer = String(translatedObj.postDisclaimer).trim()
+        }
+        if (postLaunch.entries) {
+          postLaunch.entries.forEach((entry, idx) => {
+            const key = `postEntry_${idx}`
+            if (translatedObj[key] && entry.description) {
+              entry.description = String(translatedObj[key]).trim()
+            }
+          })
+        }
+      }
       return
     } else {
-      console.warn(`JSON Translation array length mismatch (expected ${segments.length}, got ${translatedSegments?.length}). Falling back to parallel individual translations.`)
+      console.warn("JSON Translation returned an invalid object. Falling back to parallel individual translations.")
     }
   } catch (error) {
-    console.error("JSON array translation failed, falling back to parallel translations:", error)
+    console.error("Structured JSON object translation failed, falling back to parallel translations:", error)
   }
 
-  // 回退降级方案：若 JSON 翻译解析失败或数量不对，执行并行的独立翻译，防范数据错位
-  const fallbackPromises = mapping.map(async (mapItem, idx) => {
-    const originalText = segments[idx]
-    const translatedVal = await translateText(ai, originalText, targetLang)
+  // 回退降级方案：若 JSON 翻译解析失败或不是对象，执行并行的独立翻译，防范数据错位
+  const fallbackPromises = []
 
-    if (mapItem.type === 'summary') {
-      details.summary = translatedVal
-    } else if (mapItem.type === 'preDisclaimer') {
-      preLaunch.disclaimer = translatedVal
-    } else if (mapItem.type === 'preEntry') {
-      preLaunch.entries[mapItem.index].description = translatedVal
-    } else if (mapItem.type === 'postDisclaimer') {
-      postLaunch.disclaimer = translatedVal
-    } else if (mapItem.type === 'postEntry') {
-      postLaunch.entries[mapItem.index].description = translatedVal
+  if (details.summary) {
+    fallbackPromises.push((async () => {
+      details.summary = await translateText(ai, details.summary, targetLang)
+    })())
+  }
+
+  if (preLaunch) {
+    if (preLaunch.disclaimer) {
+      fallbackPromises.push((async () => {
+        preLaunch.disclaimer = await translateText(ai, preLaunch.disclaimer, targetLang)
+      })())
     }
-  })
+    if (preLaunch.entries) {
+      preLaunch.entries.forEach((entry) => {
+        if (entry.description) {
+          fallbackPromises.push((async () => {
+            entry.description = await translateText(ai, entry.description, targetLang)
+          })())
+        }
+      })
+    }
+  }
+
+  if (postLaunch) {
+    if (postLaunch.disclaimer) {
+      fallbackPromises.push((async () => {
+        postLaunch.disclaimer = await translateText(ai, postLaunch.disclaimer, targetLang)
+      })())
+    }
+    if (postLaunch.entries) {
+      postLaunch.entries.forEach((entry) => {
+        if (entry.description) {
+          fallbackPromises.push((async () => {
+            entry.description = await translateText(ai, entry.description, targetLang)
+          })())
+        }
+      })
+    }
+  }
 
   await Promise.all(fallbackPromises)
 }
