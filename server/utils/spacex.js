@@ -732,19 +732,45 @@ export const M2M100_LANG_MAP = {
 }
 
 /**
- * 针对单个文本字段，调用 Cloudflare Workers AI 翻译接口进行翻译
+ * 针对单个文本字段，调用 Cloudflare Workers AI 的 Llama 3.1 8B 大语言模型进行专业级航天翻译
  */
 export async function translateText(ai, text, targetLang) {
   if (!text || !ai) return text
+
+  // 注入航天专业翻译词汇字典的 System Prompt，彻底纠正“升降机”等机翻错误
+  const systemPrompt = `You are a professional aerospace translator. Translate the given text from English to ${targetLang}. 
+Follow these guidelines strictly:
+1. Translate technical and aerospace terms accurately:
+   - "Falcon", "Falcon 9" or "Falcon Heavy" -> "猎鹰", "猎鹰 9 号" or "重型猎鹰"
+   - "liftoff" or "lift-off" -> "发射升空"
+   - "Starlink" -> "星链"
+   - "MECO" (Main Engine Cut-off) -> "主发动机关闭 (MECO)"
+   - "SECO" (Second Engine Cut-off) -> "二级发动机关闭 (SECO)"
+   - "static fire" -> "静态点火测试"
+   - "launch pad" or "pad" -> "发射台"
+   - "booster" -> "助推器"
+   - "fairing" -> "整流罩"
+   - "autonomous spaceport drone ship" or "drone ship" -> "海上无人回收船"
+   - "droneship" -> "海上无人回收船"
+   - "landing zone" or "LZ" -> "陆地回收区"
+   - "stage separation" -> "一二级分离"
+   - "payload" -> "载荷"
+2. Preserve all structural elements, delimiter tags like "[SPLIT]", newlines, lists, and spacing perfectly.
+3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
+4. ONLY return the final translated text. DO NOT include any introductory remarks, markdown wraps (like \`\`\`), or explanations.`
+
   try {
-    const response = await ai.run('@cf/meta/m2m100-1.2b', {
-      text: text,
-      source_lang: 'english',
-      target_lang: targetLang
+    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: text }
+      ],
+      temperature: 0.1 // 极低的温度系数，确保翻译高度准确、稳定、高度一致
     })
-    return response?.translated_text || text
+    
+    return response?.result?.response || response?.response || text
   } catch (error) {
-    console.error(`Workers AI translation failed for text "${text.slice(0, 20)}...":`, error)
+    console.error(`Workers AI LLM translation failed for text "${text.slice(0, 20)}...":`, error)
     return text // 异常时优雅降级：返回原始英文文本，确保系统正常响应
   }
 }
