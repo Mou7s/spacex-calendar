@@ -789,9 +789,10 @@ export async function translateText(ai, text, targetLang) {
   const systemPrompt = `You are a professional aerospace translator. Translate the given text from English to ${targetLang}. 
 Follow these guidelines strictly:
 1. ${glossaryInstruction}
-2. Preserve all structural elements, delimiter tags like "[SPLIT]", newlines, lists, and spacing perfectly.
+2. Preserve all structural elements, newlines, lists, and spacing perfectly.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
-4. ONLY return the final translated text. DO NOT include any introductory remarks, markdown wraps (like \`\`\`), or explanations.`
+4. DO NOT add, invent, or hallucinate any content, lists, timelines, or examples not present in the input text. For example, do not include lists of aerospace glossary terms, Falcon timelines, or Starlink milestones in your translations unless the input string explicitly contains them. Translate ONLY the text given.
+5. ONLY return the final translated text. DO NOT include any introductory remarks, markdown wraps (like \`\`\`), or explanations.`
 
   try {
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
@@ -866,13 +867,14 @@ export async function translateMissionDetails(ai, details, targetLang) {
     ? `Translate technical and aerospace terms accurately using this glossary: ${glossary}`
     : `Translate technical and aerospace terms accurately using standard industry terminology in ${targetLang}.`
 
-  // 4. 构造用于 LLM 翻译的 JSON 数组 Prompt，彻底解决定界符被破坏或解析错位的问题
+  // 4. 构造用于 LLM 翻译的 JSON 数组 Prompt，确保数组长度与元素顺序严格 1-to-1 对齐
   const systemPrompt = `You are a professional aerospace translator. Translate the given JSON array of English strings into a JSON array of ${targetLang} strings.
 Guidelines:
 1. ${glossaryInstruction}
-2. Keep the JSON structure exactly the same. Return a JSON array of translated strings with the exact same length as the input array.
+2. You MUST preserve the exact same array length and the exact same order. Do NOT skip, merge, or combine any items in the array, even if they are empty, duplicate, or identical.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
-4. Respond ONLY with the final translated JSON array. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`).`
+4. DO NOT add, invent, or hallucinate any content, lists, timelines, or examples not present in the input text. For example, do not include lists of aerospace glossary terms, Falcon timelines, or Starlink milestones in your translations unless the input string explicitly contains them. Translate ONLY the text given.
+5. Respond ONLY with the final translated JSON array. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`json or \`\`\`).`
 
   try {
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {

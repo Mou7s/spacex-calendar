@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   try {
     // 3. 匹配多语言翻译目标，根据语言后缀单独缓存不同的翻译结果，实现多语言隔离
     const targetLang = M2M100_LANG_MAP[lang]
-    const cacheKey = targetLang ? `spacex_mission_details_${slug}_${lang}` : `spacex_mission_details_${slug}`
+    const cacheKey = targetLang ? `spacex_mission_details_${slug}_${lang}_v4` : `spacex_mission_details_${slug}_v4`
     
     // 4. 调用 KV 控制器的 getCachedData 方法（SWR 控制流）：
     //    - 如果 KV 存在且新鲜：直接秒回数据。
