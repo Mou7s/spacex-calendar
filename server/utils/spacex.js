@@ -716,3 +716,139 @@ export async function loadHistoryLaunchData(fetchImpl = fetch) {
     missions,
   };
 }
+
+// ==========================================
+// 6. 多语言 AI 动态翻译服务 (Dynamic i18n Translation Services)
+// ==========================================
+
+// M2M100 支持的语言名称与 i18n locale 的映射映射
+export const M2M100_LANG_MAP = {
+  'zh-CN': 'chinese',
+  'ja': 'japanese',
+  'ko': 'korean',
+  'es': 'spanish',
+  'fr': 'french',
+  'de': 'german'
+}
+
+/**
+ * 针对单个文本字段，调用 Cloudflare Workers AI 翻译接口进行翻译
+ */
+export async function translateText(ai, text, targetLang) {
+  if (!text || !ai) return text
+  try {
+    const response = await ai.run('@cf/meta/m2m100-1.2b', {
+      text: text,
+      source_lang: 'english',
+      target_lang: targetLang
+    })
+    return response?.translated_text || text
+  } catch (error) {
+    console.error(`Workers AI translation failed for text "${text.slice(0, 20)}...":`, error)
+    return text // 异常时优雅降级：返回原始英文文本，确保系统正常响应
+  }
+}
+
+/**
+ * 核心并发/合流翻译器：并行对任务简报 (summary)、时间线等关键字段进行 AI 多语言翻译
+ * 采用 A 方案：大合流打包翻译（仅调用 1 次 AI），失败时自动回退为并发独立翻译，极速且健壮。
+ */
+export async function translateMissionDetails(ai, details, targetLang) {
+  if (!ai || !details) return
+
+  const segments = []
+  const mapping = []
+
+  // 1. 收集任务摘要/简报
+  if (details.summary) {
+    segments.push(details.summary)
+    mapping.push({ type: 'summary' })
+  }
+
+  // 2. 收集发射前时间线及其免责声明
+  const preLaunch = details.timelines?.preLaunch
+  if (preLaunch) {
+    if (preLaunch.disclaimer) {
+      segments.push(preLaunch.disclaimer)
+      mapping.push({ type: 'preDisclaimer' })
+    }
+    if (preLaunch.entries) {
+      preLaunch.entries.forEach((entry, idx) => {
+        if (entry.description) {
+          segments.push(entry.description)
+          mapping.push({ type: 'preEntry', index: idx })
+        }
+      })
+    }
+  }
+
+  // 3. 收集发射后时间线及其免责声明
+  const postLaunch = details.timelines?.postLaunch
+  if (postLaunch) {
+    if (postLaunch.disclaimer) {
+      segments.push(postLaunch.disclaimer)
+      mapping.push({ type: 'postDisclaimer' })
+    }
+    if (postLaunch.entries) {
+      postLaunch.entries.forEach((entry, idx) => {
+        if (entry.description) {
+          segments.push(entry.description)
+          mapping.push({ type: 'postEntry', index: idx })
+        }
+      })
+    }
+  }
+
+  if (segments.length === 0) return
+
+  // 合流：使用定界符拼接为单个超长文本，只调用一次 AI，大幅削减并发排队延迟
+  const combinedText = segments.join(" \n\n[SPLIT]\n\n ")
+
+  try {
+    const translatedCombined = await translateText(ai, combinedText, targetLang)
+    const translatedSegments = translatedCombined.split(/\s*\[SPLIT\]\s*/)
+
+    if (translatedSegments.length === segments.length) {
+      // 完美对齐：映射回各对象字段
+      mapping.forEach((mapItem, idx) => {
+        const translatedVal = translatedSegments[idx].trim()
+        if (mapItem.type === 'summary') {
+          details.summary = translatedVal
+        } else if (mapItem.type === 'preDisclaimer') {
+          preLaunch.disclaimer = translatedVal
+        } else if (mapItem.type === 'preEntry') {
+          preLaunch.entries[mapItem.index].description = translatedVal
+        } else if (mapItem.type === 'postDisclaimer') {
+          postLaunch.disclaimer = translatedVal
+        } else if (mapItem.type === 'postEntry') {
+          postLaunch.entries[mapItem.index].description = translatedVal
+        }
+      })
+      return
+    } else {
+      console.warn(`Translation segment count mismatch (expected ${segments.length}, got ${translatedSegments.length}). Falling back to parallel individual translations.`)
+    }
+  } catch (error) {
+    console.error("Combined translation failed, falling back to parallel translations:", error)
+  }
+
+  // 回退降级方案：若合流拆分数量不对或报错，执行并行的独立翻译，防范数据错位
+  const fallbackPromises = mapping.map(async (mapItem, idx) => {
+    const originalText = segments[idx]
+    const translatedVal = await translateText(ai, originalText, targetLang)
+
+    if (mapItem.type === 'summary') {
+      details.summary = translatedVal
+    } else if (mapItem.type === 'preDisclaimer') {
+      preLaunch.disclaimer = translatedVal
+    } else if (mapItem.type === 'preEntry') {
+      preLaunch.entries[mapItem.index].description = translatedVal
+    } else if (mapItem.type === 'postDisclaimer') {
+      postLaunch.disclaimer = translatedVal
+    } else if (mapItem.type === 'postEntry') {
+      postLaunch.entries[mapItem.index].description = translatedVal
+    }
+  })
+
+  await Promise.all(fallbackPromises)
+}

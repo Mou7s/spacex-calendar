@@ -1,100 +1,11 @@
 import { defineEventHandler, getRouterParam, getQuery, setHeader, createError } from 'h3'
 import { getCachedData } from '../../utils/kv.js'
-import { loadMissionDetails } from '../../utils/spacex.js'
-
-// M2M100 支持的语言名称映射
-const M2M100_LANG_MAP = {
-  'zh-CN': 'chinese',
-  'ja': 'japanese',
-  'ko': 'korean',
-  'es': 'spanish',
-  'fr': 'french',
-  'de': 'german'
-}
-
-/**
- * 针对单个字符串字段，调用 Cloudflare Workers AI 翻译接口进行翻译
- */
-async function translateText(ai, text, targetLang) {
-  if (!text || !ai) return text
-  try {
-    const response = await ai.run('@cf/meta/m2m100-1.2b', {
-      text: text,
-      source_lang: 'english',
-      target_lang: targetLang
-    })
-    return response?.translated_text || text
-  } catch (error) {
-    console.error(`Workers AI translation failed for text "${text.slice(0, 20)}...":`, error)
-    return text // 异常时优雅降级：返回原始英文文本，确保系统决不崩溃
-  }
-}
-
-/**
- * 核心并发翻译器：并行对任务简报 (summary)、时间线等关键字段进行 AI 多语言翻译
- */
-async function translateMissionDetails(event, details, targetLang) {
-  const cloudflare = event.context.cloudflare || {}
-  const env = cloudflare.env || {}
-  const ai = env.AI
-
-  if (!ai || !details) return
-
-  const promises = []
-
-  // 1. 翻译任务摘要/简报
-  if (details.summary) {
-    promises.push((async () => {
-      details.summary = await translateText(ai, details.summary, targetLang)
-    })())
-  }
-
-  // 2. 翻译发射前时间线及其免责声明
-  const preLaunch = details.timelines?.preLaunch
-  if (preLaunch) {
-    if (preLaunch.disclaimer) {
-      promises.push((async () => {
-        preLaunch.disclaimer = await translateText(ai, preLaunch.disclaimer, targetLang)
-      })())
-    }
-    if (preLaunch.entries) {
-      preLaunch.entries.forEach((entry) => {
-        if (entry.description) {
-          promises.push((async () => {
-            entry.description = await translateText(ai, entry.description, targetLang)
-          })())
-        }
-      })
-    }
-  }
-
-  // 3. 翻译发射后时间线及其免责声明
-  const postLaunch = details.timelines?.postLaunch
-  if (postLaunch) {
-    if (postLaunch.disclaimer) {
-      promises.push((async () => {
-        postLaunch.disclaimer = await translateText(ai, postLaunch.disclaimer, targetLang)
-      })())
-    }
-    if (postLaunch.entries) {
-      postLaunch.entries.forEach((entry) => {
-        if (entry.description) {
-          promises.push((async () => {
-            entry.description = await translateText(ai, entry.description, targetLang)
-          })())
-        }
-      })
-    }
-  }
-
-  // 利用 Promise.all 进行极速高并发并行翻译
-  await Promise.all(promises)
-}
+import { loadMissionDetails, M2M100_LANG_MAP, translateMissionDetails } from '../../utils/spacex.js'
 
 /**
  * GET /api/launches/[slug]
  * 动态路由 API 端点：根据传入的任务标识（Slug），获取特定 SpaceX 任务的深度图文与超清发射图解详情
- * 现已全面支持基于 Cloudflare Workers AI 的多语言动态自动翻译与 SWR 缓存分发。
+ * 现已支持基于 Cloudflare Workers AI 的合流极速翻译与 SWR 多语言缓存分发。
  */
 export default defineEventHandler(async (event) => {
   // 1. 从路由路径中提取动态参数 [slug]，以及用户偏好语言 ?lang=
@@ -123,9 +34,11 @@ export default defineEventHandler(async (event) => {
     const data = await getCachedData(event, cacheKey, async () => {
       const freshData = await loadMissionDetails(slug)
       
-      // 如果不是英文，且成功匹配到了支持的翻译语言，则在获取到最新详情后执行多语言 AI 汉化翻译
+      // 如果不是英文，且成功匹配到了支持的翻译语言，则在获取到最新详情后执行合流 AI 汉化翻译
       if (targetLang && freshData?.details) {
-        await translateMissionDetails(event, freshData.details, targetLang)
+        const cloudflare = event.context.cloudflare || {}
+        const env = cloudflare.env || {}
+        await translateMissionDetails(env.AI, freshData.details, targetLang)
       }
       
       return freshData

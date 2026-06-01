@@ -1,3 +1,5 @@
+import { loadMissionDetails, M2M100_LANG_MAP, translateMissionDetails } from './spacex.js'
+
 const CACHE_TTL = 300; // 5 minutes cache
 const HISTORY_METADATA_KEY = "spacex_launches_history_metadata";
 
@@ -117,8 +119,15 @@ export async function getCachedData(
           let freshData = await loader(fetch);
           if (cacheKey === "spacex_launches_data") {
             freshData = await enrichWithStableVersions(env, freshData);
+            await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
+            
+            // 后台静默预翻译触发，缓存即将发射任务的多语言详情，保障客户端 0ms 秒回
+            if (env.AI && freshData.missions) {
+              await preTranslateUpcomingMissions(event, env, freshData.missions);
+            }
+          } else {
+            await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
           }
-          await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
         } catch (e) {
           console.error(`Background revalidation failed for ${cacheKey}:`, e);
         }
@@ -158,4 +167,54 @@ export async function getCachedData(
   }
 
   return freshData;
+}
+
+/**
+ * 后台静默预翻译服务：提前获取即将发射任务的多语言详情并存储在 KV 缓存中，消除首屏翻译延迟
+ */
+export async function preTranslateUpcomingMissions(event, env, missions) {
+  if (!env || !env.SPACEX_KV || !env.AI || !missions || !Array.isArray(missions)) {
+    return
+  }
+
+  // 1. 过滤出有有效 slug 的即将发射任务（仅限制前 5 个，防后台执行超时）
+  const upcomingMissions = missions
+    .filter(m => m.slug && m.launchAt)
+    .slice(0, 5)
+
+  if (upcomingMissions.length === 0) return
+
+  const languages = Object.keys(M2M100_LANG_MAP)
+
+  // 2. 遍历每一个即将发射任务
+  for (const mission of upcomingMissions) {
+    const slug = mission.slug
+
+    // 3. 遍历每一种支持的多语言进行预翻译
+    for (const lang of languages) {
+      const targetLang = M2M100_LANG_MAP[lang]
+      if (!targetLang) continue
+
+      const cacheKey = `spacex_mission_details_${slug}_${lang}`
+
+      try {
+        // 4. 核心优化：先检查 KV 里是否已经存在该语言的缓存，避免重复翻译消耗额度与性能
+        const existing = await env.SPACEX_KV.get(cacheKey, "json")
+        if (existing) {
+          continue // 已有缓存，直接跳过！
+        }
+
+        // 5. 若无缓存，在后台进行同步抓取与合流翻译
+        const freshData = await loadMissionDetails(slug)
+        if (freshData?.details) {
+          await translateMissionDetails(env.AI, freshData.details, targetLang)
+          // 写入 KV，设置 7 天过期时间
+          await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 })
+          console.log(`[SWR Pre-translate] Successfully cached translated details for ${slug} (${lang})`)
+        }
+      } catch (err) {
+        console.error(`[SWR Pre-translate] Failed for ${slug} (${lang}):`, err)
+      }
+    }
+  }
 }
