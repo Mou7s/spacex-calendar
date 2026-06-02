@@ -134,5 +134,15 @@
   "status": {
     "upcoming": "À venir",
     "live": "En direct"
+  },
+  "faq": {
+    "q1": "Comment ajouter le calendrier des lancements SpaceX à Google Agenda ou Apple Calendrier ?",
+    "a1": "Très facile ! Cliquez simplement sur le bouton \"<b>S'abonner au calendrier</b>\" en haut de la page. Sur les appareils iOS ou macOS, cela vous invite automatiquement à vous abonner. Sur Google Agenda, copiez le lien <code>{link}</code>, accédez à l'application Web Google Agenda &rarr; Autres agendas &rarr; Ajouter par URL, puis collez l'adresse.",
+    "q2": "À quelle fréquence ce calendrier de lancement est-il mis à jour ?",
+    "a2": "Les horaires sont <b>automatiquement mis à jour</b>. Notre moteur Edge interroge les API officielles de SpaceX toutes les 5 minutes et stocke les dernières informations dans Cloudflare KV, actualisant les comptes à rebours et le calendrier en temps réel.",
+    "q3": "Quels lanceurs et sites de lancement sont suivis ?",
+    "a3": "Le calendrier suit tous les systèmes de lancement SpaceX actifs, notamment <b>Falcon 9</b>, <b>Falcon Heavy</b> et le vaisseau spatial <b>Starship</b>. Les sites de lancement couvrent les rampes commerciales de la base de Cape Canaveral (Floride), de la base de Vandenberg (Californie) et de la Starbase à Boca Chica (Texas).",
+    "q4": "Puis-je regarder les diffusions en direct des lancements directement depuis le calendrier ?",
+    "a4": "Oui. Dès que SpaceX publie les liens de diffusion officiels, notre système associe les informations et ajoute les URL des webcasts (comme YouTube ou X.com) dans la description du calendrier et le panneau de détails."
   }
 }

@@ -148,5 +148,15 @@
       "ct": "Use Central Time (Starbase)",
       "pt": "Use Pacific Time (Vandenberg)"
     }
+  },
+  "faq": {
+    "q1": "How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?",
+    "a1": "Extremely easy! Simply click the \"<b>Subscribe to Calendar</b>\" button at the top of the page. On iOS or macOS devices, it automatically prompts you to subscribe. On Google Calendar, copy the <code>{link}</code> link, navigate to Calendar Web &rarr; Other Calendars &rarr; Add by URL, and paste the address.",
+    "q2": "How often is this launch calendar updated?",
+    "a2": "The schedules are <b>automatically kept updated</b>. The server-side edge engine queries official SpaceX APIs every 5 minutes and caches the latest queues inside Cloudflare KV, updating countdowns and calendar feeds in real-time.",
+    "q3": "What launch vehicles and launch sites are tracked?",
+    "a3": "The calendar tracks all active SpaceX launch systems, including <b>Falcon 9</b>, <b>Falcon Heavy</b>, and the deep-space <b>Starship</b> vehicle. Pad locations cover all commercial pads at Cape Canaveral Space Force Station (Florida), Vandenberg Space Force Base (California), and Boca Chica Starbase (Texas).",
+    "q4": "Can I watch launch live streams directly from the calendar?",
+    "a4": "Yes. Once SpaceX publishes the official webcast media links, our SWR cache automatically matches details and appends the streaming webcast URLs (such as YouTube or X.com live broadcasts) inside the calendar description and page details panel."
   }
 }

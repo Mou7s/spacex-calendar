@@ -361,28 +361,13 @@ const getMissionWindowCopy = (mission: any) => {
 
 // ─── FAQ ───
 const getFaqQuestion = (num: number) => {
-  if (num === 1) return locale.value === 'zh-CN' ? '如何将 SpaceX 发发射日程订阅导入到 Google 日历 / 苹果日历？' : 'How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?'
-  if (num === 2) return locale.value === 'zh-CN' ? '这个日历的更新频率是怎样的？' : 'How often is this launch calendar updated?'
-  if (num === 3) return locale.value === 'zh-CN' ? '它追踪了哪些运载火箭 and 发射基地？' : 'What launch vehicles and launch sites are tracked?'
-  if (num === 4) return locale.value === 'zh-CN' ? '我可以在日历中直接观看发射直播吗？' : 'Can I watch launch live streams directly from the calendar?'
-  return ''
+  return t(`faq.q${num}`)
 }
 
 const getFaqAnswer = (num: number) => {
-  if (num === 1) return locale.value === 'zh-CN'
-    ? '非常简单！你只需点击上方页面顶部的"<b>订阅在线日历</b>"按钮。在 iPhone 或 Mac 上它会直接触发日历添加请求；在谷歌日历（Google Calendar）中，复制 <code>' + webcalSubscriptionLink.value + '</code> 链接，在电脑网页端点击左侧"其他日历 &rarr; 通过 URL 添加"，粘贴链接订阅即可同步。'
-    : 'Extremely easy! Simply click the "<b>Subscribe to Calendar</b>" button. On iOS or macOS devices, it automatically prompts you to subscribe. On Google Calendar, copy the <code>' + webcalSubscriptionLink.value + '</code> link, navigate to Calendar Web &rarr; Other Calendars &rarr; Add by URL, and paste the address.'
-  if (num === 2) return locale.value === 'zh-CN'
-    ? '数据是<b>实时维护更新</b>的。我们的服务器边缘节点通过 Cloudflare KV 每 5 分钟与 SpaceX 官网数据同步一次，自动解析调整窗口，并实时刷新你日历应用里的时间安排。'
-    : 'The schedules are <b>automatically kept updated</b>. The server-side edge engine queries official SpaceX APIs every 5 minutes and caches the latest queues inside Cloudflare KV, updating countdowns and calendar feeds in real-time.'
-  if (num === 3) return locale.value === 'zh-CN'
-    ? '该日历全方位覆盖 SpaceX 当前运行的所有运载火箭。包括<b>猎鹰九号 (Falcon 9)</b>、<b>重型猎鹰 (Falcon Heavy)</b> 以及目前正在进行试飞与重大任务的<b>星舰 (Starship)</b>。发射地点则全面追踪卡纳维拉尔角 (Cape Canaveral)、范登堡太空军基地 (Vandenberg SFB) 和博卡奇卡星基地 (Starbase Boca Chica)。'
-    : 'The calendar tracks all active SpaceX launch systems, including <b>Falcon 9</b>, <b>Falcon Heavy</b>, and the deep-space <b>Starship</b> vehicle. Pad locations cover all commercial pads at Cape Canaveral Space Force Station (Florida), Vandenberg Space Force Base (California), and Boca Chica Starbase (Texas).'
-  if (num === 4) return locale.value === 'zh-CN'
-    ? '是的。当发射事件临近且 SpaceX 公布了直播视频流后，你在日历事件中或者该落地页详情面板中，都可以直接获取到官方的直播通道（例如 YouTube 或 X.com 现场直播），一键触达直播现场。'
-    : 'Yes. Once SpaceX publishes the official webcast media links, our SWR cache automatically matches details and appends the streaming webcast URLs (such as YouTube or X.com live broads) inside the calendar description and page details panel.'
-  return ''
+  return t(`faq.a${num}`, { link: webcalSubscriptionLink.value })
 }
+
 
 const faqItems = computed(() => [
   { label: getFaqQuestion(1), content: getFaqAnswer(1) },

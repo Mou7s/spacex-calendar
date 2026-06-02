@@ -134,5 +134,15 @@
   "status": {
     "upcoming": "Bevorstehend",
     "live": "Live"
+  },
+  "faq": {
+    "q1": "Wie füge ich den SpaceX-Startplan zu Google Kalender oder Apple Kalender hinzu?",
+    "a1": "Sehr einfach! Klicken Sie einfach auf die Schaltfläche \"<b>Kalender abonnieren</b>\" oben auf der Seite. Auf iOS- oder macOS-Geräten werden Sie automatisch zum Abonnieren aufgefordert. Kopieren Sie für Google Kalender den Link <code>{link}</code>, navigieren Sie im Web zu Google Kalender &rarr; Weitere Kalender &rarr; Per URL hinzufügen und fügen Sie die Adresse ein.",
+    "q2": "Wie oft wird dieser Startkalender aktualisiert?",
+    "a2": "Die Zeitpläne werden <b>automatisch auf dem neuesten Stand gehalten</b>. Die serverseitige Engine fragt alle 5 Minuten die offiziellen SpaceX-APIs ab und speichert die Daten in Cloudflare KV, wodurch Countdowns und Kalender-Feeds in Echtzeit aktualisiert werden.",
+    "q3": "Welche Trägerraketen und Startplätze werden verfolgt?",
+    "a3": "Der Kalender verfolgt alle aktiven SpaceX-Startsysteme, einschließlich <b>Falcon 9</b>, <b>Falcon Heavy</b> und des Raumschiffs <b>Starship</b>. Die Startplätze umfassen Cape Canaveral (Florida), Vandenberg Space Force Base (Kalifornien) und die Starbase in Boca Chica (Texas).",
+    "q4": "Kann ich Start-Livestreams direkt aus dem Kalender ansehen?",
+    "a4": "Ja. Sobald SpaceX die offiziellen Webcast-Links veröffentlicht, gleicht unser System die Details ab und fügt die Webcast-URLs (wie YouTube oder X.com) in die Kalenderbeschreibung und das Detail-Panel der Webseite ein."
   }
 }

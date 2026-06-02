@@ -23,6 +23,10 @@ export default defineNuxtConfig({
 
   // 国际化 (i18n) 多语言的详细配置
   i18n: {
+    compilation: {
+      strictMessage: false,
+      escapeHtml: false
+    },
     strategy: 'no_prefix', // 路由策略：在 URL 中不添加语言前缀（例如不显示 /zh-CN/），保持清爽干净的单一路由
     defaultLocale: 'en',   // 网站初始加载时的默认语言
     lazy: true,            // 启用延迟加载：只在用户切换语言时，才动态异步加载对应的 JSON 文件，优化首屏加载体积
