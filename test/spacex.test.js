@@ -15,6 +15,7 @@ import {
   loadLaunchData,
   loadMissionDetails,
   translateMissionDetails,
+  translateText,
 } from "../server/utils/spacex.js";
 
 // Mock worker fetch to delegate directly to our new Nuxt Nitro handlers
@@ -857,5 +858,44 @@ test("getStandardTranslation maps standard SpaceX timeline terms across all lang
   const noMatch = getStandardTranslation("Random custom event description here", "chinese");
   assert.equal(noMatch, null);
 });
+
+test("translateText and translateMissionDetails replace phonetic Raptor translations", async () => {
+  // Test translateText with phonetic Raptor
+  const mockAiText = {
+    async run() {
+      return { result: { response: "拉普托 3 发动机点火" } }
+    }
+  };
+  const result1 = await translateText(mockAiText, "Raptor 3 engine ignition", "chinese");
+  assert.equal(result1, "猛禽 3 发动机点火");
+
+  const result2 = await translateText(mockAiText, "Raptor 3 engine ignition", "english");
+  assert.equal(result2, "拉普托 3 发动机点火"); // No replace for english
+
+  // Test translateMissionDetails with phonetic Raptor
+  const mockAiDetails = {
+    async run() {
+      return {
+        result: {
+          response: JSON.stringify({
+            preDisclaimer: "拉普特 3 发动机测试。"
+          })
+        }
+      }
+    }
+  };
+  const details = {
+    summary: "",
+    timelines: {
+      preLaunch: {
+        disclaimer: "Raptor 3 engine test.",
+        entries: []
+      }
+    }
+  };
+  await translateMissionDetails(mockAiDetails, details, "chinese");
+  assert.equal(details.timelines.preLaunch.disclaimer, "猛禽 3 发动机测试。");
+});
+
 
 

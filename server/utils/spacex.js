@@ -1043,7 +1043,8 @@ const GLOSSARIES = {
    - "droneship" -> "海上无人回收船"
    - "landing zone" or "LZ" -> "陆地回收区"
    - "stage separation" -> "一二级分离"
-   - "payload" -> "载荷"`,
+   - "payload" -> "载荷"
+   - "Raptor" or "Raptor engine" -> "猛禽" or "猛禽发动机"`,
   japanese: `
    - "Falcon", "Falcon 9" or "Falcon Heavy" -> "ファルコン", "ファルコン9" or "ファルコン・ヘビー"
    - "liftoff" or "lift-off" -> "打ち上げ" or "リフトオフ"
@@ -1232,7 +1233,13 @@ ${fewShotText}`
       max_tokens: 150   // 限制生成字符数，截断任何脑补小作文
     })
     
-    return response?.result?.response || response?.response || text
+    let translated = response?.result?.response || response?.response || text
+    if (targetLang === 'chinese' && typeof translated === 'string') {
+      translated = translated
+        .replace(/拉普托/g, '猛禽')
+        .replace(/拉普特/g, '猛禽')
+    }
+    return translated
   } catch (error) {
     console.error(`Workers AI LLM translation failed for text "${text.slice(0, 20)}...":`, error)
     return text // 异常时优雅降级：返回原始英文文本，确保系统正常响应
@@ -1385,6 +1392,15 @@ ${fewShotInstruction}`;
     const translatedObj = JSON.parse(responseText.trim())
 
     if (translatedObj && typeof translatedObj === 'object') {
+      if (targetLang === 'chinese') {
+        for (const key in translatedObj) {
+          if (typeof translatedObj[key] === 'string') {
+            translatedObj[key] = translatedObj[key]
+              .replace(/拉普托/g, '猛禽')
+              .replace(/拉普特/g, '猛禽')
+          }
+        }
+      }
       // 合并 AI 翻译结果到 timelines
       applyTranslations(translatedObj)
       return
