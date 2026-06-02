@@ -1638,3 +1638,25 @@ select:disabled,
 [disabled] * {
   cursor: not-allowed !important;
 }
+
+/* View Transitions Theme Toggle Animation */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* Disable default CSS transitions on html and children when animating theme toggle */
+html.view-transitioning,
+html.view-transitioning * {
+  transition: none !important;
+}
+
