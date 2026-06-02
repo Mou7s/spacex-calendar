@@ -838,18 +838,18 @@ export async function translateMissionDetails(ai, details, targetLang) {
   const postLaunch = details.timelines?.postLaunch
   if (postLaunch) {
     if (postLaunch.disclaimer) {
-      inputObj.postDisclaimer = postLaunch.disclaimer
+      timelineObj.postDisclaimer = postLaunch.disclaimer
     }
     if (postLaunch.entries) {
       postLaunch.entries.forEach((entry, idx) => {
         if (entry.description) {
-          inputObj[`postEntry_${idx}`] = entry.description
+          timelineObj[`postEntry_${idx}`] = entry.description
         }
       })
     }
   }
 
-  if (Object.keys(inputObj).length === 0) return
+  if (Object.keys(timelineObj).length === 0) return
 
   const glossary = GLOSSARIES[targetLang] || ""
   const glossaryInstruction = glossary
@@ -869,7 +869,7 @@ Guidelines:
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: JSON.stringify(inputObj) }
+        { role: 'user', content: JSON.stringify(timelineObj) }
       ],
       temperature: 0.1
     })

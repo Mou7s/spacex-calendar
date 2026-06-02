@@ -13,6 +13,7 @@ import {
   loadHistoryLaunchData,
   loadLaunchData,
   loadMissionDetails,
+  translateMissionDetails,
 } from "../server/utils/spacex.js";
 
 // Mock worker fetch to delegate directly to our new Nuxt Nitro handlers
@@ -767,3 +768,69 @@ test("loadLaunchData preserves currently live-streaming missions even if launchA
   assert.equal(data.missions[0].title, "Live Past Mission");
   assert.equal(data.missions[0].isLive, true);
 });
+
+test("translateMissionDetails executes structured translation and handles fallback", async () => {
+  const details = {
+    summary: "SpaceX is targeting launch.",
+    timelines: {
+      preLaunch: {
+        disclaimer: "Countdown is approximate.",
+        entries: [{ description: "Go for propellant load" }]
+      },
+      postLaunch: {
+        disclaimer: "All times approximate.",
+        entries: [{ description: "Max Q" }]
+      }
+    }
+  };
+
+  // Mock AI runner
+  const mockAi = {
+    async run(model, payload) {
+      assert.equal(model, "@cf/meta/llama-3.1-8b-instruct");
+      const userMessage = payload.messages.find(m => m.role === "user").content;
+      
+      let isJson = false;
+      let parsedUserMessage;
+      try {
+        parsedUserMessage = JSON.parse(userMessage);
+        isJson = true;
+      } catch (e) {
+        // Plain text translation
+      }
+
+      if (isJson) {
+        // Ensure summary is NOT present in the timeline translation call (context isolation check)
+        assert.ok(!parsedUserMessage.summary, "Summary context must be isolated from timeline translation");
+        
+        // Return a valid translated JSON response
+        return {
+          result: {
+            response: JSON.stringify({
+              preDisclaimer: "倒计时仅供参考。",
+              preEntry_0: "确认推进剂加注",
+              postDisclaimer: "所有时间均为大约估计",
+              postEntry_0: "最大动力学压力"
+            })
+          }
+        };
+      } else {
+        // Plain text translation
+        return {
+          result: {
+            response: `${userMessage} (translated)`
+          }
+        };
+      }
+    }
+  };
+
+  await translateMissionDetails(mockAi, details, "chinese");
+
+  assert.equal(details.summary, "SpaceX is targeting launch. (translated)"); // translateText fallback because details.summary is translated separately using translateText
+  assert.equal(details.timelines.preLaunch.disclaimer, "倒计时仅供参考。");
+  assert.equal(details.timelines.preLaunch.entries[0].description, "确认推进剂加注");
+  assert.equal(details.timelines.postLaunch.disclaimer, "所有时间均为大约估计");
+  assert.equal(details.timelines.postLaunch.entries[0].description, "最大动力学压力");
+});
+
