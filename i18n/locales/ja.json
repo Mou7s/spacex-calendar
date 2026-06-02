@@ -107,7 +107,18 @@
       "starlink": "Starlink",
       "nssl": "国家安全保障打ち上げ",
       "starship": "Starship"
-    }
+    },
+    "detailsHeading": "ミッション概要",
+    "preLaunchTimeline": "打上げ前タイムライン",
+    "postLaunchTimeline": "打上げ後タイムライン",
+    "webcastLink": "ウェブキャスト",
+    "infographicLink": "インフォグラフィック",
+    "selectionEyebrow": "ミッション詳細",
+    "selectionTitle": "カレンダーからミッションを選択",
+    "selectionCopy": "カレンダーのリストから打ち上げを選択すると、SpaceXのミッション詳細、ウェブキャストのリンク、打ち上げのタイムラインがここに表示されます。",
+    "detailsLoading": "ミッション詳細を読み込み中...",
+    "detailsUnavailable": "ミッション詳細は現在利用できません。",
+    "infographicAlt": "SpaceX ミッションインフォグラフィック"
   },
   "countdown": {
     "awaitingTime": "時刻待ち",

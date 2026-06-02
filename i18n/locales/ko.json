@@ -107,7 +107,18 @@
       "starlink": "Starlink",
       "nssl": "국가 안보 발사",
       "starship": "스타쉽"
-    }
+    },
+    "detailsHeading": "미션 브리핑",
+    "preLaunchTimeline": "발사 전 타임라인",
+    "postLaunchTimeline": "발사 후 타임라인",
+    "webcastLink": "웹캐스트",
+    "infographicLink": "인포그래픽",
+    "selectionEyebrow": "미션 세부 정보",
+    "selectionTitle": "캘린더에서 미션 선택",
+    "selectionCopy": "캘린더 목록에서 발사를 선택하여 SpaceX 미션 상세 정보, 웹캐스트 링크 및 발사 타임라인을 여기에서 확인하세요.",
+    "detailsLoading": "미션 상세 정보 로딩 중...",
+    "detailsUnavailable": "현재 미션 상세 정보를 불러올 수 없습니다.",
+    "infographicAlt": "SpaceX 미션 인포그래픽"
   },
   "countdown": {
     "awaitingTime": "시간 대기 중",

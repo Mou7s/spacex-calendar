@@ -107,7 +107,18 @@
       "starlink": "Starlink",
       "nssl": "Lancement de sécurité nationale",
       "starship": "Starship"
-    }
+    },
+    "detailsHeading": "Résumé de la mission",
+    "preLaunchTimeline": "Chronologie avant lancement",
+    "postLaunchTimeline": "Séquence de lancement",
+    "webcastLink": "Webcast",
+    "infographicLink": "Infographie",
+    "selectionEyebrow": "Détails de la mission",
+    "selectionTitle": "Sélectionnez une mission sur le calendrier",
+    "selectionCopy": "Choisissez un lancement dans la liste du calendrier pour afficher ici les détails de la mission SpaceX, les liens de diffusion et les chronologies de lancement.",
+    "detailsLoading": "Chargement des détails de la mission...",
+    "detailsUnavailable": "Les détails de la mission sont indisponibles pour le moment.",
+    "infographicAlt": "Infographie de la mission SpaceX"
   },
   "countdown": {
     "awaitingTime": "Heure en attente",

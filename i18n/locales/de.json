@@ -107,7 +107,18 @@
       "starlink": "Starlink",
       "nssl": "Nationaler Sicherheitsstart",
       "starship": "Starship"
-    }
+    },
+    "detailsHeading": "Missionsübersicht",
+    "preLaunchTimeline": "Countdown vor dem Start",
+    "postLaunchTimeline": "Startsequenz",
+    "webcastLink": "Webcast",
+    "infographicLink": "Infografik",
+    "selectionEyebrow": "Missionsdetails",
+    "selectionTitle": "Wählen Sie eine Mission im Kalender aus",
+    "selectionCopy": "Wählen Sie einen Start aus der Kalenderliste aus, um SpaceX-Missionsdetails, Webcast-Links und Startzeitpläne hier anzuzeigen.",
+    "detailsLoading": "Missionsdetails werden geladen...",
+    "detailsUnavailable": "Missionsdetails sind derzeit nicht verfügbar.",
+    "infographicAlt": "SpaceX Missionsinfografik"
   },
   "countdown": {
     "awaitingTime": "Warten auf Zeit",
