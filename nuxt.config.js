@@ -39,6 +39,11 @@ export default defineNuxtConfig({
     ]
   },
 
+  // Nuxt Hub 平台特性配置：开启 KV 数据库缓存支持
+  hub: {
+    kv: true
+  },
+
   // 核心未来特性兼容配置
   future: {
     compatibilityVersion: 4 // 提前启用 Nuxt 4 规范与现代文件树结构，确保代码具备长期的可升级性与健壮性

@@ -1,10 +1,47 @@
 import { loadMissionDetails, M2M100_LANG_MAP, translateMissionDetails } from './spacex.js'
 
-const CACHE_TTL = 300; // 5 minutes cache
+const CACHE_TTL = 300; // 5 minutes cache for lists
 const HISTORY_METADATA_KEY = "spacex_launches_history_metadata";
 
+/**
+ * 统一获取 KV 存储的包装器函数
+ * 优先使用 Cloudflare context 中的 SPACEX_KV 绑定，以便单元测试和 Worker 原生环境运行；
+ * 若未定义，则自动降级使用 Nuxt Hub 的 hubKV()，从而为本地开发（npm run dev）提供完全的磁盘持久化缓存能力。
+ */
+export function getKvStorage(env) {
+  if (env && env.SPACEX_KV) {
+    return {
+      get: async (key) => {
+        return await env.SPACEX_KV.get(key, "json");
+      },
+      set: async (key, val, options) => {
+        const stringified = typeof val === 'string' ? val : JSON.stringify(val);
+        const putOptions = options?.ttl ? { expirationTtl: options.ttl } : {};
+        await env.SPACEX_KV.put(key, stringified, putOptions);
+      }
+    };
+  }
+
+  // Fallback to Nuxt Hub KV (auto-imported by Nitro)
+  try {
+    const hubStorage = hubKV();
+    return {
+      get: async (key) => {
+        return await hubStorage.get(key);
+      },
+      set: async (key, val, options) => {
+        await hubStorage.set(key, val, options);
+      }
+    };
+  } catch (e) {
+    // Falls back to null when running in Node unit tests without hubKV global
+    return null;
+  }
+}
+
 export async function enrichWithStableVersions(env, freshData) {
-  if (!env || !env.SPACEX_KV) {
+  const kv = getKvStorage(env);
+  if (!kv) {
     // Fallback: stateless deterministic values
     freshData.missions = freshData.missions.map((mission) => {
       const stableTime = mission.launchAt || freshData.refreshedAt;
@@ -19,7 +56,7 @@ export async function enrichWithStableVersions(env, freshData) {
   }
 
   try {
-    const storedHistory = (await env.SPACEX_KV.get(HISTORY_METADATA_KEY, "json")) || {};
+    const storedHistory = (await kv.get(HISTORY_METADATA_KEY)) || {};
     const updatedHistory = {};
     const now = new Date().toISOString();
 
@@ -63,7 +100,7 @@ export async function enrichWithStableVersions(env, freshData) {
       };
     });
 
-    await env.SPACEX_KV.put(HISTORY_METADATA_KEY, JSON.stringify(updatedHistory));
+    await kv.set(HISTORY_METADATA_KEY, updatedHistory);
   } catch (error) {
     console.error("Error processing stable versions:", error);
     // Fallback in case of KV errors
@@ -91,10 +128,11 @@ export async function getCachedData(
   const env = cloudflare.env || {};
   const ctx = cloudflare.context; // waitUntil is inside the ExecutionContext
 
+  const kv = getKvStorage(env);
   let cached = null;
-  if (env.SPACEX_KV) {
+  if (kv) {
     try {
-      cached = await env.SPACEX_KV.get(cacheKey, "json");
+      cached = await kv.get(cacheKey);
     } catch (e) {
       console.error("KV read error:", e);
     }
@@ -102,11 +140,17 @@ export async function getCachedData(
 
   const nowMs = Date.now();
 
+  // 根据缓存类型采用不同的时效策略
+  // 任务列表（spacex_launches_data）经常变动，采用 5分钟 CACHE_TTL
+  // 具体的详情翻译卡片属于静态数据，变动极慢，采用 24小时 (86400秒) 的超长缓存 TTL，最大化降低首屏 API 延迟与 AI 消耗！
+  const isDetailsKey = cacheKey.startsWith("spacex_mission_details_");
+  const currentTTL = isDetailsKey ? 86400 : CACHE_TTL;
+
   if (cached) {
     const refreshedAtMs = cached.refreshedAt ? Date.parse(cached.refreshedAt) : 0;
     const age = Number.isNaN(refreshedAtMs) ? Infinity : nowMs - refreshedAtMs;
 
-    if (age < CACHE_TTL * 1000) {
+    if (age < currentTTL * 1000) {
       // Fresh: Return immediately
       return cached;
     }
@@ -119,14 +163,18 @@ export async function getCachedData(
           let freshData = await loader(fetch);
           if (cacheKey === "spacex_launches_data") {
             freshData = await enrichWithStableVersions(env, freshData);
-            await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
+            if (kv) {
+              await kv.set(cacheKey, freshData, { ttl: 604800 });
+            }
             
             // 后台静默预翻译触发，缓存即将发射任务的多语言详情，保障客户端 0ms 秒回
             if (env.AI && freshData.missions) {
               await preTranslateUpcomingMissions(event, env, freshData.missions);
             }
           } else {
-            await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
+            if (kv) {
+              await kv.set(cacheKey, freshData, { ttl: 604800 });
+            }
           }
         } catch (e) {
           console.error(`Background revalidation failed for ${cacheKey}:`, e);
@@ -141,8 +189,8 @@ export async function getCachedData(
         if (cacheKey === "spacex_launches_data") {
           freshData = await enrichWithStableVersions(env, freshData);
         }
-        if (env.SPACEX_KV) {
-          await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
+        if (kv) {
+          await kv.set(cacheKey, freshData, { ttl: 604800 });
         }
         return freshData;
       } catch (e) {
@@ -158,9 +206,9 @@ export async function getCachedData(
     freshData = await enrichWithStableVersions(env, freshData);
   }
 
-  if (env.SPACEX_KV) {
+  if (kv) {
     try {
-      await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 });
+      await kv.set(cacheKey, freshData, { ttl: 604800 });
     } catch (e) {
       console.error("KV write error:", e);
     }
@@ -173,7 +221,8 @@ export async function getCachedData(
  * 后台静默预翻译服务：提前获取即将发射任务的多语言详情并存储在 KV 缓存中，消除首屏翻译延迟
  */
 export async function preTranslateUpcomingMissions(event, env, missions) {
-  if (!env || !env.SPACEX_KV || !env.AI || !missions || !Array.isArray(missions)) {
+  const kv = getKvStorage(env);
+  if (!kv || !env.AI || !missions || !Array.isArray(missions)) {
     return
   }
 
@@ -199,7 +248,7 @@ export async function preTranslateUpcomingMissions(event, env, missions) {
 
       try {
         // 4. 核心优化：先检查 KV 里是否已经存在该语言的缓存，并校验时效性，避免盲目重复翻译
-        const existing = await env.SPACEX_KV.get(cacheKey, "json")
+        const existing = await kv.get(cacheKey)
         if (existing && existing.refreshedAt) {
           const cacheAge = Date.now() - Date.parse(existing.refreshedAt)
           // 仅在缓存新鲜（小于 12 小时）时跳过；若超过 12 小时，则在后台静默更新以同步可能发生变更的发射时间与描述
@@ -213,7 +262,7 @@ export async function preTranslateUpcomingMissions(event, env, missions) {
         if (freshData?.details) {
           await translateMissionDetails(env.AI, freshData.details, targetLang)
           // 写入 KV，设置 7 天过期时间
-          await env.SPACEX_KV.put(cacheKey, JSON.stringify(freshData), { expirationTtl: 604800 })
+          await kv.set(cacheKey, freshData, { ttl: 604800 })
           console.log(`[SWR Pre-translate] Successfully cached translated details for ${slug} (${lang})`)
         }
       } catch (err) {

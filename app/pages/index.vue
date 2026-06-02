@@ -250,6 +250,9 @@ const details = ref<any>(null)
 const isInfographicOpen = ref(false)
 const isZoomed = ref(false)
 
+// 内存缓存：缓存已经拉取过的任务多语言详情，避免重复点击时的二次请求与闪烁
+const detailsCache = new Map<string, any>()
+
 watch(isInfographicOpen, (val) => {
   if (!val) {
     isZoomed.value = false
@@ -259,18 +262,25 @@ watch(isInfographicOpen, (val) => {
 // 监听语言切换，若已选择任务则自动重新抓取并更新多语言动态详情
 watch(locale, async (newLocale) => {
   if (selectedMission.value && selectedMission.value.slug) {
-    loadingDetails.value = true
-    try {
-      const res: any = await $fetch(`/api/launches/${selectedMission.value.slug}`, {
-        query: { lang: newLocale }
-      })
-      if (res?.details) {
-        details.value = res.details
-      }
-    } catch (e) {
-      console.error("Failed to update mission details on language switch:", e)
-    } finally {
+    const cacheKey = `${selectedMission.value.slug}_${newLocale}`
+    if (detailsCache.has(cacheKey)) {
+      details.value = detailsCache.get(cacheKey)
       loadingDetails.value = false
+    } else {
+      loadingDetails.value = true
+      try {
+        const res: any = await $fetch(`/api/launches/${selectedMission.value.slug}`, {
+          query: { lang: newLocale }
+        })
+        if (res?.details) {
+          details.value = res.details
+          detailsCache.set(cacheKey, res.details)
+        }
+      } catch (e) {
+        console.error("Failed to update mission details on language switch:", e)
+      } finally {
+        loadingDetails.value = false
+      }
     }
   }
 })
@@ -289,19 +299,26 @@ const selectMission = async (mission: any, scrollPage = true) => {
   }
 
   if (mission.slug) {
-    loadingDetails.value = true
-    details.value = null
-    try {
-      const res: any = await $fetch(`/api/launches/${mission.slug}`, {
-        query: { lang: locale.value }
-      })
-      if (res?.details) {
-        details.value = res.details
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
+    const cacheKey = `${mission.slug}_${locale.value}`
+    if (detailsCache.has(cacheKey)) {
+      details.value = detailsCache.get(cacheKey)
       loadingDetails.value = false
+    } else {
+      loadingDetails.value = true
+      details.value = null
+      try {
+        const res: any = await $fetch(`/api/launches/${mission.slug}`, {
+          query: { lang: locale.value }
+        })
+        if (res?.details) {
+          details.value = res.details
+          detailsCache.set(cacheKey, res.details)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        loadingDetails.value = false
+      }
     }
   } else {
     details.value = null

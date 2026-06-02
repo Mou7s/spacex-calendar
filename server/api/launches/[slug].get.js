@@ -1,5 +1,5 @@
 import { defineEventHandler, getRouterParam, getQuery, setHeader, createError } from 'h3'
-import { getCachedData } from '../../utils/kv.js'
+import { getCachedData, getKvStorage } from '../../utils/kv.js'
 import { loadMissionDetails, M2M100_LANG_MAP, translateMissionDetails } from '../../utils/spacex.js'
 
 /**
@@ -48,8 +48,9 @@ export default defineEventHandler(async (event) => {
       data = await loader()
       const cloudflare = event.context.cloudflare || {}
       const env = cloudflare.env || {}
-      if (env.SPACEX_KV) {
-        await env.SPACEX_KV.put(cacheKey, JSON.stringify(data), { expirationTtl: 604800 })
+      const kv = getKvStorage(env)
+      if (kv) {
+        await kv.set(cacheKey, data, { ttl: 604800 })
       }
     } else {
       data = await getCachedData(event, cacheKey, loader)
