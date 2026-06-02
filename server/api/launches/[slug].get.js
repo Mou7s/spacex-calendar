@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   try {
     // 3. 匹配多语言翻译目标，根据语言后缀单独缓存不同的翻译结果，实现多语言隔离
     const targetLang = M2M100_LANG_MAP[lang]
-    const cacheKey = targetLang ? `spacex_mission_details_${slug}_${lang}_v7` : `spacex_mission_details_${slug}_v7`
+    const cacheKey = targetLang ? `spacex_mission_details_${slug}_${lang}_v9` : `spacex_mission_details_${slug}_v9`
     
     // 4. 定义数据加载/翻译核心方法
     const loader = async () => {

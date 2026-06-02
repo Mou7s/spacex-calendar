@@ -244,7 +244,7 @@ export async function preTranslateUpcomingMissions(event, env, missions) {
       const targetLang = M2M100_LANG_MAP[lang]
       if (!targetLang) continue
 
-      const cacheKey = `spacex_mission_details_${slug}_${lang}_v7`
+      const cacheKey = `spacex_mission_details_${slug}_${lang}_v9`
 
       try {
         // 4. 核心优化：先检查 KV 里是否已经存在该语言的缓存，并校验时效性，避免盲目重复翻译

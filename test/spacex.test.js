@@ -10,6 +10,7 @@ import calendarIcsRoute from "../server/routes/calendar.ics.js";
 import {
   buildCalendarFeed,
   escapeIcsText,
+  getStandardTranslation,
   loadHistoryLaunchData,
   loadLaunchData,
   loadMissionDetails,
@@ -833,4 +834,28 @@ test("translateMissionDetails executes structured translation and handles fallba
   assert.equal(details.timelines.postLaunch.disclaimer, "所有时间均为大约估计");
   assert.equal(details.timelines.postLaunch.entries[0].description, "最大动力学压力");
 });
+
+test("getStandardTranslation maps standard SpaceX timeline terms across all languages", () => {
+  const resultZh = getStandardTranslation("Max Q (moment of peak mechanical stress on the rocket)", "chinese");
+  assert.equal(resultZh, "最大动力学压力 (Max Q)");
+
+  const resultJa = getStandardTranslation("Falcon 9 liftoff", "japanese");
+  assert.equal(resultJa, "ファルコン9打上げ");
+
+  const resultKo = getStandardTranslation("Starlink satellites deploy", "korean");
+  assert.equal(resultKo, "스타링크 위성 배치");
+
+  const resultEs = getStandardTranslation("1st stage landing", "spanish");
+  assert.equal(resultEs, "Aterrizaje de la 1.ª etapa");
+
+  const resultFr = getStandardTranslation("Fairing separation", "french");
+  assert.equal(resultFr, "Séparation de la coiffe");
+
+  const resultDe = getStandardTranslation("1st and 2nd stages separate", "german");
+  assert.equal(resultDe, "Stufentrennung von 1. und 2. Stufe");
+
+  const noMatch = getStandardTranslation("Random custom event description here", "chinese");
+  assert.equal(noMatch, null);
+});
+
 

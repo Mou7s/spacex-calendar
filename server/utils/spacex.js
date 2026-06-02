@@ -731,6 +731,302 @@ export const M2M100_LANG_MAP = {
   'de': 'german'
 }
 
+// 针对标准航天和 SpaceX 发射时间线条目进行高精度、零延迟的本地字典直译
+// 如果没有匹配的字典项，则返回 null，由大语言模型 fallback 兜底翻译。
+export function getStandardTranslation(text, targetLang) {
+  if (!text) return null
+
+  // 清理字符串：去除首尾空格、转换为小写，并且仅保留英文字母和数字字符，以规避各种标点、空格差异
+  const clean = String(text)
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[^a-z0-9]/g, '')
+
+  const translations = {
+    // 发射前阶段 (Pre-launch)
+    "spacexlaunchdirectorverifiesgoforpropellantload": {
+      "zh-CN": "SpaceX 发射主管确认允许加注推进剂",
+      "ja": "SpaceXの打上げディレクターが推進剤充填のGO判断を検証",
+      "ko": "SpaceX 발사 디렉터가 추진제 주입 승인 확인",
+      "es": "El Director de Lanzamiento de SpaceX verifica el visto bueno para la carga de propulsor",
+      "fr": "Le directeur de lancement de SpaceX vérifie le feu vert pour le remplissage des ergols",
+      "de": "SpaceX-Startleiter bestätigt Freigabe für Treibstoffbefüllung"
+    },
+    "rp1loadingbegins": {
+      "zh-CN": "RP-1（航空煤油）加注开始",
+      "ja": "RP-1（ロケットグレード灯油）の充填開始",
+      "ko": "RP-1(로켓 등급 등유) 주입 시작",
+      "es": "Comienza la carga de RP-1 (queroseno de grado de cohete)",
+      "fr": "Le remplissage en RP-1 (kérosène de qualité fusée) commence",
+      "de": "Befüllung mit RP-1 (Raketenkerosin) beginnt"
+    },
+    "rp1rocketgradekeroseneloadingbegins": {
+      "zh-CN": "RP-1（航空煤油）加注开始",
+      "ja": "RP-1（ロケットグレード灯油）の充填開始",
+      "ko": "RP-1(로켓 등급 등유) 주입 시작",
+      "es": "Comienza la carga de RP-1 (queroseno de grado de cohete)",
+      "fr": "Le remplissage en RP-1 (kérosène de quality fusée) commence",
+      "de": "Befüllung mit RP-1 (Raketenkerosin) beginnt"
+    },
+    "1ststageloxliquidoxygenloadingbegins": {
+      "zh-CN": "一级液氧（LOX）加注开始",
+      "ja": "第1段液体酸素（LOX）の充填開始",
+      "ko": "1단 액체산소(LOX) 주입 시작",
+      "es": "Comienza la carga de LOX (oxígeno líquido) de la 1.ª etapa",
+      "fr": "Le remplissage en LOX (oxygène liquide) du 1er étage commence",
+      "de": "Befüllung der 1. Stufe mit LOX (flüssigem Sauerstoff) beginnt"
+    },
+    "1ststageloxloadingbegins": {
+      "zh-CN": "一级液氧（LOX）加注开始",
+      "ja": "第1段液体酸素（LOX）の充填開始",
+      "ko": "1단 액체산소(LOX) 주입 시작",
+      "es": "Comienza la carga de LOX de la 1.ª etapa",
+      "fr": "Le remplissage en LOX du 1er étage commence",
+      "de": "Befüllung der 1. Stufe mit LOX begins"
+    },
+    "2ndstageloxloadingbegins": {
+      "zh-CN": "二级液氧（LOX）加注开始",
+      "ja": "第2段液体酸素（LOX）の充填開始",
+      "ko": "2단 액체산소(LOX) 주입 시작",
+      "es": "Comienza la carga de LOX de la 2.ª etapa",
+      "fr": "Le remplissage en LOX du 2e étage commence",
+      "de": "Befüllung der 2. Stufe mit LOX beginnt"
+    },
+    "falcon9beginsenginechillpriortolaunch": {
+      "zh-CN": "猎鹰 9 号发动机发射前预冷开始",
+      "ja": "打ち上げ前のファルコン9のエンジン冷却開始",
+      "ko": "발사 전 팰컨 9 엔진 냉각 시작",
+      "es": "El Falcon 9 comienza el enfriamiento del motor antes del lanzamiento",
+      "fr": "Le Falcon 9 commence le refroidissement des moteurs avant le lancement",
+      "de": "Falcon 9 beginnt mit der Triebwerkskühlung vor dem Start"
+    },
+    "falcon9beginsenginechill": {
+      "zh-CN": "猎鹰 9 号发动机预冷开始",
+      "ja": "ファルコン9のエンジン冷却開始",
+      "ko": "팰컨 9 엔진冷却 시작",
+      "es": "El Falcon 9 comienza el enfriamiento del motor",
+      "fr": "Le Falcon 9 commence le refroidissement des moteurs",
+      "de": "Falcon 9 beginnt mit der Triebwerkskühlung"
+    },
+    "commandflightcomputertobeginfinalprelaunchchecks": {
+      "zh-CN": "控制飞行电脑开始进行最后的发射前检查",
+      "ja": "フライトコンピューターに最終発射前チェックの開始を指令",
+      "ko": "비행 컴퓨터에 최종 발사 전 점검 시작 명령",
+      "es": "Se ordena al ordenador de vuelo iniciar las comprobaciones previas al lanzamiento",
+      "fr": "Ordre à l'ordinateur de vol de commencer les vérifications pré-vol finales",
+      "de": "Befehl an den Bordcomputer, die letzten Startvorbereitungsprüfungen zu starten"
+    },
+    "propellanttankpressurizationtoflightpressurebegins": {
+      "zh-CN": "推进剂储罐开始增压至飞行压力",
+      "ja": "推進剤タンクの飛行圧力への加圧開始",
+      "ko": "추진제 탱크 비행 압력 가압 시작",
+      "es": "Comienza la presurización del tanque de propulsor a presión de vuelo",
+      "fr": "La pressurisation des réservoirs d'ergols à la pression de vol commence",
+      "de": "Druckbeaufschlagung der Treibstofftanks auf Flugdruck beginnt"
+    },
+    "spacexlaunchdirectorverifiesgoforlaunch": {
+      "zh-CN": "SpaceX 发射主管确认允许发射",
+      "ja": "SpaceXの打上げディレクターが打上げのGO判断を検証",
+      "ko": "SpaceX 발사 디렉터가 발사 승인 확인",
+      "es": "El Director de Lanzamiento de SpaceX verifica el visto bueno para el lanzamiento",
+      "fr": "Le directeur de lancement de SpaceX vérifie le feu vert pour le lancement",
+      "de": "SpaceX-Startleiter bestätigt Freigabe für den Start"
+    },
+    "enginecontrollercommandsengineignitionsequencetostart": {
+      "zh-CN": "发动机控制器发出发动机点火序列启动指令",
+      "ja": "エンジンコントローラーがエンジン点火シーケンスの開始を指令",
+      "ko": "엔진 제어기가 엔진 점화 시퀀스 시작 명령",
+      "es": "El controlador del motor ordena el inicio de la secuencia de encendido del motor",
+      "fr": "Le contrôleur des moteurs ordonne le démarrage de la séquence d'allumage",
+      "de": "Triebwerkssteuerung befiehlt den Start der Zündsequenz"
+    },
+    "falcon9liftoff": {
+      "zh-CN": "猎鹰 9 号发射升空",
+      "ja": "ファルコン9打上げ",
+      "ko": "팰컨 9 발사",
+      "es": "Despegue del Falcon 9",
+      "fr": "Décollage du Falcon 9",
+      "de": "Falcon 9 hebt ab"
+    },
+    
+    // 发射后阶段 (Post-launch)
+    "maxq": {
+      "zh-CN": "最大动力学压力 (Max Q)",
+      "ja": "最大動圧 (Max Q)",
+      "ko": "최대 동압 (Max Q)",
+      "es": "Máxima presión dinámica (Max Q)",
+      "fr": "Pression dynamique maximale (Max Q)",
+      "de": "Maximale aerodynamische Belastung (Max Q)"
+    },
+    "maxqmomentofpeakmechanicalstressontherocket": {
+      "zh-CN": "最大动力学压力 (Max Q)",
+      "ja": "最大動圧 (Max Q)",
+      "ko": "최대 동압 (Max Q)",
+      "es": "Máxima presión dinámica (Max Q)",
+      "fr": "Pression dynamique maximale (Max Q)",
+      "de": "Maximale aerodynamische Belastung (Max Q)"
+    },
+    "maxqmomentofpeakmechanicalstressonthevehicle": {
+      "zh-CN": "最大动力学压力 (Max Q)",
+      "ja": "最大動圧 (Max Q)",
+      "ko": "최대 동압 (Max Q)",
+      "es": "Máxima presión dinámica (Max Q)",
+      "fr": "Pression dynamique maximale (Max Q)",
+      "de": "Maximale aerodynamische Belastung (Max Q)"
+    },
+    "1ststagemainenginecutoffmeco": {
+      "zh-CN": "一级主发动机关闭 (MECO)",
+      "ja": "第1段メインエンジン停止 (MECO)",
+      "ko": "1단 주엔진 차단 (MECO)",
+      "es": "Corte del motor principal de la 1.ª etapa (MECO)",
+      "fr": "Arrêt des moteurs principaux du 1er étage (MECO)",
+      "de": "Haupttriebwerksschluss der 1. Stufe (MECO)"
+    },
+    "1stand2ndstagesseparate": {
+      "zh-CN": "一二级分离",
+      "ja": "第1段と第2段の分离",
+      "ko": "1단 및 2단 분리",
+      "es": "Separación de la 1.ª y 2.ª etapa",
+      "fr": "Séparation des 1er et 2e étages",
+      "de": "Stufentrennung von 1. und 2. Stufe"
+    },
+    "stageseparation": {
+      "zh-CN": "一二级分离",
+      "ja": "第1段と第2段の分離",
+      "ko": "1단 및 2단 분리",
+      "es": "Separación de etapas",
+      "fr": "Séparation des étages",
+      "de": "Stufentrennung"
+    },
+    "2ndstageenginestartsses1": {
+      "zh-CN": "二级发动机点火 (SES-1)",
+      "ja": "第2段エンジン始動 (SES-1)",
+      "ko": "2단 엔진 시동 (SES-1)",
+      "es": "Encendido del motor de la 2.ª etapa (SES-1)",
+      "fr": "Allumage du moteur du 2e étage (SES-1)",
+      "de": "Zündung des Triebwerks der 2. Stufe (SES-1)"
+    },
+    "fairingseparation": {
+      "zh-CN": "整流罩分离",
+      "ja": "フェアリング分離",
+      "ko": "페어링 분리",
+      "es": "Separación de la cofia",
+      "fr": "Séparation de la coiffe",
+      "de": "Nutzlastverkleidungstrennung"
+    },
+    "fairingdeployment": {
+      "zh-CN": "整流罩分离",
+      "ja": "フェアリング展開",
+      "ko": "페어링 전개",
+      "es": "Despliegue de la cofia",
+      "fr": "Déploiement de la coiffe",
+      "de": "Nutzlastverkleidungsentfaltung"
+    },
+    "1ststageentryburnbegins": {
+      "zh-CN": "一级助推器入口点火开始",
+      "ja": "第1段エントリーバーン開始",
+      "ko": "1단 대기진입 점화 시작",
+      "es": "Comienza el encendido de entrada de la 1.ª etapa",
+      "fr": "Début du freinage de rentrée du 1er étage",
+      "de": "Wiedereintrittszündung der 1. Stufe beginnt"
+    },
+    "1ststageentryburnends": {
+      "zh-CN": "一级助推器入口点火结束",
+      "ja": "第1段エントリーバーン終了",
+      "ko": "1단 대기진입 점화 종료",
+      "es": "Termina el encendido de entrada de la 1.ª etapa",
+      "fr": "Fin du freinage de rentrée du 1er étage",
+      "de": "Wiedereintrittszündung der 1. Stufe beendet"
+    },
+    "1ststagelandingburnbegins": {
+      "zh-CN": "一级助推器着陆点火开始",
+      "ja": "第1段着陸バーン開始",
+      "ko": "1단 착륙 점화 시작",
+      "es": "Comienza el encendido de aterrizaje de la 1.ª etapa",
+      "fr": "Début du freinage d'atterrissage du 1er étage",
+      "de": "Landezündung der 1. Stufe beginnt"
+    },
+    "1ststagelanding": {
+      "zh-CN": "一级助推器着陆",
+      "ja": "第1段着陸",
+      "ko": "1단 착륙",
+      "es": "Aterrizaje de la 1.ª etapa",
+      "fr": "Atterrissage du 1er étage",
+      "de": "Landung der 1. Stufe"
+    },
+    "2ndstageenginecutoffseco1": {
+      "zh-CN": "二级发动机关闭 (SECO-1)",
+      "ja": "第2段エンジン停止 (SECO-1)",
+      "ko": "2단 엔진 차단 (SECO-1)",
+      "es": "Corte del motor de la 2.ª etapa (SECO-1)",
+      "fr": "Arrêt du moteur du 2e étage (SECO-1)",
+      "de": "Triebwerksschluss der 2. Stufe (SECO-1)"
+    },
+    "2ndstageenginestartsses2": {
+      "zh-CN": "二级发动机点火 (SES-2)",
+      "ja": "第2段エンジン始動 (SES-2)",
+      "ko": "2단 엔진 시동 (SES-2)",
+      "es": "Encendido del motor de la 2.ª etapa (SES-2)",
+      "fr": "Allumage du moteur du 2e étage (SES-2)",
+      "de": "Zündung des Triebwerks der 2. Stufe (SES-2)"
+    },
+    "2ndstageenginecutoffseco2": {
+      "zh-CN": "二级发动机关闭 (SECO-2)",
+      "ja": "第2段エンジン停止 (SECO-2)",
+      "ko": "2단 엔진 차단 (SECO-2)",
+      "es": "Corte del motor de la 2.ª etapa (SECO-2)",
+      "fr": "Arrêt du moteur du 2e étage (SECO-2)",
+      "de": "Triebwerksschluss der 2. Stufe (SECO-2)"
+    },
+    "starlinksatellitesdeploy": {
+      "zh-CN": "星链卫星发射部署",
+      "ja": "スターリンク衛星の放出",
+      "ko": "스타링크 위성 배치",
+      "es": "Despliegue de satélites Starlink",
+      "fr": "Déploiement des satellites Starlink",
+      "de": "Starlink-Satelliten werden ausgesetzt"
+    },
+    
+    // 免责声明 (Disclaimers)
+    "alltimesapproximate": {
+      "zh-CN": "所有时间均为大约估计",
+      "ja": "時間はすべておおよそです",
+      "ko": "모든 시간은 대략적인 예정 시간입니다",
+      "es": "Todos los tiempos son aproximados",
+      "fr": "Tous les temps sont approximatifs",
+      "de": "Alle Zeiten sind Richtwerte"
+    },
+    "countdownisapproximate": {
+      "zh-CN": "倒计时仅供参考",
+      "ja": "カウントダウンはおおよその目安です",
+      "ko": "카운트다운은 대략적인 시간입니다",
+      "es": "El inicio de la cuenta atrás es aproximado",
+      "fr": "Le compte à rebours est approximatif",
+      "de": "Countdown ist ein Richtwert"
+    }
+  }
+
+  // 统一的语言键映射
+  const langKeyMap = {
+    'chinese': 'zh-CN',
+    'japanese': 'ja',
+    'korean': 'ko',
+    'spanish': 'es',
+    'french': 'fr',
+    'german': 'de'
+  }
+
+  const langKey = langKeyMap[targetLang] || targetLang
+  const matched = translations[clean]
+  
+  if (matched && matched[langKey]) {
+    return matched[langKey]
+  }
+
+  return null
+}
+
 // 针对不同语言定制的专业航天术语对照字典，避免跨语言翻译混淆与中英混杂
 const GLOSSARIES = {
   chinese: `
@@ -774,16 +1070,144 @@ const GLOSSARIES = {
    - "landing zone" or "LZ" -> "착륙 구역"`
 }
 
+// 针对短语和免责声明的 Few-shot 示例，约束大模型翻译的长度和风格，防止写小作文和脑补
+const FEW_SHOT_EXAMPLES = {
+  chinese: {
+    input: {
+      "preDisclaimer": "All times approximate",
+      "preEntry_0": "Falcon 9 engine chilling",
+      "postDisclaimer": "All times approximate",
+      "postEntry_0": "Max Q (moment of peak mechanical stress on the rocket)",
+      "postEntry_1": "Starlink satellites deploy"
+    },
+    output: {
+      "preDisclaimer": "所有时间均为大约估计",
+      "preEntry_0": "猎鹰 9 号发动机开始冷却",
+      "postDisclaimer": "所有时间均为大约估计",
+      "postEntry_0": "最大动力学压力 (Max Q)",
+      "postEntry_1": "星链卫星发射部署"
+    }
+  },
+  japanese: {
+    input: {
+      "preDisclaimer": "All times approximate",
+      "preEntry_0": "Falcon 9 engine chilling",
+      "postDisclaimer": "All times approximate",
+      "postEntry_0": "Max Q (moment of peak mechanical stress on the rocket)",
+      "postEntry_1": "Starlink satellites deploy"
+    },
+    output: {
+      "preDisclaimer": "時間はすべておおよそです",
+      "preEntry_0": "ファルコン9のエンジン冷却開始",
+      "postDisclaimer": "時間はすべておおよそです",
+      "postEntry_0": "最大動圧 (Max Q)",
+      "postEntry_1": "スターリンク衛星の放出"
+    }
+  },
+  korean: {
+    input: {
+      "preDisclaimer": "All times approximate",
+      "preEntry_0": "Falcon 9 engine chilling",
+      "postDisclaimer": "All times approximate",
+      "postEntry_0": "Max Q (moment of peak mechanical stress on the rocket)",
+      "postEntry_1": "Starlink satellites deploy"
+    },
+    output: {
+      "preDisclaimer": "모든 시간은 대략적인 예정 시간입니다",
+      "preEntry_0": "팰컨 9 엔진 냉각 시작",
+      "postDisclaimer": "모든 시간은 대략적인 예정 시간입니다",
+      "postEntry_0": "최대 동압 (Max Q)",
+      "postEntry_1": "스타링크 위성 배치"
+    }
+  },
+  spanish: {
+    input: {
+      "preDisclaimer": "All times approximate",
+      "preEntry_0": "Falcon 9 engine chilling",
+      "postDisclaimer": "All times approximate",
+      "postEntry_0": "Max Q (moment of peak mechanical stress on the rocket)",
+      "postEntry_1": "Starlink satellites deploy"
+    },
+    output: {
+      "preDisclaimer": "Todos los tiempos son aproximados",
+      "preEntry_0": "Enfriamiento del motor del Falcon 9",
+      "postDisclaimer": "Todos los tiempos son aproximados",
+      "postEntry_0": "Máxima presión dinámica (Max Q)",
+      "postEntry_1": "Despliegue de satélites Starlink"
+    }
+  },
+  french: {
+    input: {
+      "preDisclaimer": "All times approximate",
+      "preEntry_0": "Falcon 9 engine chilling",
+      "postDisclaimer": "All times approximate",
+      "postEntry_0": "Max Q (moment of peak mechanical stress on the rocket)",
+      "postEntry_1": "Starlink satellites deploy"
+    },
+    output: {
+      "preDisclaimer": "Tous les temps sont approximatifs",
+      "preEntry_0": "Refroidissement des moteurs du Falcon 9",
+      "postDisclaimer": "Tous les temps sont approximatifs",
+      "postEntry_0": "Pression dynamique maximale (Max Q)",
+      "postEntry_1": "Déploiement des satellites Starlink"
+    }
+  },
+  german: {
+    input: {
+      "preDisclaimer": "All times approximate",
+      "preEntry_0": "Falcon 9 engine chilling",
+      "postDisclaimer": "All times approximate",
+      "postEntry_0": "Max Q (moment of peak mechanical stress on the rocket)",
+      "postEntry_1": "Starlink satellites deploy"
+    },
+    output: {
+      "preDisclaimer": "Alle Zeiten sind Richtwerte",
+      "preEntry_0": "Kühlung der Falcon 9-Triebwerke",
+      "postDisclaimer": "Alle Zeiten sind Richtwerte",
+      "postEntry_0": "Maximale aerodynamische Belastung (Max Q)",
+      "postEntry_1": "Starlink-Satelliten werden ausgesetzt"
+    }
+  }
+}
+
 /**
  * 针对单个文本字段，调用 Cloudflare Workers AI 的 Llama 3.1 8B 大语言模型进行专业级航天翻译
  */
 export async function translateText(ai, text, targetLang) {
   if (!text || !ai) return text
 
+  // 1. 尝试匹配本地字典，如果匹配成功，直接返回译文以获得 0ms、100% 正确的结果
+  const stdTranslation = getStandardTranslation(text, targetLang)
+  if (stdTranslation) {
+    return stdTranslation
+  }
+
   const glossary = GLOSSARIES[targetLang] || ""
   const glossaryInstruction = glossary
     ? `Translate technical and aerospace terms accurately using this glossary: ${glossary}`
     : `Translate technical and aerospace terms accurately using standard industry terminology in ${targetLang}.`
+
+  // 构造针对段落翻译的 Few-shot，进一步确立长度和直译风格
+  let fewShotText = ""
+  if (targetLang === "chinese") {
+    fewShotText = `
+Example 1:
+Input: "Max Q"
+Output: "最大动力学压力 (Max Q)"
+
+Example 2:
+Input: "SpaceX’s Falcon 9 is targeting the launch of 29 Starlink satellites to low-Earth orbit."
+Output: "SpaceX 的猎鹰 9 号计划将 29 颗星链卫星发射到近地轨道。"`
+  } else if (targetLang === "japanese") {
+    fewShotText = `
+Example 1:
+Input: "Max Q"
+Output: "最大動圧 (Max Q)"
+
+Example 2:
+Input: "SpaceX’s Falcon 9 is targeting the launch of 29 Starlink satellites to low-Earth orbit."
+Output: "SpaceXのファルコン9は、29機のスターリンク衛星を近地軌道に打ち上げることを目指しています。"`
+  }
 
   // 注入针对当前目标语言的环境提示词，彻底杜绝语言乱序与跨语种污染
   const systemPrompt = `You are a professional aerospace translator. Translate the given text from English to ${targetLang}. 
@@ -791,8 +1215,12 @@ Follow these guidelines strictly:
 1. ${glossaryInstruction}
 2. Preserve all structural elements, newlines, lists, and spacing perfectly.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
-4. DO NOT add, invent, or hallucinate any content, lists, timelines, or examples not present in the input text. For example, do not include lists of aerospace glossary terms, Falcon timelines, or Starlink milestones in your translations unless the input string explicitly contains them. Translate ONLY the text given.
-5. ONLY return the final translated text. DO NOT include any introductory remarks, markdown wraps (like \`\`\`), or explanations.`
+4. Translate ONLY the given text. DO NOT explain terms. DO NOT add, invent, or hallucinate details, lists, timelines, or stories.
+5. Keep the translation equivalent in length and details to the source text.
+6. ONLY return the final translated text. DO NOT include any introductory remarks, markdown wraps (like \`\`\`), or explanations.
+7. CRITICAL: If the input is a short phrase of 1-5 words, the output MUST be a short phrase of 1-5 words. Do NOT write a paragraph or summary.
+
+${fewShotText}`
 
   try {
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
@@ -800,7 +1228,8 @@ Follow these guidelines strictly:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: text }
       ],
-      temperature: 0.1 // 极低的温度系数，确保翻译高度准确、稳定、高度一致
+      temperature: 0.1, // 极低的温度系数，确保翻译高度准确、稳定、高度一致
+      max_tokens: 150   // 限制生成字符数，截断任何脑补小作文
     })
     
     return response?.result?.response || response?.response || text
@@ -819,17 +1248,29 @@ export async function translateMissionDetails(ai, details, targetLang) {
     details.summary = await translateText(ai, details.summary, targetLang)
   }
 
-  // 2. 第二阶段：收集并发合流翻译所有时间线条目与免责声明
+  // 2. 第二阶段：收集并尝试利用本地字典预翻译，非标项才交给大模型
   const timelineObj = {}
+  const localTranslations = {} // 存储已通过字典翻译的项，以便后续还原
+
   const preLaunch = details.timelines?.preLaunch
   if (preLaunch) {
     if (preLaunch.disclaimer) {
-      timelineObj.preDisclaimer = preLaunch.disclaimer
+      const dictVal = getStandardTranslation(preLaunch.disclaimer, targetLang)
+      if (dictVal) {
+        localTranslations.preDisclaimer = dictVal
+      } else {
+        timelineObj.preDisclaimer = preLaunch.disclaimer
+      }
     }
     if (preLaunch.entries) {
       preLaunch.entries.forEach((entry, idx) => {
         if (entry.description) {
-          timelineObj[`preEntry_${idx}`] = entry.description
+          const dictVal = getStandardTranslation(entry.description, targetLang)
+          if (dictVal) {
+            localTranslations[`preEntry_${idx}`] = dictVal
+          } else {
+            timelineObj[`preEntry_${idx}`] = entry.description
+          }
         }
       })
     }
@@ -838,17 +1279,61 @@ export async function translateMissionDetails(ai, details, targetLang) {
   const postLaunch = details.timelines?.postLaunch
   if (postLaunch) {
     if (postLaunch.disclaimer) {
-      timelineObj.postDisclaimer = postLaunch.disclaimer
+      const dictVal = getStandardTranslation(postLaunch.disclaimer, targetLang)
+      if (dictVal) {
+        localTranslations.postDisclaimer = dictVal
+      } else {
+        timelineObj.postDisclaimer = postLaunch.disclaimer
+      }
     }
     if (postLaunch.entries) {
       postLaunch.entries.forEach((entry, idx) => {
         if (entry.description) {
-          timelineObj[`postEntry_${idx}`] = entry.description
+          const dictVal = getStandardTranslation(entry.description, targetLang)
+          if (dictVal) {
+            localTranslations[`postEntry_${idx}`] = dictVal
+          } else {
+            timelineObj[`postEntry_${idx}`] = entry.description
+          }
         }
       })
     }
   }
 
+  // 应用本地字典的预翻译结果，确保匹配项能即刻加载
+  const applyTranslations = (translatedMap) => {
+    if (preLaunch) {
+      if (translatedMap.preDisclaimer && preLaunch.disclaimer) {
+        preLaunch.disclaimer = String(translatedMap.preDisclaimer).trim()
+      }
+      if (preLaunch.entries) {
+        preLaunch.entries.forEach((entry, idx) => {
+          const key = `preEntry_${idx}`
+          if (translatedMap[key] && entry.description) {
+            entry.description = String(translatedMap[key]).trim()
+          }
+        })
+      }
+    }
+    if (postLaunch) {
+      if (translatedMap.postDisclaimer && postLaunch.disclaimer) {
+        postLaunch.disclaimer = String(translatedMap.postDisclaimer).trim()
+      }
+      if (postLaunch.entries) {
+        postLaunch.entries.forEach((entry, idx) => {
+          const key = `postEntry_${idx}`
+          if (translatedMap[key] && entry.description) {
+            entry.description = String(translatedMap[key]).trim()
+          }
+        })
+      }
+    }
+  }
+
+  // 立即将已有的本地翻译写回
+  applyTranslations(localTranslations)
+
+  // 3. 如果所有项都已经通过本地字典翻译完成，无需再调用 Workers AI，直接返回
   if (Object.keys(timelineObj).length === 0) return
 
   const glossary = GLOSSARIES[targetLang] || ""
@@ -856,14 +1341,28 @@ export async function translateMissionDetails(ai, details, targetLang) {
     ? `Translate technical and aerospace terms accurately using this glossary: ${glossary}`
     : `Translate technical and aerospace terms accurately using standard industry terminology in ${targetLang}.`
 
+  // 构造针对时间线条目的 few-shot 示例，强力约束大模型遵循简短翻译规范，禁止写背景小作文
+  const example = FEW_SHOT_EXAMPLES[targetLang] || FEW_SHOT_EXAMPLES.spanish;
+  const fewShotInstruction = `
+Your translations MUST follow this style and length strictly. Keep translations short and direct, mapping 1-to-1 without adding details or descriptions.
+Example Input JSON:
+${JSON.stringify(example.input, null, 2)}
+
+Example Output JSON:
+${JSON.stringify(example.output, null, 2)}
+`;
+
   // 4. 构造用于 LLM 翻译的 JSON 对象 Prompt，确保 Key 严格 1-to-1 对齐，绝无顺序错位可能
-  const systemPrompt = `You are a professional aerospace translator. Translate the given JSON object of English strings into a JSON object of ${targetLang} strings.
+  const systemPrompt = `You are a professional aerospace translator. Translate the given JSON object of English timeline entries and disclaimers into a JSON object of ${targetLang} strings.
 Guidelines:
 1. ${glossaryInstruction}
 2. You MUST preserve the exact same keys in the output JSON object. Do NOT skip, delete, or rename any keys.
 3. Keep product and program names such as SpaceX, Starlink, Falcon 9, Falcon Heavy, Dragon, Starship, and NASA unchanged unless the target language has a standard translated term.
-4. Translate ONLY the string values. DO NOT add, invent, or hallucinate any content, lists, timelines, or examples not present in the original values.
-5. Respond ONLY with the final translated JSON object. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`json or \`\`\`).`
+4. Translate ONLY the string values. DO NOT add, invent, or hallucinate any content, lists, timelines, or stories not present in the original values. Keep the translated values short, brief, and concise. Do NOT describe or explain the terms.
+5. Respond ONLY with the final translated JSON object. Do not include any introductory remarks, explanations, or markdown wraps (like \`\`\`json or \`\`\`).
+6. CRITICAL: For each key, the translated value MUST be equivalent in length to the original value. Keep them brief and 1-to-1. Do NOT expand them into paragraphs.
+
+${fewShotInstruction}`;
 
   try {
     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
@@ -871,7 +1370,8 @@ Guidelines:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: JSON.stringify(timelineObj) }
       ],
-      temperature: 0.1
+      temperature: 0.1,
+      max_tokens: 1000
     })
 
     let responseText = response?.result?.response || response?.response || ""
@@ -885,38 +1385,8 @@ Guidelines:
     const translatedObj = JSON.parse(responseText.trim())
 
     if (translatedObj && typeof translatedObj === 'object') {
-      // 键值查表匹配映射，实现 100% 绝对安全的翻译对齐
-      if (translatedObj.summary && details.summary) {
-        details.summary = String(translatedObj.summary).trim()
-      }
-      
-      if (preLaunch) {
-        if (translatedObj.preDisclaimer && preLaunch.disclaimer) {
-          preLaunch.disclaimer = String(translatedObj.preDisclaimer).trim()
-        }
-        if (preLaunch.entries) {
-          preLaunch.entries.forEach((entry, idx) => {
-            const key = `preEntry_${idx}`
-            if (translatedObj[key] && entry.description) {
-              entry.description = String(translatedObj[key]).trim()
-            }
-          })
-        }
-      }
-
-      if (postLaunch) {
-        if (translatedObj.postDisclaimer && postLaunch.disclaimer) {
-          postLaunch.disclaimer = String(translatedObj.postDisclaimer).trim()
-        }
-        if (postLaunch.entries) {
-          postLaunch.entries.forEach((entry, idx) => {
-            const key = `postEntry_${idx}`
-            if (translatedObj[key] && entry.description) {
-              entry.description = String(translatedObj[key]).trim()
-            }
-          })
-        }
-      }
+      // 合并 AI 翻译结果到 timelines
+      applyTranslations(translatedObj)
       return
     } else {
       console.warn("JSON Translation returned an invalid object. Falling back to parallel individual translations.")
@@ -925,24 +1395,19 @@ Guidelines:
     console.error("Structured JSON object translation failed, falling back to parallel translations:", error)
   }
 
-  // 回退降级方案：若 JSON 翻译解析失败或不是对象，执行并行的独立翻译，防范数据错位
+  // 5. 回退降级方案：若 JSON 翻译解析失败或不是对象，执行并行的独立翻译，防范数据错位
   const fallbackPromises = []
 
-  if (details.summary) {
-    fallbackPromises.push((async () => {
-      details.summary = await translateText(ai, details.summary, targetLang)
-    })())
-  }
-
   if (preLaunch) {
-    if (preLaunch.disclaimer) {
+    if (preLaunch.disclaimer && !localTranslations.preDisclaimer) {
       fallbackPromises.push((async () => {
         preLaunch.disclaimer = await translateText(ai, preLaunch.disclaimer, targetLang)
       })())
     }
     if (preLaunch.entries) {
-      preLaunch.entries.forEach((entry) => {
-        if (entry.description) {
+      preLaunch.entries.forEach((entry, idx) => {
+        const key = `preEntry_${idx}`
+        if (entry.description && !localTranslations[key]) {
           fallbackPromises.push((async () => {
             entry.description = await translateText(ai, entry.description, targetLang)
           })())
@@ -952,14 +1417,15 @@ Guidelines:
   }
 
   if (postLaunch) {
-    if (postLaunch.disclaimer) {
+    if (postLaunch.disclaimer && !localTranslations.postDisclaimer) {
       fallbackPromises.push((async () => {
         postLaunch.disclaimer = await translateText(ai, postLaunch.disclaimer, targetLang)
       })())
     }
     if (postLaunch.entries) {
-      postLaunch.entries.forEach((entry) => {
-        if (entry.description) {
+      postLaunch.entries.forEach((entry, idx) => {
+        const key = `postEntry_${idx}`
+        if (entry.description && !localTranslations[key]) {
           fallbackPromises.push((async () => {
             entry.description = await translateText(ai, entry.description, targetLang)
           })())
