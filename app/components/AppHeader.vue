@@ -22,7 +22,7 @@
       <UButton
         :icon="colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'"
         color="neutral"
-        variant="subtle"
+        variant="ghost"
         class="rounded-full"
         @click="toggleTheme"
         :aria-label="t('header.themeToggleAria')"
