@@ -39,6 +39,7 @@
     "statusEyebrow": "Status",
     "statusTitle": "Launch tracker",
     "noLaunchWindows": "No launch windows are available yet.",
+    "launches": "Launches",
     "tracker": {
       "missionsLoaded": "Missions loaded",
       "timedWindows": "Timed windows",
@@ -118,7 +119,13 @@
     "selectionCopy": "Choose a launch from the calendar list to view SpaceX mission details, webcast links, and launch timelines here.",
     "detailsLoading": "Loading mission details...",
     "detailsUnavailable": "Mission details are unavailable right now.",
-    "infographicAlt": "SpaceX mission infographic"
+    "infographicAlt": "SpaceX mission infographic",
+    "infographicTitle": "Mission Infographic",
+    "clickToViewInfographic": "Click to View Full Infographic",
+    "clickToShrink": "Click to Shrink",
+    "clickToZoom": "Click to Zoom",
+    "viewOriginal": "View Original",
+    "infographicLabel": "{title} Infographic"
   },
   "countdown": {
     "awaitingTime": "Awaiting time",
@@ -150,6 +157,8 @@
     }
   },
   "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "FAQ & Guides",
     "q1": "How do I add the SpaceX launch schedule to Google Calendar or Apple Calendar?",
     "a1": "Extremely easy! Simply click the \"<b>Subscribe to Calendar</b>\" button at the top of the page. On iOS or macOS devices, it automatically prompts you to subscribe. On Google Calendar, copy the <code>{link}</code> link, navigate to Calendar Web &rarr; Other Calendars &rarr; Add by URL, and paste the address.",
     "q2": "How often is this launch calendar updated?",

@@ -423,7 +423,7 @@ useHead(() => ({
               {
                 "@type": "WebPage",
                 "@id": "https://spacex-calendar.mou7s.com/#faq",
-                "name": locale.value === 'zh-CN' ? '常见问题' : 'FAQ',
+                "name": t('faq.title'),
                 "url": "https://spacex-calendar.mou7s.com/#faq"
               }
             ]

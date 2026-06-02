@@ -39,6 +39,7 @@
     "statusEyebrow": "상태",
     "statusTitle": "발사 추적",
     "noLaunchWindows": "아직 표시할 발사 시간이 없습니다.",
+    "launches": "회 발사",
     "tracker": {
       "missionsLoaded": "불러온 미션",
       "timedWindows": "시간이 있는 미션",
@@ -118,7 +119,13 @@
     "selectionCopy": "캘린더 목록에서 발사를 선택하여 SpaceX 미션 상세 정보, 웹캐스트 링크 및 발사 타임라인을 여기에서 확인하세요.",
     "detailsLoading": "미션 상세 정보 로딩 중...",
     "detailsUnavailable": "현재 미션 상세 정보를 불러올 수 없습니다.",
-    "infographicAlt": "SpaceX 미션 인포그래픽"
+    "infographicAlt": "SpaceX 미션 인포그래픽",
+    "infographicTitle": "미션 발사 도해",
+    "clickToViewInfographic": "클릭하여 고해상도 인포그래픽 보기",
+    "clickToShrink": "클릭하여 축소",
+    "clickToZoom": "클릭하여 원본 크기로 보기",
+    "viewOriginal": "새 탭에서 원본 이미지 열기",
+    "infographicLabel": "{title} 미션 도해"
   },
   "countdown": {
     "awaitingTime": "시간 대기 중",
@@ -136,6 +143,8 @@
     "live": "라이브"
   },
   "faq": {
+    "title": "자주 묻는 질문 및 가이드",
+    "subtitle": "FAQ & 가이드",
     "q1": "SpaceX 발사 일정을 Google 캘린더나 Apple 캘린더에 어떻게 추가하나요?",
     "a1": "매우 간단합니다! 페이지 상단의 \"<b>캘린더 구독</b>\" 버튼을 클릭하기만 하면 됩니다. iOS 또는 macOS 기기에서는 자동으로 구독을 제안하는 팝업이 뜹니다. Google 캘린더의 경우 <code>{link}</code> 링크를 복사한 다음, 웹 캘린더에서 \"다른 캘린더 &rarr; URL로 추가\"로 이동하여 복사한 주소를 붙여넣으세요.",
     "q2": "이 발사 캘린더는 얼마나 자주 업데이트되나요?",

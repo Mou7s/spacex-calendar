@@ -39,6 +39,7 @@
     "statusEyebrow": "ステータス",
     "statusTitle": "打ち上げトラッカー",
     "noLaunchWindows": "表示できる打ち上げ時間枠はまだありません。",
+    "launches": "回の打ち上げ",
     "tracker": {
       "missionsLoaded": "読み込み済みミッション",
       "timedWindows": "時間枠あり",
@@ -118,7 +119,13 @@
     "selectionCopy": "カレンダーのリストから打ち上げを選択すると、SpaceXのミッション詳細、ウェブキャストのリンク、打ち上げのタイムラインがここに表示されます。",
     "detailsLoading": "ミッション詳細を読み込み中...",
     "detailsUnavailable": "ミッション詳細は現在利用できません。",
-    "infographicAlt": "SpaceX ミッションインフォグラフィック"
+    "infographicAlt": "SpaceX ミッションインフォグラフィック",
+    "infographicTitle": "ミッション打ち上げ図解",
+    "clickToViewInfographic": "クリックして超高画質図解を表示",
+    "clickToShrink": "クリックして縮小",
+    "clickToZoom": "クリックして原寸大で表示",
+    "viewOriginal": "新しいタブで原画を開く",
+    "infographicLabel": "{title} ミッション図解"
   },
   "countdown": {
     "awaitingTime": "時刻待ち",
@@ -136,6 +143,8 @@
     "live": "ライブ"
   },
   "faq": {
+    "title": "よくある質問とガイド",
+    "subtitle": "FAQ & ガイド",
     "q1": "SpaceX の打ち上げスケジュールを Google カレンダーや Apple カレンダーに追加するにはどうすればよいですか？",
     "a1": "とても簡単です！ページ上部にある「<b>カレンダーを購読</b>」ボタンをクリックするだけです。iOS や macOS デバイスでは、自動的に購読画面が開きます。Google カレンダーの場合は、<code>{link}</code> のリンクをコピーし、ウェブ版 Google カレンダーを開いて「他のカレンダー &rarr; URL で追加」を選択し、コピーしたアドレスを貼り付けてください。",
     "q2": "この打ち上げカレンダーはどのくらいの頻度で更新されますか？",

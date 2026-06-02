@@ -39,6 +39,7 @@
     "statusEyebrow": "状态",
     "statusTitle": "发射追踪",
     "noLaunchWindows": "当前还没有可展示的发射窗口。",
+    "launches": "次发射",
     "tracker": {
       "missionsLoaded": "任务总数",
       "timedWindows": "有时间窗口的任务",
@@ -118,7 +119,13 @@
     "selectionCopy": "从日历右侧列表选择一次发射，这里会显示 SpaceX 任务详情、直播链接和发射流程。",
     "detailsLoading": "正在加载任务详情...",
     "detailsUnavailable": "这次任务的详情暂时不可用。",
-    "infographicAlt": "SpaceX 任务图解"
+    "infographicAlt": "SpaceX 任务图解",
+    "infographicTitle": "任务发射图解",
+    "clickToViewInfographic": "点击查看超清互动图解",
+    "clickToShrink": "点击缩小",
+    "clickToZoom": "点击原图大小",
+    "viewOriginal": "在新标签页打开原图",
+    "infographicLabel": "{title} 任务图解"
   },
   "countdown": {
     "awaitingTime": "等待时间",
@@ -150,6 +157,8 @@
     }
   },
   "faq": {
+    "title": "常见问题与日历指南",
+    "subtitle": "常见问题与指南",
     "q1": "如何将 SpaceX 发射日程订阅导入到 Google 日历 / 苹果日历？",
     "a1": "非常简单！你只需点击上方页面顶部的“<b>订阅在线日历</b>”按钮。在 iPhone 或 Mac 上它会直接触发日历添加请求；在谷歌日历（Google Calendar）中，复制 <code>{link}</code> 链接，在电脑网页端点击左侧“其他日历 &rarr; 通过 URL 添加”，粘贴链接订阅即可同步。",
     "q2": "这个日历的更新频率是怎样的？",

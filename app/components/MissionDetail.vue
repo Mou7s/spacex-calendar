@@ -128,7 +128,7 @@
             <!-- Infographic Preview Box -->
             <div v-if="details.media?.infographicDesktop?.url" class="mt-6">
               <div class="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-bold mb-2">
-                {{ locale === 'zh-CN' ? '任务发射图解' : 'Mission Infographic' }}
+                {{ t('mission.infographicTitle') }}
               </div>
               
               <div 
@@ -148,7 +148,7 @@
                 <div class="absolute inset-0 bg-neutral-950/30 group-hover:bg-neutral-950/50 backdrop-blur-[1px] group-hover:backdrop-blur-[2px] transition-all duration-300 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100">
                   <div class="bg-neutral-900/90 border border-neutral-700 text-white rounded-xl px-4 py-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider shadow-2xl backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                     <span class="iconify i-heroicons-magnifying-glass-plus size-4 text-primary-400 animate-pulse"></span>
-                    <span>{{ locale === 'zh-CN' ? '点击查看超清互动图解' : 'Click to View Full Infographic' }}</span>
+                    <span>{{ t('mission.clickToViewInfographic') }}</span>
                   </div>
                 </div>
               </div>
@@ -198,13 +198,13 @@
           <!-- Header -->
           <div class="w-full flex justify-between items-center px-4 py-3 border-b border-neutral-800/80 shrink-0">
             <strong class="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
-              {{ selectedMission?.title }} Infographic
+              {{ t('mission.infographicLabel', { title: selectedMission?.title }) }}
             </strong>
             
             <div class="flex items-center gap-2">
               <!-- Click-to-Zoom Hint Badge -->
               <span class="text-[9px] uppercase tracking-wider bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded font-mono hidden sm:inline-block">
-                {{ isZoomed ? (locale === 'zh-CN' ? '点击缩小' : 'Click to Shrink') : (locale === 'zh-CN' ? '点击原图大小' : 'Click to Zoom') }}
+                {{ isZoomed ? t('mission.clickToShrink') : t('mission.clickToZoom') }}
               </span>
               
               <!-- View original high-res image button -->
@@ -217,7 +217,7 @@
                 class="rounded-lg text-[10px] font-mono"
                 icon="i-heroicons-arrow-top-right-on-square"
               >
-                {{ locale === 'zh-CN' ? '在新标签页打开原图' : 'View Original' }}
+                {{ t('mission.viewOriginal') }}
               </UButton>
               
               <UButton

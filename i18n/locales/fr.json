@@ -39,6 +39,7 @@
     "statusEyebrow": "Statut",
     "statusTitle": "Suivi des lancements",
     "noLaunchWindows": "Aucune fenêtre de lancement n'est encore disponible.",
+    "launches": "Lancements",
     "tracker": {
       "missionsLoaded": "Missions chargées",
       "timedWindows": "Fenêtres horaires",
@@ -118,7 +119,13 @@
     "selectionCopy": "Choisissez un lancement dans la liste du calendrier pour afficher ici les détails de la mission SpaceX, les liens de diffusion et les chronologies de lancement.",
     "detailsLoading": "Chargement des détails de la mission...",
     "detailsUnavailable": "Les détails de la mission sont indisponibles pour le moment.",
-    "infographicAlt": "Infographie de la mission SpaceX"
+    "infographicAlt": "Infographie de la mission SpaceX",
+    "infographicTitle": "Infographie de la Mission",
+    "clickToViewInfographic": "Cliquez pour voir l'infographie complète",
+    "clickToShrink": "Cliquez pour rétrécir",
+    "clickToZoom": "Cliquez pour agrandir",
+    "viewOriginal": "Voir l'original",
+    "infographicLabel": "Infographie de {title}"
   },
   "countdown": {
     "awaitingTime": "Heure en attente",
@@ -136,6 +143,8 @@
     "live": "En direct"
   },
   "faq": {
+    "title": "Foire Aux Questions et Guides",
+    "subtitle": "FAQ & Guides",
     "q1": "Comment ajouter le calendrier des lancements SpaceX à Google Agenda ou Apple Calendrier ?",
     "a1": "Très facile ! Cliquez simplement sur le bouton \"<b>S'abonner au calendrier</b>\" en haut de la page. Sur les appareils iOS ou macOS, cela vous invite automatiquement à vous abonner. Sur Google Agenda, copiez le lien <code>{link}</code>, accédez à l'application Web Google Agenda &rarr; Autres agendas &rarr; Ajouter par URL, puis collez l'adresse.",
     "q2": "À quelle fréquence ce calendrier de lancement est-il mis à jour ?",

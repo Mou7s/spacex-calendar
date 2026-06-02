@@ -39,6 +39,7 @@
     "statusEyebrow": "Estado",
     "statusTitle": "Seguimiento de lanzamientos",
     "noLaunchWindows": "Aún no hay ventanas de lanzamiento para mostrar.",
+    "launches": "Lanzamientos",
     "tracker": {
       "missionsLoaded": "Misiones cargadas",
       "timedWindows": "Ventanas con hora",
@@ -118,7 +119,13 @@
     "selectionCopy": "Elige un lanzamiento de la lista del calendario para ver los detalles de la misión de SpaceX, los enlaces de transmisión y la cronología de lanzamiento aquí.",
     "detailsLoading": "Cargando detalles de la misión...",
     "detailsUnavailable": "Los detalles de la misión no están disponibles en este momento.",
-    "infographicAlt": "Infografía de la misión de SpaceX"
+    "infographicAlt": "Infografía de la misión de SpaceX",
+    "infographicTitle": "Infografía de la Misión",
+    "clickToViewInfographic": "Haz clic para ver la infografía completa",
+    "clickToShrink": "Haz clic para reducir",
+    "clickToZoom": "Haz clic para ampliar",
+    "viewOriginal": "Ver Original",
+    "infographicLabel": "Infografía de {title}"
   },
   "countdown": {
     "awaitingTime": "Esperando hora",
@@ -136,6 +143,8 @@
     "live": "En vivo"
   },
   "faq": {
+    "title": "Preguntas Frecuentes y Guías",
+    "subtitle": "FAQ y Guías",
     "q1": "¿Cómo agrego el calendario de lanzamientos de SpaceX a Google Calendar o Apple Calendar?",
     "a1": "¡Muy fácil! Simplemente haz clic en el botón \"<b>Suscribirse al calendario</b>\" en la parte superior de la página. En dispositivos iOS o macOS, se te solicitará automáticamente que te suscribas. En Google Calendar, copia el enlace <code>{link}</code>, ve a Google Calendar en la web &rarr; Otros calendarios &rarr; Añadir mediante URL y pega la dirección.",
     "q2": "¿Con qué frecuencia se actualiza este calendario de lanzamientos?",

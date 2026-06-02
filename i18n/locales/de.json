@@ -39,6 +39,7 @@
     "statusEyebrow": "Status",
     "statusTitle": "Startverfolgung",
     "noLaunchWindows": "Es sind noch keine Startfenster verfügbar.",
+    "launches": "Starts",
     "tracker": {
       "missionsLoaded": "Geladene Missionen",
       "timedWindows": "Zeitfenster",
@@ -118,7 +119,13 @@
     "selectionCopy": "Wählen Sie einen Start aus der Kalenderliste aus, um SpaceX-Missionsdetails, Webcast-Links und Startzeitpläne hier anzuzeigen.",
     "detailsLoading": "Missionsdetails werden geladen...",
     "detailsUnavailable": "Missionsdetails sind derzeit nicht verfügbar.",
-    "infographicAlt": "SpaceX Missionsinfografik"
+    "infographicAlt": "SpaceX Missionsinfografik",
+    "infographicTitle": "Missions-Infografik",
+    "clickToViewInfographic": "Klicken, um die vollständige Infografik anzuzeigen",
+    "clickToShrink": "Klicken zum Verkleinern",
+    "clickToZoom": "Klicken zum Vergrößern",
+    "viewOriginal": "Original anzeigen",
+    "infographicLabel": "{title} Infografik"
   },
   "countdown": {
     "awaitingTime": "Warten auf Zeit",
@@ -136,6 +143,8 @@
     "live": "Live"
   },
   "faq": {
+    "title": "Häufig gestellte Fragen & Anleitungen",
+    "subtitle": "FAQ & Leitfäden",
     "q1": "Wie füge ich den SpaceX-Startplan zu Google Kalender oder Apple Kalender hinzu?",
     "a1": "Sehr einfach! Klicken Sie einfach auf die Schaltfläche \"<b>Kalender abonnieren</b>\" oben auf der Seite. Auf iOS- oder macOS-Geräten werden Sie automatisch zum Abonnieren aufgefordert. Kopieren Sie für Google Kalender den Link <code>{link}</code>, navigieren Sie im Web zu Google Kalender &rarr; Weitere Kalender &rarr; Per URL hinzufügen und fügen Sie die Adresse ein.",
     "q2": "Wie oft wird dieser Startkalender aktualisiert?",

@@ -18,7 +18,7 @@
         >
           <span class="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider mb-2">{{ formatMonthPillLabel(item) }}</span>
           <strong class="text-3xl font-extrabold text-neutral-900 dark:text-white font-mono leading-none">{{ item.count }}</strong>
-          <span class="text-[9px] text-primary-600 dark:text-primary-400 uppercase font-bold mt-2.5 tracking-widest">{{ locale === 'zh-CN' ? '次发射' : 'Launches' }}</span>
+          <span class="text-[9px] text-primary-600 dark:text-primary-400 uppercase font-bold mt-2.5 tracking-widest">{{ t('overview.launches') }}</span>
         </div>
       </div>
     </UCard>
