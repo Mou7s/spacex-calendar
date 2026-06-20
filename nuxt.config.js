@@ -62,5 +62,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-04-17',
 
   // 启用本地开发环境下的 Nuxt 开发者工具 (DevTools)
-  devtools: { enabled: true }
+  devtools: { enabled: true },
+
+  // Vite 构建与优化配置
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@vue/devtools-core',
+        '@vue/devtools-kit'
+      ]
+    }
+  }
 })
