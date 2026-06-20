@@ -789,7 +789,7 @@ test("translateMissionDetails executes structured translation and handles fallba
   // Mock AI runner
   const mockAi = {
     async run(model, payload) {
-      assert.equal(model, "@cf/meta/llama-3.1-8b-instruct");
+      assert.equal(model, "@cf/meta/llama-3.2-3b-instruct");
       const userMessage = payload.messages.find(m => m.role === "user").content;
       
       let isJson = false;

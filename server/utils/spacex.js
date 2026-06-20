@@ -1224,13 +1224,13 @@ Follow these guidelines strictly:
 ${fewShotText}`
 
   try {
-    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response = await ai.run('@cf/meta/llama-3.2-3b-instruct', {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: text }
       ],
       temperature: 0.1, // 极低的温度系数，确保翻译高度准确、稳定、高度一致
-      max_tokens: 150   // 限制生成字符数，截断任何脑补小作文
+      max_tokens: 1024  // 增加生成字符数限制，防止长篇任务简报截断或翻译失败
     })
     
     let translated = response?.result?.response || response?.response || text
@@ -1372,7 +1372,7 @@ Guidelines:
 ${fewShotInstruction}`;
 
   try {
-    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response = await ai.run('@cf/meta/llama-3.2-3b-instruct', {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: JSON.stringify(timelineObj) }
